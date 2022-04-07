@@ -1,0 +1,33 @@
+---
+title: "Data Viewer"
+author: "Esa Turkulainen"
+date: "7.4.2021"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_knit$set(root.dir = "~/CRP_enrichment") # set working directory
+```
+
+```{r load_data, echo = FALSE}
+# .rdata by Sofie Ekroos, 2021
+
+# Load data on individual donations
+load("~/CRP_enrichment/data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
+indv_donations <- output
+
+# Load FinDonor demographic data
+load("~/CRP_enrichment/data/r02ds.donorData.rdata") # outputs an object called "output" into the environment
+donorpop <- output 
+
+# Load THL data
+# Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others
+load("~/CRP_enrichment/data/thldata.rdata")
+fr1997 <- thldata$fr1997
+h2000 <- thldata$h2000
+
+# Remove leftovers
+rm(output)
+rm(thldata)
+```
+
