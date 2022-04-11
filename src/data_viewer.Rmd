@@ -7,6 +7,9 @@ output: html_document
 
 ```{r setup, include = FALSE}
 knitr::opts_knit$set(root.dir = "~/CRP_enrichment") # set working directory
+library(dplyr)
+library(ggplot2)
+source("~/CRP_enrichment/src/funcs.R") # load our helper functions
 ```
 
 ```{r load_data, echo = FALSE}
@@ -29,5 +32,57 @@ h2000 <- thldata$h2000
 # Remove leftovers
 rm(output)
 rm(thldata)
+```
+
+```{r crp_ferr_all_nonlog, warning = FALSE}
+p1 <- ggplot(data = fr1997, aes(x = FERRITIN, y = CRP)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FINRISK97 | CRP x Ferritin",
+         subtitle = "No transformation",
+         x = "Ferritin",
+         y = "CRP")
+p1log <- ggplot(data = fr1997, aes(x = log(FERRITIN), y = log(CRP))) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FINRISK97 | CRP x Ferritin",
+         subtitle = "Log transformation",
+         x = "Ferritin",
+         y = "CRP")
+p2 <- ggplot(data = h2000, aes(x = FERRITIINI, y = CRP)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "Health2000 | CRP x Ferritin",
+         subtitle = "No transformation",
+         x = "Ferritin",
+         y = "CRP")
+p2log <- ggplot(data = h2000, aes(x = log(FERRITIINI), y = log(CRP))) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "Health2000 | CRP x Ferritin",
+         subtitle = "Log transformation",
+         x = "Ferritin",
+         y = "CRP")
+p3 <- ggplot(data = indv_donations, aes(x = Ferritin, y = CRP)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FinDonor longitudinal | CRP x Ferritin",
+         subtitle = "No transformation, CRP imputed <3, CRP measurements are integers",
+         x = "Ferritin",
+         y = "CRP")
+p3log <- ggplot(data = indv_donations, aes(x = log(Ferritin), y = log(CRP))) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FinDonor longitudinal | CRP x Ferritin",
+         subtitle = "Log transformation, CRP imputed <3, CRP measurements are integers",
+         x = "Ferritin",
+         y = "CRP")
+multiplot(p1, p2, p3, p1log, p2log, p3log, cols = 2)
+```
+```{r}
+mean_by_quantile <- function(df, by = "Ferritin", var2 = "CRP", n = 4){
+    data <- df[, c(by, var2)]
+    # tbd
+}
 ```
 
