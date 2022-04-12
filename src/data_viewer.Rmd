@@ -12,6 +12,8 @@ library(ggplot2)
 source("~/CRP_enrichment/src/funcs.R") # load our helper functions
 ```
 
+We have one cohort of blood donors, FinDonor, and two general population cohorts, FinRisk97 and Health2000.
+
 ```{r load_data, echo = FALSE}
 # .rdata by Sofie Ekroos, 2021
 
@@ -34,7 +36,9 @@ rm(output)
 rm(thldata)
 ```
 
-```{r crp_ferr_all_nonlog, warning = FALSE}
+The data we have presented as CRP x Ferritin plots. The left hand side presents data as is, the right hand side presents the data after log transform. The positive correlation between CRP and Ferritin is much more obvious when we log transform the data. The Health2000 data has many values set as 0.00 (missing data?), so these values are probably creating the points at -5 (log(0) = -Inf). The FinDonor data requires some attention also: the CRP measurements have not been taken using a high sensitivity method, as we were not interested in "non-elevated" CRP. So, every CRP value under 3 is missing, and here they have been imputed as "2.9". Additionally, the resolution extends only to integers, which creates visible stratification/intervals after the log transformation of the data. The FinDonor is the only data set where the positive correlation is thus not immediately visible.
+
+```{r crp_ferr_all_nonlog, warning = FALSE, fig.height=7, fig.width=10, fig.align = 'center', echo = FALSE}
 p1 <- ggplot(data = fr1997, aes(x = FERRITIN, y = CRP)) + 
     geom_point() +
     theme_minimal() +
@@ -67,22 +71,80 @@ p3 <- ggplot(data = indv_donations, aes(x = Ferritin, y = CRP)) +
     geom_point() +
     theme_minimal() +
     labs(title = "FinDonor longitudinal | CRP x Ferritin",
-         subtitle = "No transformation, CRP imputed <3, CRP measurements are integers",
+         subtitle = "No transformation, CRP imputed <3 and as integers",
          x = "Ferritin",
          y = "CRP")
 p3log <- ggplot(data = indv_donations, aes(x = log(Ferritin), y = log(CRP))) + 
     geom_point() +
     theme_minimal() +
     labs(title = "FinDonor longitudinal | CRP x Ferritin",
-         subtitle = "Log transformation, CRP imputed <3, CRP measurements are integers",
+         subtitle = "Log transformation, CRP imputed <3 and as integers",
          x = "Ferritin",
          y = "CRP")
 multiplot(p1, p2, p3, p1log, p2log, p3log, cols = 2)
 ```
-```{r}
-mean_by_quantile <- function(df, by = "Ferritin", var2 = "CRP", n = 4){
-    data <- df[, c(by, var2)]
-    # tbd
-}
+
+```{r build_median_quantiles, echo = FALSE}
+fr97_rel <- median_by_quantile(fr1997, by = "FERRITIN", var = "CRP", n = 10)
+h00_rel <- median_by_quantile(h2000, by = "FERRITIINI", var = "CRP", n = 10)
+don_rel <- median_by_quantile(indv_donations, by = "Ferritin", var = "CRP", n = 10)
+```
+
+Still working with the entire cohorts (no subgroup analysis yet). We sort the data (each cohort separately) by the ferritin measurements and take 10 quantiles from each sorted cohort. If we then take the ferritin and CRP medians from each of the quantiles, we can plot them to examine the relationship in ordinal "categories". This is raw data without transformations. NaNs are stripped.
+
+The positive correlation between ferritin and CRP is obvious in the FINRISK97 and Health2000 cohorts, but as the medians never cross 3, the FinDonor cohort shows nothing.
+
+```{r plot_quantiles, echo=FALSE, fig.height=7, fig.width=7, fig.align = 'center'}
+p1 <- ggplot(data = fr97_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FINRISK97 | Ferritin x CRP medians across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+p2 <- ggplot(data = h00_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "Health2000 | Ferritin x CRP medians across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+p3 <- ggplot(data = don_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FinDonor | Ferritin x CRP medians across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+
+multiplot(p1, p2, p3, cols = 1)
+```
+
+```{r build_mean_quantiles, echo = FALSE}
+fr97_rel <- mean_by_quantile(fr1997, by = "FERRITIN", var = "CRP", n = 10)
+h00_rel <- mean_by_quantile(h2000, by = "FERRITIINI", var = "CRP", n = 10)
+don_rel <- mean_by_quantile(indv_donations, by = "Ferritin", var = "CRP", n = 10)
+```
+
+Analysis of means reveals that the FinDonor CRP x Ferritin behaves similarly.
+
+```{r plot_mean_quantiles, echo=FALSE, fig.height=7, fig.width=7, fig.align = 'center'}
+p1 <- ggplot(data = fr97_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FINRISK97 | Ferritin x CRP means across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+p2 <- ggplot(data = h00_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "Health2000 | Ferritin x CRP means across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+p3 <- ggplot(data = don_rel, aes(x = var, y = by)) + 
+    geom_point() +
+    theme_minimal() +
+    labs(title = "FinDonor | Ferritin x CRP means across 10 quantiles",
+         x = "CRP",
+         y = "Ferritin")
+
+multiplot(p1, p2, p3, cols = 1)
 ```
 

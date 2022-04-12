@@ -47,3 +47,45 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
         }
     }
 }
+
+median_by_quantile <- function(df, by = "COL1", var = "COL2", n = 4){
+    data <- df[, c(by, var)]
+    data_narm <- na.omit(data)
+    data_ordered <- data_narm[order(data_narm[, by]), ]
+    # I'll loop this because I can't figure out how to make this work with apply
+    var_med <- c()
+    by_med <- c()
+    nr <- nrow(data_ordered)
+    stepsize <- ceiling(nr/n)
+    a <- 1
+    b <- stepsize
+    for (i in 1:n){
+        var_med[i] <- median(unlist(data_ordered[a:b, var]))
+        by_med[i] <- median(unlist(data_ordered[a:b, by]))
+        a <- b
+        b <- b + stepsize
+        if (b > nr) {b <- nr}
+    }
+    return(data.frame(by = by_med, var = var_med))
+}
+
+mean_by_quantile <- function(df, by = "COL1", var = "COL2", n = 4){
+    data <- df[, c(by, var)]
+    data_narm <- na.omit(data)
+    data_ordered <- data_narm[order(data_narm[, by]), ]
+    # I'll loop this because I can't figure out how to make this work with apply
+    var_mean <- c()
+    by_mean <- c()
+    nr <- nrow(data_ordered)
+    stepsize <- ceiling(nr/n)
+    a <- 1
+    b <- stepsize
+    for (i in 1:n){
+        var_mean[i] <- mean(unlist(data_ordered[a:b, var]))
+        by_mean[i] <- mean(unlist(data_ordered[a:b, by]))
+        a <- b
+        b <- b + stepsize
+        if (b > nr) {b <- nr}
+    }
+    return(data.frame(by = by_mean, var = var_mean))
+}
