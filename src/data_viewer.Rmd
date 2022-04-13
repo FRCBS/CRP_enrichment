@@ -8,7 +8,9 @@ output: html_document
 ```{r setup, include = FALSE}
 knitr::opts_knit$set(root.dir = "~/CRP_enrichment") # set working directory
 library(dplyr)
+library(tidyverse)
 library(ggplot2)
+library(RColorBrewer)
 source("~/CRP_enrichment/src/funcs.R") # load our helper functions
 ```
 
@@ -146,5 +148,68 @@ p3 <- ggplot(data = don_rel, aes(x = var, y = by)) +
          y = "Ferritin")
 
 multiplot(p1, p2, p3, cols = 1)
+```
+What happens to CRP when we start filtering donors based on ferritin levels? Let's say (possibly outlandishly) that we want to set the LB of donor ferritin to 100 ug/L. To see the effect, we want to compare the CRP medians/means of population over and under the ferritin LB.
+
+```{r compute_LB_df, echo = FALSE, warning = FALSE}
+LB <- 100
+
+fr_over100 <- fr1997 %>%
+    select(FERRITIN, CRP) %>%
+    filter(FERRITIN >= LB) %>%
+    drop_na()
+fr_under100 <- fr1997 %>%
+    select(FERRITIN, CRP) %>%
+    filter(FERRITIN < LB) %>%
+    drop_na()
+h00_over100 <- h2000 %>%
+    select(FERRITIINI, CRP) %>%
+    filter(FERRITIINI >= LB) %>%
+    drop_na()
+h00_under100 <- h2000 %>%
+    select(FERRITIINI, CRP) %>%
+    filter(FERRITIINI < LB) %>%
+    drop_na()
+donpop_over100 <- indv_donations %>%
+    select(Ferritin, CRP) %>%
+    filter(Ferritin >= LB) %>%
+    drop_na()
+donpop_under100 <- indv_donations %>%
+    select(Ferritin, CRP) %>%
+    filter(Ferritin < LB) %>%
+    drop_na()
+
+means <- c(mean(fr_over100$CRP), mean(fr_under100$CRP), 
+           mean(h00_over100$CRP), mean(h00_under100$CRP), 
+           mean(donpop_over100$CRP), mean(donpop_under100$CRP)) 
+medians <- c(median(fr_over100$CRP), median(fr_under100$CRP), 
+             median(h00_over100$CRP), median(h00_under100$CRP), 
+             median(donpop_over100$CRP), median(donpop_under100$CRP)) 
+groups <- c("FINRISK97", "FINRISK97", "Health2000", "Health2000", "FinDonor", "FinDonor")
+subgroups <- rep(c("Over", "Under"), 3)
+
+df_LBdiff <- data.frame(mean = means, median = medians, cohort = groups, ou = subgroups)
+```
+
+```{r plot_LB_diff, echo = FALSE, warning = FALSE, fig.height=7, fig.width=7, fig.align = 'center'}
+meanplot <- ggplot(data = df_LBdiff, aes(x = cohort, y = mean, fill = ou)) + 
+    geom_bar(position = "dodge", stat = "identity") +
+    theme_minimal() +
+    labs(title = paste("Population CRP mean over and under a ferritin LB of", LB),
+         x = "Cohort",
+         y = "Mean",
+         fill = "LB") +
+    scale_fill_manual(values = brewer.pal(4, "RdGy")[c(1, 2)])
+
+medianplot <- ggplot(data = df_LBdiff, aes(x = cohort, y = median, fill = ou)) + 
+    geom_bar(position = "dodge", stat = "identity") +
+    theme_minimal() +
+    labs(title = paste("Population CRP median over and under a ferritin LB of", LB),
+         x = "Cohort",
+         y = "Median",
+         fill = "LB") +
+    scale_fill_manual(values = brewer.pal(4, "RdGy")[c(1, 2)])
+
+multiplot(meanplot, medianplot, cols = 1)
 ```
 
