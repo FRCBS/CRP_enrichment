@@ -42,42 +42,42 @@ The data we have presented as CRP x Ferritin plots. The left hand side presents 
 
 ```{r crp_ferr_all_nonlog, warning = FALSE, fig.height=7, fig.width=10, fig.align = 'center', echo = FALSE}
 p1 <- ggplot(data = fr1997, aes(x = FERRITIN, y = CRP)) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "FINRISK97 | CRP x Ferritin",
          subtitle = "No transformation",
          x = "Ferritin",
          y = "CRP")
 p1log <- ggplot(data = fr1997, aes(x = log(FERRITIN), y = log(CRP))) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "FINRISK97 | CRP x Ferritin",
          subtitle = "Log transformation",
          x = "Ferritin",
          y = "CRP")
 p2 <- ggplot(data = h2000, aes(x = FERRITIINI, y = CRP)) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "Health2000 | CRP x Ferritin",
          subtitle = "No transformation",
          x = "Ferritin",
          y = "CRP")
 p2log <- ggplot(data = h2000, aes(x = log(FERRITIINI), y = log(CRP))) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "Health2000 | CRP x Ferritin",
          subtitle = "Log transformation",
          x = "Ferritin",
          y = "CRP")
 p3 <- ggplot(data = indv_donations, aes(x = Ferritin, y = CRP)) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "FinDonor longitudinal | CRP x Ferritin",
          subtitle = "No transformation, CRP imputed <3 and as integers",
          x = "Ferritin",
          y = "CRP")
 p3log <- ggplot(data = indv_donations, aes(x = log(Ferritin), y = log(CRP))) + 
-    geom_point() +
+    geom_point(alpha = 0.05) +
     theme_minimal() +
     labs(title = "FinDonor longitudinal | CRP x Ferritin",
          subtitle = "Log transformation, CRP imputed <3 and as integers",
@@ -149,10 +149,10 @@ p3 <- ggplot(data = don_rel, aes(x = var, y = by)) +
 
 multiplot(p1, p2, p3, cols = 1)
 ```
-What happens to CRP when we start filtering donors based on ferritin levels? Let's say (possibly outlandishly) that we want to set the LB of donor ferritin to 100 ug/L. To see the effect, we want to compare the CRP medians/means of population over and under the ferritin LB.
+What happens to CRP when we start filtering donors based on ferritin levels? Let's say (possibly outlandishly) that we want to set the LB of donor ferritin to 30 ug/l. To see the effect, we want to compare the CRP medians/means of population over and under the ferritin LB.
 
 ```{r compute_LB_df, echo = FALSE, warning = FALSE}
-LB <- 100
+LB <- 30
 
 fr_over100 <- fr1997 %>%
     select(FERRITIN, CRP) %>%
@@ -211,5 +211,158 @@ medianplot <- ggplot(data = df_LBdiff, aes(x = cohort, y = median, fill = ou)) +
     scale_fill_manual(values = brewer.pal(4, "RdGy")[c(1, 2)])
 
 multiplot(meanplot, medianplot, cols = 1)
+```
+
+```{r N_of_inflm, echo = FALSE}
+fr_o100_CRP3 <- fr_over100 %>% filter(CRP >= 3)
+fr_u100_CRP3 <- fr_under100 %>% filter(CRP >= 3)
+h00_o100_CRP3 <- h00_over100 %>% filter(CRP >= 3)
+h00_u100_CRP3 <- h00_under100 %>% filter(CRP >= 3)
+donpop_o100_CRP3 <- donpop_over100 %>% filter(CRP >= 3)
+donpop_u100_CRP3 <- donpop_under100 %>% filter(CRP >= 3)
+```
+
+Using ferritin LB of `r LB` ug/l, the share of potential donors in inflammatory risk (e.g. vascular or heart disease, indicated by CRP >= 3 mg/l) increases from `r round(100 * dim(fr_u100_CRP3)[1] / dim(fr_under100)[1], 2)`% to `r round(100 * dim(fr_o100_CRP3)[1] / dim(fr_over100)[1], 2)`% in the FINRISK1997 cohort and from  `r round(100 * dim(h00_u100_CRP3)[1] / dim(h00_under100)[1], 2)`% to `r round(100 * dim(h00_o100_CRP3)[1] / dim(h00_over100)[1], 2)`% in the Health2000 cohort. Within the existing donor population (indicated by the FinDonor cohort) the share goes from `r round(100 * dim(donpop_u100_CRP3)[1] / dim(donpop_under100)[1], 2)`% to `r round(100 * dim(donpop_o100_CRP3)[1] / dim(donpop_over100)[1], 2)`%.
+
+Thinking in reverse, what is the maximum ferritin threshold we could set without increasing the share of donors under inflammation risk?
+
+```{r, echo = FALSE, warning = FALSE, fig.height=7, fig.width=7, fig.align = 'center'}
+CRP_UB <- 3
+fr_u3 <- fr1997 %>% filter(CRP < CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+fr_o3 <- fr1997 %>% filter(CRP >= CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+h00_u3 <- h2000 %>% filter(CRP < CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+h00_o3 <- h2000 %>% filter(CRP >= CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+donpop_u3 <- indv_donations %>% filter(CRP < CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+donpop_o3 <- indv_donations %>% filter(CRP >= CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+
+values <- c(fr_u3$FERRITIN, fr_o3$FERRITIN)
+groups <- c(rep("Under", dim(fr_u3)[1]), rep("Over", dim(fr_o3)[1]))
+fr_ou3_df <- data.frame(ferritin = values, group = groups)
+
+p1 <- ggplot(data = fr_ou3_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("FINRISK97 | Population ferritin density by CRP =", CRP_UB, "mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP", CRP_UB, "mg/l")) +
+    xlim(0, 600)
+
+values <- c(h00_u3$FERRITIINI, h00_o3$FERRITIINI)
+groups <- c(rep("Under", dim(h00_u3)[1]), rep("Over", dim(h00_o3)[1]))
+h00_ou3_df <- data.frame(ferritin = values, group = groups)
+
+p2 <- ggplot(data = h00_ou3_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("Health2000 | Population ferritin density by CRP =", CRP_UB, "mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP", CRP_UB, "mg/l")) +
+    xlim(0, 600)
+
+values <- c(donpop_u3$Ferritin, donpop_o3$Ferritin)
+groups <- c(rep("Under", dim(donpop_u3)[1]), rep("Over", dim(donpop_o3)[1]))
+donpop_ou3_df <- data.frame(ferritin = values, group = groups)
+
+p3 <- ggplot(data = donpop_ou3_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("FinDonor | Population ferritin density by CRP =", CRP_UB, "mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP", CRP_UB, "mg/l")) +
+    xlim(0, 600)
+
+multiplot(p1, p2, p3, cols = 1)
+```
+
+These density plots indicate that dodging CRP 3 mg/l might not be possible based on ferritin value alone. Do these distributions ever separate?
+
+```{r, echo = FALSE, warning = FALSE, fig.height=7, fig.width=7, fig.align = 'center'}
+CRP_UB <- 3
+fr_u3 <- fr1997 %>% filter(CRP < CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+fr_o3 <- fr1997 %>% filter(CRP >= CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+h00_u3 <- h2000 %>% filter(CRP < CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+h00_o3 <- h2000 %>% filter(CRP >= CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+donpop_u3 <- indv_donations %>% filter(CRP < CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+donpop_o3 <- indv_donations %>% filter(CRP >= CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+
+CRP_UB <- 5
+fr_u5 <- fr1997 %>% filter(CRP < CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+fr_o5 <- fr1997 %>% filter(CRP >= CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+h00_u5 <- h2000 %>% filter(CRP < CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+h00_o5 <- h2000 %>% filter(CRP >= CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+donpop_u5 <- indv_donations %>% filter(CRP < CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+donpop_o5 <- indv_donations %>% filter(CRP >= CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+
+CRP_UB <- 10
+fr_u10 <- fr1997 %>% filter(CRP < CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+fr_o10 <- fr1997 %>% filter(CRP >= CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+h00_u10 <- h2000 %>% filter(CRP < CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+h00_o10 <- h2000 %>% filter(CRP >= CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+donpop_u10 <- indv_donations %>% filter(CRP < CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+donpop_o10 <- indv_donations %>% filter(CRP >= CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+
+CRP_UB <- 50
+fr_u50 <- fr1997 %>% filter(CRP < CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+fr_o50 <- fr1997 %>% filter(CRP >= CRP_UB) %>% select(FERRITIN, CRP) %>% drop_na()
+h00_u50 <- h2000 %>% filter(CRP < CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+h00_o50 <- h2000 %>% filter(CRP >= CRP_UB) %>% select(FERRITIINI, CRP) %>% drop_na()
+donpop_u50 <- indv_donations %>% filter(CRP < CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+donpop_o50 <- indv_donations %>% filter(CRP >= CRP_UB) %>% select(Ferritin, CRP) %>% drop_na()
+
+values <- c(fr_u3$FERRITIN, fr_o3$FERRITIN, fr_u5$FERRITIN, fr_o5$FERRITIN,
+            fr_u10$FERRITIN, fr_o10$FERRITIN, fr_u50$FERRITIN, fr_o50$FERRITIN)
+groups <- c(rep("Under 3", dim(fr_u3)[1]), rep("Over 3", dim(fr_o3)[1]),
+            rep("Under 5", dim(fr_u5)[1]), rep("Over 5", dim(fr_o5)[1]),
+            rep("Under 10", dim(fr_u10)[1]), rep("Over 10", dim(fr_o10)[1]),
+            rep("Under 50", dim(fr_u50)[1]), rep("Over 50", dim(fr_o50)[1]))
+fr_ou_df <- data.frame(ferritin = values, group = groups)
+
+p1 <- ggplot(data = fr_ou_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("FINRISK97 | Population ferritin density by CRP mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP mg/l")) +
+    xlim(0, 600)
+
+values <- c(h00_u3$FERRITIINI, h00_o3$FERRITIINI, h00_u5$FERRITIINI, h00_o5$FERRITIINI,
+            h00_u10$FERRITIINI, h00_o10$FERRITIINI, h00_u50$FERRITIINI, h00_o50$FERRITIINI)
+groups <- c(rep("Under 3", dim(h00_u3)[1]), rep("Over 3", dim(h00_o3)[1]),
+            rep("Under 5", dim(h00_u5)[1]), rep("Over 5", dim(h00_o5)[1]),
+            rep("Under 10", dim(h00_u10)[1]), rep("Over 10", dim(h00_o10)[1]),
+            rep("Under 50", dim(h00_u50)[1]), rep("Over 50", dim(h00_o50)[1]))
+h00_ou_df <- data.frame(ferritin = values, group = groups)
+
+p2 <- ggplot(data = h00_ou_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("Health2000 | Population ferritin density by CRP mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP mg/l")) +
+    xlim(0, 600)
+
+values <- c(donpop_u3$Ferritin, donpop_o3$Ferritin, donpop_u5$Ferritin, donpop_o5$Ferritin,
+            donpop_u10$Ferritin, donpop_o10$Ferritin, donpop_u50$Ferritin, donpop_o50$Ferritin)
+groups <- c(rep("Under 3", dim(donpop_u3)[1]), rep("Over 3", dim(donpop_o3)[1]),
+            rep("Under 5", dim(donpop_u5)[1]), rep("Over 5", dim(donpop_o5)[1]),
+            rep("Under 10", dim(donpop_u10)[1]), rep("Over 10", dim(donpop_o10)[1]),
+            rep("Under 50", dim(donpop_u50)[1]), rep("Over 50", dim(donpop_o50)[1]))
+donpop_ou_df <- data.frame(ferritin = values, group = groups)
+
+p3 <- ggplot(data = donpop_ou_df, aes(x = ferritin, group = group, fill = group)) +
+    geom_density(adjust = 1.5, alpha = .4) + 
+    theme_minimal() + 
+    labs(title = paste("FinDonor | Population ferritin density by CRP mg/l"),
+         x = "Ferritin",
+         y = "Density",
+         fill = paste("CRP mg/l")) +
+    xlim(0, 600)
+
+multiplot(p1, p2, p3, cols = 1)
 ```
 
