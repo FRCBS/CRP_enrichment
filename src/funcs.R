@@ -89,3 +89,88 @@ mean_by_quantile <- function(df, by = "COL1", var = "COL2", n = 4){
     }
     return(data.frame(by = by_mean, var = var_mean))
 }
+
+bootmean <- function(data, i) {
+    splice <- data[i]
+    return(mean(splice))
+}
+
+bootmedian <- function(data, i) {
+    splice <- data[i]
+    return(median(splice))
+}
+
+get_ratio <- function(cohort, var1, var2, var1_trld, var2_trld) {
+    # requires dplyr
+    # Answers the question:
+    # How much the proportion of individuals with var2 >< var2_trld
+    # increase after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi <- cohort %>%
+        select({{var1}}, {{var2}}) %>% # variables of interest
+        drop_na()
+
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- vi %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(vi)[1]
+
+    # Now filter base population first using var1
+    filtered <- vi %>%
+        filter({{var1}} >= {{var1_trld}})
+
+    # And find IoI again
+    f_ioi <- filtered %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
+
+get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+    # requires dplyr
+    # Answers the question:
+    # How much the proportion of individuals with var2 >< var2_trld
+    # increase after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi <- cohort %>%
+        select(var1, var2) %>% # variables of interest
+        drop_na()
+
+    # Splice for bootstrapping
+    splice <- vi[i, ]
+
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- splice %>%
+        filter(var2 >= var2_trld)
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(splice)[1]
+
+    # Now filter base population first using var1
+    filtered <- splice %>%
+        filter(var1 >= var1_trld)
+
+    # And find IoI again
+    f_ioi <- filtered %>%
+        filter(var2 >= var2_trld)
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
