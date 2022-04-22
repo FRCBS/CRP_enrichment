@@ -375,6 +375,8 @@ multiplot(p1, p2, p3, cols = 1)
 
 # Actionable analysis 
 
+## Ferritin x CRP & GlycA & HbA$_{1C}$
+
 The plot below shows what happens to common inflammation marker means and medians within the population when we start requiring a certain ferritin threshold for donors. Filter value for ferritin is set to a *lower bound*  of `r LB` ug/l for these analyses. The CRP variable is available in every cohort, but the GP is only found from FINRISK97 and Health200. Finally, the glycated hemoglobin (HbA1C) is only available in the Health2000 cohort.
 
 ```{r bootmeanCRP, echo = FALSE, warning = FALSE}
@@ -525,7 +527,7 @@ GPbootmediandf <- data.frame(median = c(frGPmd$t0, frGPfilmd$t0, h00GPmd$t0, h00
 ```
 
 ```{r bootmedianGP_plot, echo = FALSE, fig.height=5, fig.width=8, fig.align = 'center'}
-GP_median_p <- ggplot(data = bootmediandf, aes(x = median, y = plotorder)) + 
+GP_median_p <- ggplot(data = GPbootmediandf, aes(x = median, y = plotorder)) + 
     geom_errorbarh(aes(xmin = lower, xmax = upper, color = filter), height = 0.06) +
     geom_point() +
     theme_minimal() +
@@ -537,8 +539,6 @@ GP_median_p <- ggplot(data = bootmediandf, aes(x = median, y = plotorder)) +
          x = "Median", 
          color = "Ferritin > 30 ug/l")
 ```
-
-## Ferritin x HbA_1C (glycated hemoglobin)
 
 ```{r HbAdata, echo = FALSE}
 LB <- 30
@@ -554,8 +554,6 @@ h00HbA <- h2000 %>%
     select(FERRITIINI, HbAmm) %>%
     drop_na()
 ```
-
-Filter value for ferritin is set to a *lower bound*  of `r LB` ug/l for these analyses. Only the Health2000 cohort has this variable.
 
 ```{r bootmeanHbA, echo = FALSE, warning = FALSE}
 h00HbAfilb <- boot(h00HbAfil$HbAmm, bootmean, R = 10000)
@@ -621,7 +619,8 @@ HbA_median_p <- ggplot(data = HbAbootmediandf, aes(x = median, y = plotorder)) +
 multiplot(CRP_mean_p, GP_mean_p, HbA_mean_p, CRP_median_p, GP_median_p, HbA_median_p, cols = 2)
 ```
 
-```{r prop_plot, echo = FALSE, fig.height=5, fig.width=8, fig.align = 'center'}
+```{r prop_plot_NOT_RUN, eval=FALSE, fig.align='center', fig.height=5, fig.width=8, include=FALSE}
+# TODO: THIS IS PROBABLY NOT NEEDED AS WE HAVE A WORKING BOOTSTRAPPED VERSION NOW
 ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
 
 # For CRP
@@ -655,5 +654,146 @@ ggplot(data = diffdf, aes(x = LB, y = diffs, color = group)) +
          y = "%",
          x = "Ferritin filter (ug/l)",
          color = "Marker")
+```
+
+```{r props_boot_BROKEN, eval=FALSE, include=FALSE}
+# TODO: THIS IS BROKEN, USE BOOTHACK INSTEAD
+boot_n <- 10000
+if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))){ # run bootstrap only if needed
+    start <- Sys.time()
+    # CRP
+    CRP_diffs <- c()
+    CRP_lower <- c()
+    CRP_upper <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2000, statistic = get_ratio_boot, R = boot_n, var1 = FERRITIINI, var2 = CRP, var1_trld = ferrLBs[i], var2_trld = 3)
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        CRP_diffs[i] <- boot_obj$t0
+        CRP_lower[i] <- ci_obj$normal[2]
+        CRP_upper[i] <- ci_obj$normal[3]
+    }
+    # GlycA
+    GP_diffs <- c()
+    GP_lower <- c()
+    GP_upper <- c()
+    GP_median <- median(h2000$GP, na.rm = T)
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2000, statistic = get_ratio_boot, R = boot_n, var1 = FERRITIINI, var2 = GP, var1_trld = ferrLBs[i], var2_trld = GP_median)
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        GP_diffs[i] <- boot_obj$t0
+        GP_lower[i] <- ci_obj$normal[2]
+        GP_upper[i] <- ci_obj$normal[3]
+    }
+    # HbA_1C
+    hba_diffs <- c()
+    hba_lower <- c()
+    hba_upper <- c()
+    h2000_m <- h2000 %>%
+        mutate(hba = B_GHb_A1C * 10.93 - 23.50)
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2000_m, statistic = get_ratio_boot, R = boot_n, var1 = FERRITIINI, var2 = hba, var1_trld = ferrLBs[i], var2_trld = 42)
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        hba_diffs[i] <- boot_obj$t0
+        hba_lower[i] <- ci_obj$normal[2]
+        hba_upper[i] <- ci_obj$normal[3]
+    }
+    
+    boot_diff_df <- data.frame(LB = rep(ferrLBs, 3), diffs = c(CRP_diffs, GP_diffs, hba_diffs), 
+                               lower = c(CRP_lower, GP_lower, hba_lower), upper = c(CRP_upper, GP_upper, hba_upper),
+                                group = c(rep("CRP", 10), rep("GP", 10), rep("HbA1C", 10)))
+    
+    # save to file so we don't have to do this every time
+    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))
+    
+    end <- Sys.time()
+    print(end - start)
+} else {
+    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))
+}
+```
+
+```{r props_boothack, echo = FALSE}
+ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
+boot_n <- 1000
+if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_threshold_boothack", boot_n, ".rds"))){ # run bootstrap only if needed
+    start <- Sys.time()
+    # CRP
+    CRP_diffs <- c()
+    CRP_lower <- c()
+    CRP_upper <- c()
+    for (i in 1:length(ferrLBs)) {
+        est <- c()
+        for (k in 1:boot_n) {
+            est[k] <- get_ratio_boot(h2000, var1 = FERRITIINI, var2 = CRP, 
+                                     var1_trld = ferrLBs[i], var2_trld = 3, i = sample(1:5251, 5251, replace = T))
+        }
+        
+        qs <- quantile(est, probs = c(0.025, 0.975))
+        CRP_diffs[i] <- mean(est)
+        CRP_lower[i] <- qs[1]
+        CRP_upper[i] <- qs[2]
+    }
+    # GlycA
+    GP_diffs <- c()
+    GP_lower <- c()
+    GP_upper <- c()
+    GP_median <- median(h2000$GP, na.rm = T)
+    for (i in 1:length(ferrLBs)) {
+        est <- c()
+        for (k in 1:boot_n) {
+            est[k] <- get_ratio_boot(h2000, var1 = FERRITIINI, var2 = GP, 
+                                     var1_trld = ferrLBs[i], var2_trld = GP_median, i = sample(1:5251, 5251, replace = T))
+        }
+        
+        qs <- quantile(est, probs = c(0.025, 0.975))
+        GP_diffs[i] <- mean(est)
+        GP_lower[i] <- qs[1]
+        GP_upper[i] <- qs[2]
+    }
+    # HbA_1C
+    hba_diffs <- c()
+    hba_lower <- c()
+    hba_upper <- c()
+    h2000_m <- h2000 %>%
+        mutate(hba = B_GHb_A1C * 10.93 - 23.50)
+    for (i in 1:length(ferrLBs)) {
+        est <- c()
+        for (k in 1:boot_n) {
+            est[k] <- get_ratio_boot(h2000_m, var1 = FERRITIINI, var2 = hba, 
+                                     var1_trld = ferrLBs[i], var2_trld = 42, i = sample(1:5251, 5251, replace = T))
+        }
+        
+        qs <- quantile(est, probs = c(0.025, 0.975))
+        hba_diffs[i] <- mean(est)
+        hba_lower[i] <- qs[1]
+        hba_upper[i] <- qs[2]
+    }
+    
+    boot_diff_df <- data.frame(LB = rep(ferrLBs, 3), diffs = c(CRP_diffs, GP_diffs, hba_diffs), 
+                               lower = c(CRP_lower, GP_lower, hba_lower), upper = c(CRP_upper, GP_upper, hba_upper),
+                                group = c(rep("CRP", 10), rep("GP", 10), rep("HbA1C", 10)))
+    
+    # save to file so we don't have to do this every time
+    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/ferritin_threshold_boothack", boot_n, ".rds"))
+    
+    end <- Sys.time()
+    print(end - start)
+} else {
+    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/ferritin_threshold_boothack", boot_n, ".rds"))
+}
+```
+
+
+```{r prop_plot, echo = FALSE, fig.height=5, fig.width=8, fig.align = 'center'}
+ggplot(data = boot_diff_df, aes(x = LB, y = diffs, color = group)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, fill = group), alpha = .2, color = NA) +
+    geom_line() +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "Growth of number of individuals over marker threshold per ferritin filter level",
+         subtitle = paste("Cohort: Health2000 | 95% CI from", boot_n, "bootstrap samples"),
+         y = "Difference (pp)",
+         x = "Ferritin filter (ug/l)",
+         color = "Marker") + guides(fill = "none")
 ```
 

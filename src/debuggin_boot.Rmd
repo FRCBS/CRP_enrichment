@@ -1,0 +1,219 @@
+---
+title: "Debugging boot()"
+author: "Esa Turkulainen"
+date: "4/22/2022"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_knit$set(root.dir = "~/CRP_enrichment") # set working directory
+library(dplyr)
+library(tidyverse)
+library(boot)
+library(ggplot2)
+library(RColorBrewer)
+source("~/CRP_enrichment/src/funcs.R") # load our helper functions
+```
+
+```{r load_data, echo = FALSE}
+# .rdata by Sofie Ekroos, 2021
+
+# Load data on individual donations
+load("~/CRP_enrichment/data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
+donations <- output
+
+# Load FinDonor demographic data
+load("~/CRP_enrichment/data/r02ds.donorData.rdata") # outputs an object called "output" into the environment
+findonor <- output 
+
+# Load THL data
+# Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others
+load("~/CRP_enrichment/data/thldata.rdata")
+fr1997 <- thldata$fr1997
+h2000 <- thldata$h2000
+
+# Remove leftovers
+rm(output)
+rm(thldata)
+
+# We only want to look at first donation event values from each donor
+donors <- donations %>%
+    group_by(donor) %>%
+    filter(date == min(date)) %>%
+    ungroup()
+```
+
+# Boot funcs
+
+```{r}
+bootmean <- function(data, i) {
+    splice <- data[i]
+    return(mean(splice, na.rm = T))
+}
+
+bootmedian <- function(data, i) {
+    splice <- data[i]
+    return(median(splice, na.rm = T))
+}
+
+get_ratio <- function(cohort, var1, var2, var1_trld, var2_trld) {
+    # requires dplyr
+    # Answers the question:
+    # How much the proportion of individuals with var2 >< var2_trld
+    # increase after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi <- cohort %>%
+        select({{var1}}, {{var2}}) %>% # variables of interest
+        drop_na()
+
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- vi %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(vi)[1]
+
+    # Now filter base population first using var1
+    filtered <- vi %>%
+        filter({{var1}} >= {{var1_trld}})
+
+    # And find IoI again
+    f_ioi <- filtered %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
+
+get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+    # requires dplyr
+    # Answers the question:
+    # How much the proportion of individuals with var2 >< var2_trld
+    # increase after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi <- cohort %>%
+        select({{var1}}, {{var2}}) %>% # variables of interest
+        drop_na()
+
+    # Splice for bootstrapping
+    splice <- vi[i, ]
+
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- splice %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(splice)[1]
+
+    # Now filter base population first using var1
+    filtered <- splice %>%
+        filter({{var1}} >= {{var1_trld}})
+
+    # And find IoI again
+    f_ioi <- filtered %>%
+        filter({{var2}} >= {{var2_trld}})
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
+```
+
+# Testing
+
+Bootstrapping should always converge to the "population" estimate. When we bootstrap, we consider the sample space to be our "population". So, if check the mean of a varible first by taking the sample mean
+
+```{r sample_mean}
+mean(h2000$GP, na.rm = T)
+```
+we should get roughly the same number by using our bootmean() statistic with boot().
+
+```{r bootmean}
+boot(h2000$GP, statistic = bootmean, R = 100)$t0
+```
+Let's test this with the median now:
+
+```{r sample_median}
+median(h2000$GP, na.rm = T)
+```
+
+```{r bootmedian}
+boot(h2000$GP, statistic = bootmedian, R = 100)$t0
+```
+These seem to work fine. **The question is then, why doesn't our proportion statistic function work with boot?** We want to check the proportion of certain kinds of people in a population before and after applying some kind of variable filter. For example, the proportion of people above median GP before and after we filter for ferritin lower bound of 5 ug/l (so, the difference).
+
+This is the result we got straight from our sample:
+
+```{r sample_prop}
+get_ratio(h2000, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)
+```
+And this is what comes out of boot:
+
+```{r boot_prop}
+boot(h2000, statistic = get_ratio_boot, R = 100, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)$t0
+```
+That is an increase of 8000% in the estimate. There is no way the data shape produces this, so I must be using the boot() function call incorrectly.
+
+We can do a sanity check by using our own bootstrap hack:
+
+```{r boothack_prop}
+res <- c()
+for (k in 1:100) {
+    res[k] <- get_ratio_boot(h2000, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16, i = sample(1:5000, 5000, replace = T))
+}
+mean(res)
+```
+Our own boothack comes much more closer to the real value in the sample space. So what is wrong with our boot()?
+
+Let's try dumbing down our statistic function
+```{r}
+dumb_ratio_boot <- function(data, i) {
+    # this version does not require the passing of ... arguments to boot()
+    splice <- data[i, ]
+    
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- splice %>%
+        filter(GP >= 1.16)
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(splice)[1]
+
+    # Now filter base population first using var1
+    filtered <- splice %>%
+        filter(FERRITIINI >= 5)
+
+    # And find IoI again
+    f_ioi <- filtered %>%
+        filter(GP >= 1.16)
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
+```
+
+Now let's try it
+
+```{r dumb_boot_prop}
+boot(h2000, statistic = dumb_ratio_boot, R = 100)$t0
+```
+
+We got closer somehow? 

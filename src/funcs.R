@@ -144,7 +144,7 @@ get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
 
     # Base population: cohort
     vi <- cohort %>%
-        select(var1, var2) %>% # variables of interest
+        select({{var1}}, {{var2}}) %>% # variables of interest
         drop_na()
 
     # Splice for bootstrapping
@@ -152,18 +152,18 @@ get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
 
     # Find individuals of interest (ioi, above/below of var2_trld)
     ioi <- splice %>%
-        filter(var2 >= var2_trld)
+        filter({{var2}} >= {{var2_trld}})
 
     # Get proportion
     prop <- 100 * dim(ioi)[1] / dim(splice)[1]
 
     # Now filter base population first using var1
     filtered <- splice %>%
-        filter(var1 >= var1_trld)
+        filter({{var1}} >= {{var1_trld}})
 
     # And find IoI again
     f_ioi <- filtered %>%
-        filter(var2 >= var2_trld)
+        filter({{var2}} >= {{var2_trld}})
 
     # Now get proportion (filtered population)
     f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
