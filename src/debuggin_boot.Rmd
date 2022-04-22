@@ -2,7 +2,7 @@
 title: "Debugging boot()"
 author: "Esa Turkulainen"
 date: "4/22/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include = FALSE}
