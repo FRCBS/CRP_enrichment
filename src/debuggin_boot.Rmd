@@ -216,4 +216,37 @@ Now let's try it
 boot(h2000, statistic = dumb_ratio_boot, R = 100)$t0
 ```
 
-We got closer somehow? 
+We got closer somehow? What if we remove all tidy syntax?
+
+```{r}
+dumber_ratio_boot <- function(data, i) {
+    # this version does not require the passing of ... arguments to boot()
+    splice <- data[i, ]
+    
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi <- splice[splice$GP >= 1.16, ]
+
+    # Get proportion
+    prop <- 100 * dim(ioi)[1] / dim(splice)[1]
+
+    # Now filter base population first using var1
+    filtered <- splice[splice$FERRITIINI >= 5, ]
+
+    # And find IoI again
+    f_ioi <- filtered[filtered$GP >= 1.16, ]
+
+    # Now get proportion (filtered population)
+    f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+
+    # Compute difference between proportions
+    diff <- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}
+```
+
+```{r dumber_boot_prop}
+boot(h2000, statistic = dumber_ratio_boot, R = 100)$t0
+```
+We get a worse result :(
