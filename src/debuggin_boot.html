@@ -188,33 +188,27 @@ bootmedian &lt;- function(data, i) {
 }
 
 get_ratio &lt;- function(cohort, var1, var2, var1_trld, var2_trld) {
-    # requires dplyr
     # Answers the question:
     # How much the proportion of individuals with var2 &gt;&lt; var2_trld
     # increase after we filter the population with var1_trld
 
     # Base population: cohort
-    vi &lt;- cohort %&gt;%
-        select({{var1}}, {{var2}}) %&gt;% # variables of interest
-        drop_na()
+    vi &lt;- na.omit(cohort[, c(var1, var2)])
 
     # Find individuals of interest (ioi, above/below of var2_trld)
-    ioi &lt;- vi %&gt;%
-        filter({{var2}} &gt;= {{var2_trld}})
+    ioi &lt;- vi[vi[, var2] &gt;= var2_trld, ]
 
     # Get proportion
-    prop &lt;- 100 * dim(ioi)[1] / dim(vi)[1]
+    prop &lt;- 100 * nrow(ioi) / nrow(vi)
 
     # Now filter base population first using var1
-    filtered &lt;- vi %&gt;%
-        filter({{var1}} &gt;= {{var1_trld}})
+    filtered &lt;- vi[vi[, var1] &gt;= var1_trld, ]
 
     # And find IoI again
-    f_ioi &lt;- filtered %&gt;%
-        filter({{var2}} &gt;= {{var2_trld}})
+    f_ioi &lt;- filtered[filtered[, var2] &gt;= var2_trld, ]
 
     # Now get proportion (filtered population)
-    f_prop &lt;- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+    f_prop &lt;- 100 * nrow(f_ioi) / nrow(filtered)
 
     # Compute difference between proportions
     diff &lt;- round(f_prop - prop, 2)
@@ -224,36 +218,27 @@ get_ratio &lt;- function(cohort, var1, var2, var1_trld, var2_trld) {
 }
 
 get_ratio_boot &lt;- function(cohort, var1, var2, var1_trld, var2_trld, i) {
-    # requires dplyr
     # Answers the question:
     # How much the proportion of individuals with var2 &gt;&lt; var2_trld
     # increase after we filter the population with var1_trld
 
     # Base population: cohort
-    vi &lt;- cohort %&gt;%
-        select({{var1}}, {{var2}}) %&gt;% # variables of interest
-        drop_na()
-
-    # Splice for bootstrapping
-    splice &lt;- vi[i, ]
-
+    vi &lt;- na.omit(cohort[i, c(var1, var2)])
+    
     # Find individuals of interest (ioi, above/below of var2_trld)
-    ioi &lt;- splice %&gt;%
-        filter({{var2}} &gt;= {{var2_trld}})
+    ioi &lt;- vi[vi[, var2] &gt;= var2_trld, ]
 
     # Get proportion
-    prop &lt;- 100 * dim(ioi)[1] / dim(splice)[1]
+    prop &lt;- 100 * nrow(ioi) / nrow(vi)
 
     # Now filter base population first using var1
-    filtered &lt;- splice %&gt;%
-        filter({{var1}} &gt;= {{var1_trld}})
+    filtered &lt;- vi[vi[, var1] &gt;= var1_trld, ]
 
     # And find IoI again
-    f_ioi &lt;- filtered %&gt;%
-        filter({{var2}} &gt;= {{var2_trld}})
+    f_ioi &lt;- filtered[filtered[, var2] &gt;= var2_trld, ]
 
     # Now get proportion (filtered population)
-    f_prop &lt;- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+    f_prop &lt;- 100 * nrow(f_ioi) / nrow(filtered)
 
     # Compute difference between proportions
     diff &lt;- round(f_prop - prop, 2)
@@ -275,44 +260,40 @@ get_ratio_boot &lt;- function(cohort, var1, var2, var1_trld, var2_trld, i) {
 <pre><code>## [1] 1.16</code></pre>
 <pre class="r"><code>boot(h2000$GP, statistic = bootmedian, R = 100)$t0</code></pre>
 <pre><code>## [1] 1.16</code></pre>
-<p>These seem to work fine. <strong>The question is then, why doesn’t our proportion statistic function work with boot?</strong> We want to check the proportion of certain kinds of people in a population before and after applying some kind of variable filter. For example, the proportion of people above median GP before and after we filter for ferritin lower bound of 5 ug/l (so, the difference).</p>
+<p>These seem to work fine. Next, we want to check the proportion of certain kinds of people in a population before and after applying some kind of variable filter. For example, the proportion of people above median GP before and after we filter for ferritin lower bound of 5 ug/l (so, the difference).</p>
 <p>This is the result we got straight from our sample:</p>
-<pre class="r"><code>get_ratio(h2000, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)</code></pre>
+<pre class="r"><code>get_ratio(h2000, var1 = &quot;FERRITIINI&quot;, var2 = &quot;GP&quot;, var1_trld = 5, var2_trld = 1.16)</code></pre>
 <pre><code>## [1] 0.1</code></pre>
 <p>And this is what comes out of boot:</p>
-<pre class="r"><code>boot(h2000, statistic = get_ratio_boot, R = 100, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)$t0</code></pre>
-<pre><code>## [1] 8.07</code></pre>
-<p>That is an increase of 8000% in the estimate. There is no way the data shape produces this, so I must be using the boot() function call incorrectly.</p>
-<p>We can do a sanity check by using our own bootstrap hack:</p>
-<pre class="r"><code>res &lt;- c()
-for (k in 1:100) {
-    res[k] &lt;- get_ratio_boot(h2000, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16, i = sample(1:5000, 5000, replace = T))
-}
-mean(res)</code></pre>
-<pre><code>## [1] 0.107</code></pre>
-<p>Our own boothack comes much more closer to the real value in the sample space. So what is wrong with our boot()?</p>
-<p>Let’s try dumbing down our statistic function</p>
-<pre class="r"><code>dumb_ratio_boot &lt;- function(data, i) {
-    # this version does not require the passing of ... arguments to boot()
-    splice &lt;- data[i, ]
+<pre class="r"><code>boot(h2000, statistic = get_ratio_boot, R = 1000, var1 = &quot;FERRITIINI&quot;, var2 = &quot;GP&quot;, var1_trld = 5, var2_trld = 1.16)$t0</code></pre>
+<pre><code>## [1] 0.1</code></pre>
+<p>With this configuration of the get_ratio function the boot() seems to work correctly. Can we break it in a surprising way? (We know we can, this is just a demo).</p>
+<pre class="r"><code>get_ratio_broken_index &lt;- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+    
+    # Base population: cohort
+    vi &lt;- cohort %&gt;%
+        select({{var1}}, {{var2}}) %&gt;%
+        drop_na()
+
+    splice &lt;- vi[i, ]
     
     # Find individuals of interest (ioi, above/below of var2_trld)
     ioi &lt;- splice %&gt;%
-        filter(GP &gt;= 1.16)
+        filter({{var2}} &gt;= {{var2_trld}})
 
     # Get proportion
-    prop &lt;- 100 * dim(ioi)[1] / dim(splice)[1]
+    prop &lt;- 100 * nrow(ioi) / nrow(splice)
 
     # Now filter base population first using var1
     filtered &lt;- splice %&gt;%
-        filter(FERRITIINI &gt;= 5)
+        filter({{var1}} &gt;= {{var1_trld}})
 
     # And find IoI again
-    f_ioi &lt;- filtered %&gt;%
-        filter(GP &gt;= 1.16)
+    f_ioi &lt;- filtered %&gt;% 
+        filter({{var2}} &gt;= {{var2_trld}})
 
     # Now get proportion (filtered population)
-    f_prop &lt;- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+    f_prop &lt;- 100 * nrow(f_ioi) / nrow(filtered)
 
     # Compute difference between proportions
     diff &lt;- round(f_prop - prop, 2)
@@ -320,28 +301,34 @@ mean(res)</code></pre>
     # Return
     return(diff)
 }</code></pre>
-<p>Now let’s try it</p>
-<pre class="r"><code>boot(h2000, statistic = dumb_ratio_boot, R = 100)$t0</code></pre>
-<pre><code>## [1] 1.33</code></pre>
-<p>We got closer somehow? What if we remove all tidy syntax?</p>
-<pre class="r"><code>dumber_ratio_boot &lt;- function(data, i) {
-    # this version does not require the passing of ... arguments to boot()
-    splice &lt;- data[i, ]
+<pre class="r"><code>boot(h2000, statistic = get_ratio_broken_index, R = 1, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)$t0</code></pre>
+<pre><code>## [1] 8.07</code></pre>
+<p>Moving the index splicing after the selection and NA removal breaks the result. I suspect this is because the length(i) = nrow(h2000), and length(i) != nrow(h2000 %&gt;% select(var1, var2) %&gt;% drop_na()). Let’s see:</p>
+<pre class="r"><code>get_ratio_broken_index_nodrop &lt;- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+
+    # Base population: cohort
+    vi &lt;- cohort %&gt;%
+        select({{var1}}, {{var2}})
+    
+    splice &lt;- vi[i, ]
     
     # Find individuals of interest (ioi, above/below of var2_trld)
-    ioi &lt;- splice[splice$GP &gt;= 1.16, ]
+    ioi &lt;- splice %&gt;%
+        filter({{var2}} &gt;= {{var2_trld}})
 
     # Get proportion
-    prop &lt;- 100 * dim(ioi)[1] / dim(splice)[1]
+    prop &lt;- 100 * nrow(ioi) / nrow(splice)
 
     # Now filter base population first using var1
-    filtered &lt;- splice[splice$FERRITIINI &gt;= 5, ]
+    filtered &lt;- splice %&gt;%
+        filter({{var1}} &gt;= {{var1_trld}})
 
     # And find IoI again
-    f_ioi &lt;- filtered[filtered$GP &gt;= 1.16, ]
+    f_ioi &lt;- filtered %&gt;% 
+        filter({{var2}} &gt;= {{var2_trld}})
 
     # Now get proportion (filtered population)
-    f_prop &lt;- 100 * dim(f_ioi)[1] / dim(filtered)[1]
+    f_prop &lt;- 100 * nrow(f_ioi) / nrow(filtered)
 
     # Compute difference between proportions
     diff &lt;- round(f_prop - prop, 2)
@@ -349,9 +336,107 @@ mean(res)</code></pre>
     # Return
     return(diff)
 }</code></pre>
-<pre class="r"><code>boot(h2000, statistic = dumber_ratio_boot, R = 100)$t0</code></pre>
-<pre><code>## [1] 5.55</code></pre>
-<p>We get a worse result :(</p>
+<pre class="r"><code>boot(h2000, statistic = get_ratio_broken_index_nodrop, R = 1, var1 = FERRITIINI, var2 = GP, var1_trld = 5, var2_trld = 1.16)$t0</code></pre>
+<pre><code>## [1] 1.33</code></pre>
+<p>Curious! It’s still wrong. Does select() change the size of the data so that the indexing fails somehow?</p>
+<pre class="r"><code>nrow(h2000)</code></pre>
+<pre><code>## [1] 6264</code></pre>
+<pre class="r"><code>selected &lt;- h2000 %&gt;% select(FERRITIINI, GP)
+nrow(selected)</code></pre>
+<pre><code>## [1] 6264</code></pre>
+<p>No, it doesn’t (as it shouldn’t). Let’s go back to the original working one to see what happens with the indexing.</p>
+<pre class="r"><code>get_ratio_boot_i &lt;- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+    # Answers the question:
+    # How much the proportion of individuals with var2 &gt;&lt; var2_trld
+    # increase after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi &lt;- na.omit(cohort[, c(var1, var2)])
+    
+    vi &lt;- vi[i, ]
+    
+    # Find individuals of interest (ioi, above/below of var2_trld)
+    ioi &lt;- vi[vi[, var2] &gt;= var2_trld, ]
+
+    # Get proportion
+    prop &lt;- 100 * nrow(ioi) / nrow(vi)
+
+    # Now filter base population first using var1
+    filtered &lt;- vi[vi[, var1] &gt;= var1_trld, ]
+
+    # And find IoI again
+    f_ioi &lt;- filtered[filtered[, var2] &gt;= var2_trld, ]
+
+    # Now get proportion (filtered population)
+    f_prop &lt;- 100 * nrow(f_ioi) / nrow(filtered)
+
+    # Compute difference between proportions
+    diff &lt;- round(f_prop - prop, 2)
+
+    # Return
+    return(diff)
+}</code></pre>
+<pre class="r"><code>boot(h2000, statistic = get_ratio_boot_i, R = 100, var1 = &quot;FERRITIINI&quot;, var2 = &quot;GP&quot;, var1_trld = 5, var2_trld = 1.16)$t0</code></pre>
+<pre><code>## [1] 0.2</code></pre>
+<p>We get really close, but still incorrect. Even though our approach is identical to the tidyverse version, we get a different result (tidy: 8, this: 0.2, correct: 0.1). We’ll need to make this simpler to understand what happens.</p>
+<pre class="r"><code># Let&#39;s create a dataset with controlled NA (1000 pcs)
+
+vi &lt;- na.omit(h2000[, c(&quot;FERRITIINI&quot;, &quot;GP&quot;)])
+scuffed_data &lt;- vi
+set.seed(2022)
+scuffed_data[sample(1:nrow(vi), 1000, replace = F), ] &lt;- NA
+
+# Now let&#39;s see if we get identical results from our two different implementations
+var1 &lt;- &quot;FERRITIINI&quot;
+var2 &lt;- &quot;GP&quot;
+var1_trld &lt;- 5
+var2_trld &lt;- 1.16
+## BASE
+
+# Find individuals of interest (ioi, above/below of var2_trld)
+ioi_base &lt;- scuffed_data[scuffed_data[, var2] &gt;= var2_trld, ]
+# Get proportion
+prop_base &lt;- 100 * nrow(ioi_base) / nrow(scuffed_data)
+# Now filter base population first using var1
+filtered_base &lt;- scuffed_data[scuffed_data[, var1] &gt;= var1_trld, ]
+# And find IoI again
+f_ioi_base &lt;- filtered_base[filtered_base[, var2] &gt;= var2_trld, ]
+# Now get proportion (filtered population)
+f_prop_base &lt;- 100 * nrow(f_ioi_base) / nrow(filtered_base)
+# Compute difference between proportions
+diff_base &lt;- round(f_prop_base - prop_base, 2)
+
+## TIDY
+# Find individuals of interest (ioi, above/below of var2_trld)
+ioi_tidy &lt;- scuffed_data %&gt;%
+    filter(GP &gt;= var2_trld)
+
+# Get proportion
+prop_tidy &lt;- 100 * nrow(ioi_tidy) / nrow(scuffed_data)
+
+# Now filter base population first using var1
+filtered_tidy &lt;- scuffed_data %&gt;%
+    filter(FERRITIINI &gt;= var1_trld)
+
+# And find IoI again
+f_ioi_tidy &lt;- filtered_tidy %&gt;% 
+    filter(GP &gt;= var2_trld)
+
+# Now get proportion (filtered population)
+f_prop_tidy &lt;- 100 * nrow(f_ioi_tidy) / nrow(filtered_tidy)
+
+# Compute difference between proportions
+diff_tidy &lt;- round(f_prop_tidy - prop_tidy, 2)
+
+
+print(c(diff_base, diff_tidy))</code></pre>
+<pre><code>## [1] 0.19 9.42</code></pre>
+<p>We can now see that they produce wildly different estimates. Tidy must handle NAs differently here. Let’s see how.</p>
+<pre class="r"><code>nrow(ioi_base) </code></pre>
+<pre><code>## [1] 3087</code></pre>
+<pre class="r"><code>nrow(ioi_tidy)</code></pre>
+<pre><code>## [1] 2087</code></pre>
+<p>We find that filter() strips NA automatically (which you can also find by reading the documentation). This in turn affects the proportion calculations, as it is done using nrow(). I consider this solved.</p>
 </div>
 
 
