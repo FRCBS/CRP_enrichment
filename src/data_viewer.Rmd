@@ -2,7 +2,7 @@
 title: "Data Viewer"
 author: "Esa Turkulainen"
 date: "7.4.2021"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include = FALSE}
