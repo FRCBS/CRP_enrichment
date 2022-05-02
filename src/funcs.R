@@ -171,3 +171,26 @@ get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
     # Return
     return(diff)
 }
+
+get_mean_boot <- function(cohort, var1, var2, var1_trld, i) {
+    # requires dplyr
+    # Answers the question:
+    # What is the mean of var2
+    # after we filter the population with var1_trld
+
+    # Base population: cohort
+    vi <- cohort[i, ] %>%
+        select({{var1}}, {{var2}}) %>% # variables of interest
+        drop_na()
+
+    # Filter base population first using var1
+    filtered <- vi %>%
+        filter({{var1}} >= var1_trld)
+
+    # And find mean of interest
+    moi <- filtered %>%
+        summarise(across({{var2}}, mean))
+
+    # Return
+    return(round(as.numeric(moi), 2))
+}
