@@ -387,7 +387,11 @@ multiplot(p1, p2, p3, cols = 1)
 h2000_filtered <- h2000 %>% 
     filter(BMII_PAINO.x >= 50 & BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
     filter(IKA2 >= 18 & IKA2 <= 66) %>% # Filter away too young and too old
-    filter((B_Hb >= 125 & SP2 == 2) | (B_Hb >= 135 & SP2 == 1)) # Filter by hemoglobin
+    filter((B_Hb >= 125 & SP2 == 2) | (B_Hb >= 135 & SP2 == 1)) %>% # Filter by hemoglobin
+    filter(BA08 == 0) %>% # filter out people with heart attacks
+    filter(BA09 == 0) %>% # filter out people with angina
+    filter(BA10 == 0) %>% # cardiac insufficiency / heart failure
+    filter(!(BA26 == 1 & ATC_A10A == 1)) # filter out people who are diabetic AND use insulin
 ```
 
 
@@ -636,7 +640,7 @@ multiplot(CRP_mean_p, GP_mean_p, HbA_mean_p, CRP_median_p, GP_median_p, HbA_medi
 
 ```{r props_boot, echo = FALSE}
 ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
-if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))){ # run bootstrap only if needed
+if (!file.exists(paste0("~/CRP_enrichment/data/h2000fil_ferritin_threshold_boot", boot_n, ".rds"))){ # run bootstrap only if needed
     start <- Sys.time()
     # CRP
     CRP_diffs <- c()
@@ -680,12 +684,12 @@ if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n,
                                 group = c(rep("CRP", 10), rep("GlycA", 10), rep("HbA1C", 10)))
     
     # save to file so we don't have to do this every time
-    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))
+    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/h2000fil_ferritin_threshold_boot", boot_n, ".rds"))
     
     end <- Sys.time()
     print(end - start)
 } else {
-    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/ferritin_threshold_boot", boot_n, ".rds"))
+    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/h2000fil_ferritin_threshold_boot", boot_n, ".rds"))
 }
 ```
 
@@ -709,7 +713,7 @@ ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
 CRPLBs <- c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
 GPLBs <- as.numeric(quantile(h2000_filtered$GP, 0.1 * (0.9:9.9), na.rm = T))
 HbA1CLBs <- c(18, 24, 30, 36, 42, 48, 54, 60, 66, 72)
-if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_x_SRhealth_boot", boot_n, ".rds"))){ # run bootstrap only if needed
+if (!file.exists(paste0("~/CRP_enrichment/data/h2000fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))){ # run bootstrap only if needed
     start <- Sys.time()
     # Ferritin
     fer_diffs <- c()
@@ -769,12 +773,12 @@ if (!file.exists(paste0("~/CRP_enrichment/data/ferritin_x_SRhealth_boot", boot_n
                                group = c(rep("Ferritin", 10), rep("CRP", 10), rep("GlycA", 10), rep("HbA1C", 10)))
     
     # save to file so we don't have to do this every time
-    saveRDS(boot_mean_df, paste0("~/CRP_enrichment/data/ferritin_x_SRhealth_boot", boot_n, ".rds"))
+    saveRDS(boot_mean_df, paste0("~/CRP_enrichment/data/h2000fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))
     
     end <- Sys.time()
     print(end - start)
 } else {
-    boot_mean_df <- readRDS(paste0("~/CRP_enrichment/data/ferritin_x_SRhealth_boot", boot_n, ".rds"))
+    boot_mean_df <- readRDS(paste0("~/CRP_enrichment/data/h2000fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))
 }
 ```
 
@@ -836,12 +840,12 @@ Let's assume that people who report their health as "bad" (5) don't come to dona
 
 ```{r h2000_healthier, echo = FALSE}
 h2000_healthier <- h2000_filtered %>%
-    filter(BA01 < 5)
+    filter(BA01 < 4)
 ```
 
 ```{r, echo = FALSE}
 ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
-if (!file.exists(paste0("~/CRP_enrichment/data/healthy_ferritin_threshold_boot", boot_n, ".rds"))){ # run bootstrap only if needed
+if (!file.exists(paste0("~/CRP_enrichment/data/h2000fil_sub4_ferritin_threshold_boot", boot_n, ".rds"))){ # run bootstrap only if needed
     start <- Sys.time()
     # CRP
     CRP_diffs <- c()
@@ -885,12 +889,12 @@ if (!file.exists(paste0("~/CRP_enrichment/data/healthy_ferritin_threshold_boot",
                                 group = c(rep("CRP", 10), rep("GlycA", 10), rep("HbA1C", 10)))
     
     # save to file so we don't have to do this every time
-    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/healthy_ferritin_threshold_boot", boot_n, ".rds"))
+    saveRDS(boot_diff_df, paste0("~/CRP_enrichment/data/h2000fil_sub4_ferritin_threshold_boot", boot_n, ".rds"))
     
     end <- Sys.time()
     print(end - start)
 } else {
-    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/healthy_ferritin_threshold_boot", boot_n, ".rds"))
+    boot_diff_df <- readRDS(paste0("~/CRP_enrichment/data/h2000fil_sub4_ferritin_threshold_boot", boot_n, ".rds"))
 }
 ```
 
@@ -901,7 +905,7 @@ ggplot(data = boot_diff_df, aes(x = LB, y = diffs, color = group)) +
     geom_point(shape = 4) +
     theme_minimal() +
     labs(title = "Growth of number of individuals over marker threshold per ferritin filter level",
-         subtitle = paste("Cohort: Health2000 | Donation restrictions for age, Hb, weight and SRH < 5 applied | 95% CI from", boot_n, "bootstrap samples"),
+         subtitle = paste("Cohort: Health2000 | Donation restrictions for age, Hb, weight and SRH < 4 applied | 95% CI from", boot_n, "bootstrap samples"),
          y = "Difference (pp)",
          x = "Ferritin filter (ug/l)",
          color = "Marker") + guides(fill = "none")
