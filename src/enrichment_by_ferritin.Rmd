@@ -15,7 +15,7 @@ library(RColorBrewer)
 source("~/CRP_enrichment/src/funcs.R") # load our helper functions
 
 # set number of bootstrap iterations
-boot_n <- 10000
+boot_n <- 100
 ```
 
 We have one cohort of blood donors, FinDonor, and two general population cohorts, FinRisk97 and Health2000. The FinDonor cohort does not include the variables of interest, so we'll use data from individual donations (by donors), which is cross-referenceable to the FinDonor set.
@@ -608,12 +608,12 @@ HbA_mean_p <- ggplot(data = HbAbootmeandf, aes(x = mean, y = plotorder)) +
 h00HbAfilmd <- boot(h00HbAfil$HbAmm, bootmedian, R = boot_n)
 h00HbAmd <- boot(h00HbA$HbAmm, bootmedian, R = boot_n)
 
-h00HbAfilcimd <- boot.ci(h00HbAfilmd, type = "norm")
+#h00HbAfilcimd <- boot.ci(h00HbAfilmd, type = "norm")
 #h00HbAcimd <- boot.ci(h00HbAmd, type = "norm")
 
 HbAbootmediandf <- data.frame(median = c(h00HbAmd$t0, h00HbAfilmd$t0),
-                         lower = c(h00HbAmd$t0, h00HbAfilcimd$normal[2]),
-                         upper = c(h00HbAmd$t0, h00HbAfilcimd$normal[3]),
+                         lower = c(h00HbAmd$t0, h00HbAfilmd$t0),
+                         upper = c(h00HbAmd$t0, h00HbAfilmd$t0),
                          filter = c("Unfiltered", "Filtered"),
                          cohort = c(rep("Health2000", 2)),
                          plotorder = c(0.9, 1.1))
@@ -629,7 +629,7 @@ HbA_median_p <- ggplot(data = HbAbootmediandf, aes(x = median, y = plotorder)) +
     geom_text(aes(x = 20, y = plotorder, label = paste(cohort, "|", filter, "| Median:", round(median, 2))), size = 4, hjust = "inward") +
     theme(axis.title.y = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank(), legend.position = "none") +
     labs(title = "Population HbA1C (mmol/mol) median in Health2000, whether selected by ferritin >30 ug/l",
-         subtitle = "95 % confidence interval (bootstrap) | No interval for unfiltered (all values the same)",
+         subtitle = "95 % confidence interval (bootstrap) | No interval (all values the same)",
          x = "Median",
          color = "Ferritin > 30 ug/l")
 ```
@@ -793,6 +793,7 @@ This plot shows how the mean of self reported health reacts to increasing marker
 ferp <- ggplot(data = boot_mean_df[1:10, ], aes(x = LBs, y = diffs)) + 
     geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .2) +
     geom_line() +
+    geom_vline(xintercept = 30, color = "red", alpha = 0.4) +
     geom_point(shape = 4) +
     theme_minimal() +
     labs(title = "Self reported health (Likert) mean by ferritin level",
@@ -802,8 +803,9 @@ ferp <- ggplot(data = boot_mean_df[1:10, ], aes(x = LBs, y = diffs)) +
          color = "Marker") + guides(fill = "none")
 
 crpp <- ggplot(data = boot_mean_df[11:20, ], aes(x = LBs, y = diffs)) + 
-    geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#F8766D", alpha = .2) +
-    geom_line(color = "#F8766D") +
+    geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#F87000", alpha = .2) +
+    geom_line(color = "#F87000") +
+    geom_vline(xintercept = 3, color = "red", alpha = 0.4) +
     geom_point(shape = 4) +
     theme_minimal() +
     labs(title = "by CRP level",
@@ -814,6 +816,7 @@ crpp <- ggplot(data = boot_mean_df[11:20, ], aes(x = LBs, y = diffs)) +
 gpp <- ggplot(data = boot_mean_df[21:30, ], aes(x = LBs, y = diffs)) + 
     geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00BA38", alpha = .2) +
     geom_line(color = "#00BA38") +
+    geom_vline(xintercept = 1.166, color = "red", alpha = 0.4) +
     geom_point(shape = 4) +
     theme_minimal() +
     labs(title = "by GlycA level",
@@ -825,6 +828,8 @@ hbap <- ggplot(data = boot_mean_df[31:40, ], aes(x = LBs, y = diffs)) +
     geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#619CFF", alpha = .2) +
     geom_line(color = "#619CFF") +
     geom_point(shape = 4) +
+    annotate("rect", xmin = 20, xmax = 42, ymin = 2, ymax = 3.25,
+           alpha = .1,fill = "red") +
     theme_minimal() +
     labs(title = "by HbA1C level",
          x = "HbA1C (mmol/mol)",
@@ -836,7 +841,7 @@ multiplot(ferp, crpp, gpp, hbap, cols = 2)
 
 The mean of self reported health clearly increases (so: SR health worsens) with ferritin. The others offer a couple of dipping points (very interesting) as we go further up with the markers.
 
-Let's assume that people who report their health as "bad" (5) don't come to donate. Does it affect our ratio analysis?
+Let's assume that people who report their health as "bad" or "really bad" (4, 5) don't come to donate. Does it affect our ratio analysis?
 
 ```{r h2000_healthier, echo = FALSE}
 h2000_healthier <- h2000_filtered %>%
@@ -905,10 +910,10 @@ ggplot(data = boot_diff_df, aes(x = LB, y = diffs, color = group)) +
     geom_point(shape = 4) +
     theme_minimal() +
     labs(title = "Growth of number of individuals over marker threshold per ferritin filter level",
-         subtitle = paste("Cohort: Health2000 | Donation restrictions for age, Hb, weight and SRH < 4 applied | 95% CI from", boot_n, "bootstrap samples"),
+         subtitle = paste("Cohort: Health2000 | Various donation restrictions applied | 95% CI from", boot_n, "bootstrap samples"),
          y = "Difference (pp)",
          x = "Ferritin filter (ug/l)",
          color = "Marker") + guides(fill = "none")
 ```
 
-It does seem to lower the level of GlycA by ~0.7 pp, CRP by ~0.2 pp, and HbA$_{1C}$ by 0.1 pp.
+Further restriction by SRH < 4 doesn't seem to have any effect on the curves.
