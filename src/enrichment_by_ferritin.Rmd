@@ -841,6 +841,190 @@ multiplot(ferp, crpp, gpp, hbap, cols = 2)
 
 The mean of self reported health clearly increases (so: SR health worsens) with ferritin. The others offer a couple of dipping points (very interesting) as we go further up with the markers.
 
+Let's stratify this between Females and Males next
+
+## Gender strat
+
+```{r genderstrat}
+h2k_male <- h2000_filtered %>% filter(SP2 == 1)
+h2k_female <- h2000_filtered %>% filter(SP2 == 2)
+```
+
+```{r marker_x_health_bootmean_genderstrat, echo = FALSE, warning = FALSE}
+ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
+CRPLBs <- c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
+GPLBs <- as.numeric(quantile(h2000_filtered$GP, 0.1 * (0.9:9.9), na.rm = T))
+HbA1CLBs <- c(18, 24, 30, 36, 42, 48, 54, 60, 66, 72)
+if (!file.exists(paste0("~/CRP_enrichment/data/h2kgendered_ferritin_x_SRhealth_boot", boot_n, ".rds"))) { # run bootstrap only if needed
+    start <- Sys.time()
+    # Ferritin MALE
+    fer_diffs_m <- c()
+    fer_lower_m <- c()
+    fer_upper_m <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_male, statistic = get_mean_boot, R = boot_n, var1 = FERRITIINI, var2 = BA01, var1_trld = ferrLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        fer_diffs_m[i] <- boot_obj$t0
+        fer_lower_m[i] <- ci_obj$normal[2]
+        fer_upper_m[i] <- ci_obj$normal[3]
+    }
+    
+    # Ferritin FEMALE
+    fer_diffs_f <- c()
+    fer_lower_f <- c()
+    fer_upper_f <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_female, statistic = get_mean_boot, R = boot_n, var1 = FERRITIINI, var2 = BA01, var1_trld = ferrLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        fer_diffs_f[i] <- boot_obj$t0
+        fer_lower_f[i] <- ci_obj$normal[2]
+        fer_upper_f[i] <- ci_obj$normal[3]
+    }
+
+    # CRP MALE
+    CRP_diffs_m <- c()
+    CRP_lower_m <- c()
+    CRP_upper_m <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_male, statistic = get_mean_boot, R = boot_n, var1 = CRP, var2 = BA01, var1_trld = CRPLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        CRP_diffs_m[i] <- boot_obj$t0
+        CRP_lower_m[i] <- ci_obj$normal[2]
+        CRP_upper_m[i] <- ci_obj$normal[3]
+    }
+    
+    # CRP FEMALE
+    CRP_diffs_f <- c()
+    CRP_lower_f <- c()
+    CRP_upper_f <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_female, statistic = get_mean_boot, R = boot_n, var1 = CRP, var2 = BA01, var1_trld = CRPLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        CRP_diffs_f[i] <- boot_obj$t0
+        CRP_lower_f[i] <- ci_obj$normal[2]
+        CRP_upper_f[i] <- ci_obj$normal[3]
+    }
+
+    # GlycA MALE
+    GP_diffs_m <- c()
+    GP_lower_m <- c()
+    GP_upper_m <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_male, statistic = get_mean_boot, R = boot_n, var1 = GP, var2 = BA01, var1_trld = GPLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        GP_diffs_m[i] <- boot_obj$t0
+        GP_lower_m[i] <- ci_obj$normal[2]
+        GP_upper_m[i] <- ci_obj$normal[3]
+    }
+    
+    # GlycA FEMALE
+    GP_diffs_f <- c()
+    GP_lower_f <- c()
+    GP_upper_f <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2k_female, statistic = get_mean_boot, R = boot_n, var1 = GP, var2 = BA01, var1_trld = GPLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        GP_diffs_f[i] <- boot_obj$t0
+        GP_lower_f[i] <- ci_obj$normal[2]
+        GP_upper_f[i] <- ci_obj$normal[3]
+    }
+    
+    # HbA_1C MALE
+    hba_diffs_m <- c()
+    hba_lower_m <- c()
+    hba_upper_m <- c()
+    h2000_m <- h2k_male %>%
+        mutate(hba = B_GHb_A1C * 10.93 - 23.50)
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2000_m, statistic = get_mean_boot, R = boot_n, var1 = hba, var2 = BA01, var1_trld = HbA1CLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        hba_diffs_m[i] <- boot_obj$t0
+        hba_lower_m[i] <- ci_obj$normal[2]
+        hba_upper_m[i] <- ci_obj$normal[3]
+    }
+    
+    # HbA_1C FEMALE
+    hba_diffs_f <- c()
+    hba_lower_f <- c()
+    hba_upper_f <- c()
+    h2000_f <- h2k_female %>%
+        mutate(hba = B_GHb_A1C * 10.93 - 23.50)
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(h2000_f, statistic = get_mean_boot, R = boot_n, var1 = hba, var2 = BA01, var1_trld = HbA1CLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        hba_diffs_f[i] <- boot_obj$t0
+        hba_lower_f[i] <- ci_obj$normal[2]
+        hba_upper_f[i] <- ci_obj$normal[3]
+    }
+    
+    boot_mean_df <- data.frame(LBs = c(ferrLBs, ferrLBs, CRPLBs, CRPLBs, GPLBs, GPLBs, HbA1CLBs, HbA1CLBs),
+                               diffs = c(fer_diffs_m, fer_diffs_f, CRP_diffs_m, CRP_diffs_f, GP_diffs_m, GP_diffs_f, hba_diffs_m, hba_diffs_f), 
+                               lower = c(fer_lower_m, fer_lower_f, CRP_lower_m, CRP_lower_f, GP_lower_m, GP_lower_f, hba_lower_m, hba_lower_f), 
+                               upper = c(fer_upper_m, fer_upper_f, CRP_upper_m, CRP_upper_f, GP_upper_m, GP_upper_f, hba_upper_m, hba_upper_f),
+                               group = c(rep("Ferritin", 20), rep("CRP", 20), rep("GlycA", 20), rep("HbA1C", 20)),
+                               gender = rep(c(rep("Male", 10), rep("Female", 10)), 4))
+    
+    # save to file so we don't have to do this every time
+    saveRDS(boot_mean_df, paste0("~/CRP_enrichment/data/h2kgendered_ferritin_x_SRhealth_boot", boot_n, ".rds"))
+    
+    end <- Sys.time()
+    print(end - start)
+} else {
+    boot_mean_df <- readRDS(paste0("~/CRP_enrichment/data/h2kgendered_ferritin_x_SRhealth_boot", boot_n, ".rds"))
+}
+```
+
+```{r SRH_plot_gendered, echo = FALSE, warning = FALSE, fig.height = 7, fig.width = 11, fig.align = 'center'}
+ferp <- ggplot(data = boot_mean_df[1:20, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = gender, fill = gender), alpha = .2) +
+    geom_line(aes(linetype = gender, color = gender)) +
+    geom_vline(xintercept = 30, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "Self reported health (Likert) mean by ferritin level",
+         subtitle = paste("Cohort: Health2000 | Donation restrictions for age, Hb, and weight applied | 95% CI from", boot_n, "bootstrap samples"),
+         y = "Mean of self reported health",
+         x = "Ferritin (ug/l)",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none")
+
+crpp <- ggplot(data = boot_mean_df[21:40, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = gender, fill = gender), alpha = .2) +
+    geom_line(aes(linetype = gender, color = gender)) +
+    geom_vline(xintercept = 3, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "by CRP level",
+         y = "Mean of self reported health",
+         x = "CRP (mg/l)",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none")
+
+gpp <- ggplot(data = boot_mean_df[41:60, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = gender, fill = gender), alpha = .2) +
+    geom_line(aes(linetype = gender, color = gender)) +
+    geom_vline(xintercept = 1.166, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "by GlycA level",
+         x = "GlycA (mg/l)",
+         y = "",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none")
+
+hbap <- ggplot(data = boot_mean_df[61:80, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = gender, fill = gender), alpha = .2) +
+    geom_line(aes(linetype = gender, color = gender)) +
+    geom_point(shape = 4) +
+    annotate("rect", xmin = 20, xmax = 42, ymin = 2, ymax = 4,
+           alpha = .1,fill = "red") +
+    theme_minimal() +
+    labs(title = "by HbA1C level",
+         x = "HbA1C (mmol/mol)",
+         y = "",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none")
+
+multiplot(ferp, crpp, gpp, hbap, cols = 2)
+```
+
+
 Let's assume that people who report their health as "bad" or "really bad" (4, 5) don't come to donate. Does it affect our ratio analysis?
 
 ```{r h2000_healthier, echo = FALSE}
@@ -917,3 +1101,116 @@ ggplot(data = boot_diff_df, aes(x = LB, y = diffs, color = group)) +
 ```
 
 Further restriction by SRH < 4 doesn't seem to have any effect on the curves.
+
+How about FinRisk1997? It doesn't have HbA1C, but everything else should be OK. We also can't apply as many restrictions as with the H2000, because we're missing variables. 
+
+```{r finrisk_filtered, echo = FALSE, include = FALSE}
+fr_filtered <- fr1997 %>%
+    filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
+    filter(IKA >= 18 & IKA <= 66) %>% # Filter away too young and too old
+    #filter((HGB >= 125 & SUKUP == 2) | (HGB >= 135 & SUKUP == 1)) %>% # DON'T filter by hemoglobin, < 500 values in data
+    filter(Q15A != 2) %>% # STEMI, NSTEMI
+    filter(Q16A != 2) %>% # Stroke
+    # filter(Q38 != 2 & Q38 != 4) %>%  # Insulin treatment (2: just insulin, 4: insulin and a tablet)
+    filter(Q17B != 2) %>% # cardiac insufficiency
+    filter(Q17C != 2) # angina pectoris
+```
+
+```{r marker_x_health_bootmean_fr, echo = FALSE, warning = FALSE, include = FALSE}
+ferrLBs <- c(5, 10, 15, 20, 25, 30, 35, 40, 45, 50)
+CRPLBs <- c(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)
+GPLBs <- as.numeric(quantile(fr_filtered$GP, 0.1 * (0.9:9.9), na.rm = T))
+if (!file.exists(paste0("~/CRP_enrichment/data/fr97fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))){ # run bootstrap only if needed
+    start <- Sys.time()
+    # Ferritin
+    fer_diffs <- c()
+    fer_lower <- c()
+    fer_upper <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(fr_filtered, statistic = get_mean_boot, R = boot_n, var1 = FERRITIN, var2 = Q40, var1_trld = ferrLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        fer_diffs[i] <- boot_obj$t0
+        fer_lower[i] <- ci_obj$normal[2]
+        fer_upper[i] <- ci_obj$normal[3]
+    }
+
+    # CRP
+    CRP_diffs <- c()
+    CRP_lower <- c()
+    CRP_upper <- c()
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(fr_filtered, statistic = get_mean_boot, R = boot_n, var1 = CRP, var2 = Q40, var1_trld = CRPLBs[i])
+        ci_obj <- boot.ci(boot_obj, type = "norm")
+        CRP_diffs[i] <- boot_obj$t0
+        CRP_lower[i] <- ci_obj$normal[2]
+        CRP_upper[i] <- ci_obj$normal[3]
+    }
+
+    # GlycA
+    GP_diffs <- c()
+    GP_lower <- c()
+    GP_upper <- c()
+    GP_median <- median(fr_filtered$GP, na.rm = T)
+    for (i in 1:length(ferrLBs)) {
+        boot_obj <- boot(fr_filtered, statistic = get_mean_boot, R = boot_n, var1 = GP, var2 = Q40, var1_trld = GPLBs[i])
+        GP_diffs[i] <- boot_obj$t0
+        if (i == 10) { # quick hackfix for the fact that the last quantile has no bias or error (making CI fail)
+            GP_lower[i] <- boot_obj$t0
+            GP_upper[i] <- boot_obj$t0
+            }
+    }
+
+    
+    boot_mean_df <- data.frame(LBs = c(ferrLBs, CRPLBs, GPLBs),
+                               diffs = c(fer_diffs, CRP_diffs, GP_diffs), 
+                               lower = c(fer_lower, CRP_lower, GP_lower), 
+                               upper = c(fer_upper, CRP_upper, GP_upper),
+                               group = c(rep("Ferritin", 10), rep("CRP", 10), rep("GlycA", 10)))
+    
+    # save to file so we don't have to do this every time
+    saveRDS(boot_mean_df, paste0("~/CRP_enrichment/data/fr97fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))
+    
+    end <- Sys.time()
+    print(end - start)
+} else {
+    boot_mean_df <- readRDS(paste0("~/CRP_enrichment/data/fr97fil_ferritin_x_SRhealth_boot", boot_n, ".rds"))
+}
+```
+
+```{r SRH_plot_fr97, echo = FALSE, warning = FALSE, fig.height = 7, fig.width = 11, fig.align = 'center', include = FALSE}
+ferp <- ggplot(data = boot_mean_df[1:10, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .2) +
+    geom_line() +
+    geom_vline(xintercept = 30, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "Self reported health (Likert) mean by ferritin level",
+         subtitle = paste("Cohort: FINRISK1997 | Various donation restrictions applied | 95% CI from", boot_n, "bootstrap samples"),
+         y = "Mean of self reported health",
+         x = "Ferritin (ug/l)",
+         color = "Marker") + guides(fill = "none")
+
+crpp <- ggplot(data = boot_mean_df[11:20, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#F87000", alpha = .2) +
+    geom_line(color = "#F87000") +
+    geom_vline(xintercept = 3, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "by CRP level",
+         y = "Mean of self reported health",
+         x = "CRP (mg/l)",
+         color = "Marker") + guides(fill = "none")
+
+gpp <- ggplot(data = boot_mean_df[21:30, ], aes(x = LBs, y = diffs)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper), fill = "#00BA38", alpha = .2) +
+    geom_line(color = "#00BA38") +
+    geom_vline(xintercept = 1.166, color = "red", alpha = 0.4) +
+    geom_point(shape = 4) +
+    theme_minimal() +
+    labs(title = "by GlycA level",
+         x = "GlycA (mg/l)",
+         y = "",
+         color = "Marker") + guides(fill = "none")
+
+multiplot(ferp, crpp, gpp, cols = 2)
+```
