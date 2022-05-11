@@ -2,7 +2,7 @@
 title: "Low ferritin data"
 author: "Sofie Ekroos"
 date: "19.7.2021"
-output: pdf_document
+output: html_document
 ---
 
 Based on Muriel Lobier's original code (https://github.com/FRCBS/iron_levels_of_blood_donors/blob/master/src/index.Rmd)
@@ -11,34 +11,14 @@ Based on Muriel Lobier's original code (https://github.com/FRCBS/iron_levels_of_
 
 This document includes all codes necessary to run the analysis of and produce the figures for the three Finnish Cohorts (FinDonor, FINRISK97, Health2000). The code allows the user to describe the cohorts and build a summary table that can be used in further regression analysis.
 
-```{r setup, , message = FALSE}
+```{r setup, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse) 
-library(tableone) 
-#library(stargazer)
-#library(gridExtra)
-#library(cowplot)
-#library(broom)
+library(tidyverse)
+library(tableone)
 library(GGally)
-#library(ggfortify)
-library(knitr) 
-#library(lubridate)
-#library(car)
-#library(sfsmisc)
-#library(MASS)
-#library(ordinal)
-#library(sjmisc)
-#library(epiDisplay)
-#library(safeBinaryRegression)
-#library(epitools)
-#library(ez)
-#library(ggbeeswarm)
-#library(tidymodels)
-library(kableExtra) 
-library(rmarkdown) 
-
-  # echo "rmarkdown::render('low_ferritin_data.Rmd', clean=TRUE,output_format='pdf_document',output_file='../results/low_ferritin_data_FIN.pdf')" | R --slave
-
+library(knitr)
+library(kableExtra)
+library(rmarkdown)
 ```
 
 # Data loading and preparation
@@ -48,7 +28,6 @@ library(rmarkdown)
 We have one cohort of blood donors, FinDonor, and two general population cohorts, FinRisk97 and Health2000. 
 
 ```{r , warning=FALSE}
-
 # load FinDonor biomarker data
 load("../data/r02.fd.bd.all.rdata")
 indiv_donations_data <- output

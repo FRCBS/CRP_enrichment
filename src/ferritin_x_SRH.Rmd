@@ -1,0 +1,442 @@
+---
+title: "Does Ferritin Affect Self-Reported Health?"
+author: "Esa Turkulainen"
+date: "5/10/2022"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_knit$set(root.dir = "~/CRP_enrichment") # set working directory
+source("~/CRP_enrichment/src/funcs.R") # load our helper functions
+library(tidyverse)
+### For prettier plots
+library(ggridges)
+library(viridis)
+### for bootstrapping
+library(boot)
+
+boot_n <- 1000 # number of bootstrap samples
+```
+
+```{r create_datasets, echo = FALSE}
+# Load data on individual donations
+load("./data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
+donations <- output
+
+# We only want to look at first donation event values from each donor
+donors <- donations %>%
+    group_by(donor) %>%
+    filter(date == min(date)) %>%
+    ungroup()
+
+# Load FinDonor demographic data
+load("./data/r02ds.donorData.rdata") # outputs an object called "output" into the environment
+findonor <- output
+
+# Combine the FinDonor datasets
+FinDonor <- left_join(donors, findonor, by = "donor")
+
+# Load THL data
+# Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others
+load("./data/thldata.rdata")
+FinRisk97 <- thldata$fr1997
+Health2k <- thldata$h2000
+
+# Remove leftovers
+rm(output)
+rm(thldata)
+
+## Rename useful stuff
+# Ferritin, Self-Reported Health
+FinDonor <- rename(FinDonor, SRH = QR17, Menstruation = QR79, Age_float = Age, Age = age)
+FinRisk97 <- rename(FinRisk97, Ferritin = FERRITIN, SRH = Q40, Gender = SUKUP, Menstruation = K129, Age = IKA)
+Health2k <- rename(Health2k, Ferritin = FERRITIINI, SRH = BA01, Gender = SP2, Menstruation = BD03, Age = IKA2, Menopause = MENOP)
+
+# Make "useful stuff" conform with each other
+FinDonor <- FinDonor %>% 
+    mutate(SRH = case_when(SRH == "Excellent" ~ 1,
+                           SRH == "Very_good" ~ 2,
+                           SRH == "Good" ~ 3,
+                           SRH == "Satisfactory" ~ 4,
+                           SRH == "Poor" ~ 5),
+           Group = case_when(Gender == "Men" ~ "Men",
+                             Gender == "Women" & (Menstruation == "regular_period" | Menstruation == "irregular_period") ~ "Women|Pre",
+                             Gender == "Women" & Menstruation == "no_period" ~ "Women|Post",
+                             TRUE ~ "NA")) # Equates to "else"
+
+FinRisk97 <- FinRisk97 %>%
+    mutate(Gender = case_when(Gender == 1 ~ "Men",
+                              Gender == 2 ~ "Women",
+                              TRUE ~ "NA"),
+           Group = case_when(Gender == "Men" ~ "Men",
+                             Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Pre",
+                             Gender == "Women" & Menstruation == 3 ~ "Women|Post",
+                             TRUE ~ "NA"))
+
+Health2k <- Health2k %>%
+    mutate(Gender = case_when(Gender == 1 ~ "Men",
+                              Gender == 2 ~ "Women",
+                              TRUE ~ "NA"),
+           Group = case_when(Gender == "Men" ~ "Men",
+                             Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Pre",
+                             Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Post",
+                             TRUE ~ "NA"))
+
+# Create useful mastersets
+fer_srh <- bind_rows(FinDonor = FinDonor[, c("Ferritin", "SRH", "Group")], 
+                     FinRisk97 = FinRisk97[, c("Ferritin", "SRH", "Group")], 
+                     Health2k = Health2k[, c("Ferritin", "SRH", "Group")], .id = "Cohort") %>% 
+    mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+           Cohort = ordered(Cohort, levels = c("FinDonor", "FinRisk97", "Health2k")),
+           SRH = ordered(SRH, levels = 1:5)) %>%
+    filter(Group != "NA") %>%
+    drop_na()
+```
+
+### Cohort Check
+Let's first check what kind of measurements these cohorts offer for these two variables. We do this, because we want to know if the variables differ significantly between cohorts. If they do, we need to study them separately.
+
+```{r cohort_ferritin_SRH_plots, echo = FALSE, message = FALSE, fig.align = "center", out.width = "70%"}
+plt1 <- ggplot(data = fer_srh, aes(x = Ferritin, y = Cohort, fill = Cohort)) +
+    geom_density_ridges() +
+    xlab(expression("Ferritin ("*mu* "g/l)")) +
+    scale_x_log10(breaks = c(0, 15, 30, 50, 100)) +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() + 
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank()) + 
+    labs(title = "Ferritin per Cohort")
+
+plt2 <- ggplot(data = fer_srh, aes(x = as.numeric(SRH), y = Cohort, fill = Cohort)) +
+    geom_density_ridges(stat = "binline", bins = 5) +
+    xlab("Self-Reported Health from Good (1) to Bad (5)") +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() + 
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank()) + 
+    labs(title = "Self-Reported Health per Cohort") 
+
+multiplot(plt1, plt2, cols = 1)
+```
+
+It would seem reasonable to study these cohorts separately. The FinDonor cohort differs from Health2k and FinRisk97 significantly in terms of ferritin measurements, and the Health2k differs significantly from the others with respect to self-reported health.
+
+### Boxplots 
+
+To study how and if ferritin measurements correlate with self-reported health, we first explore some box plots. We wish to do this for each cohort, and within them, to the following groups: men, menstruating women, non-menstruating women. This is because menstruation causes regular loss of ferritin from the bloodstream.
+
+```{r boxplots, echo = FALSE, message = FALSE, fig.align = "center", fig.height = 15, fig.width = 5}
+plt1 <- ggplot(data = fer_srh %>% filter(Cohort == "FinDonor"), aes(x = SRH, y = Ferritin, color = Group)) + 
+    geom_hline(yintercept = 15, color = "dark red", size = .2, linetype = 2) +
+    geom_boxplot(outlier.alpha = 0, alpha = 0, size = 0.3, width = 0.5) +
+    geom_jitter(alpha = 0.3, shape = 1, size = 0.15, position = position_jitterdodge(jitter.height = 0, jitter.width = 0.5 )) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    facet_grid(Group ~ .) +
+    xlab("How is your health in general?") +
+    ylab(expression("Ferritin ("*mu* "g/l)")) +
+    scale_y_log10(breaks = c(5, 15, 25, 50, 100)) +
+    theme_bw() +
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_rect(colour = NA),
+          strip.background = element_blank(),
+          axis.line = element_line(colour = "black"),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10),
+          axis.text = element_text(size = 8)) +
+    labs(title = "FinDonor",
+         subtitle = "NB! No donor rated their health as 'Very Bad'.")
+
+plt2 <- ggplot(data = fer_srh %>% filter(Cohort == "FinRisk97"), aes(x = SRH, y = Ferritin, color = Group)) + 
+    geom_hline(yintercept = 15, color = "dark red", size = .2, linetype = 2) +
+    geom_boxplot(outlier.alpha = 0, alpha = 0, size = 0.3, width = 0.5) +
+    geom_jitter(alpha = 0.3, shape = 1, size = 0.15, position = position_jitterdodge(jitter.height = 0, jitter.width = 0.5 )) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    facet_grid(Group ~ .) +
+    xlab("How is your health in general?") +
+    ylab(expression("Ferritin ("*mu* "g/l)")) +
+    scale_y_log10(breaks = c(5, 15, 25, 50, 100)) +
+    theme_bw() +
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_rect(colour = NA),
+          strip.background = element_blank(),
+          axis.line = element_line(colour = "black"),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10),
+          axis.text = element_text(size = 8)) +
+    labs(title = "FinRisk 1997")
+
+plt3 <- ggplot(data = fer_srh %>% filter(Cohort == "Health2k"), aes(x = SRH, y = Ferritin, color = Group)) + 
+    geom_hline(yintercept = 15, color = "dark red", size = .2, linetype = 2) +
+    geom_boxplot(outlier.alpha = 0, alpha = 0, size = 0.3, width = 0.5) +
+    geom_jitter(alpha = 0.3, shape = 1, size = 0.15, position = position_jitterdodge(jitter.height = 0, jitter.width = 0.5 )) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    facet_grid(Group ~ .) +
+    xlab("How is your health in general?") +
+    ylab(expression("Ferritin ("*mu* "g/l)")) +
+    scale_y_log10(breaks = c(5, 15, 25, 50, 100)) +
+    theme_bw() +
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_rect(colour = NA),
+          strip.background = element_blank(),
+          axis.line = element_line(colour = "black"),
+          axis.title.x = element_text(size = 10),
+          axis.title.y = element_text(size = 10),
+          axis.text = element_text(size = 8)) +
+    labs(title = "Health 2000")
+
+multiplot(plt1, plt2, plt3, cols = 1)
+```
+
+### Line plots
+
+To examine correlation via a line plot, we'll take the mean of self-reported health for subpopulations limited by different ferritin values and draw a line through them. We'll want to do this again separately for each cohort and cohort subgroup. Also, we'll bootstrap our estimates so we get confidence intervals. For exploration purposes we'll use a fairly low number of bootstrap samples (such as 100), but for publication purposes we should aim somewhere around 10k samples.
+
+```{r boot_mean, echo = FALSE}
+ferritin_values <- seq(5, 50, 1)
+iterations <- length(ferritin_values)
+
+if (!file.exists(paste0("./data/findonor_fer_x_SRH_means_", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### FinDonor
+    #############
+    
+    ## Compute
+    # Men
+    boot_obj_men <- boot(fer_srh %>% filter(Cohort == "FinDonor" & Group == "Men"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    # Women|Pre
+    boot_obj_women_pre <- boot(fer_srh %>% filter(Cohort == "FinDonor" & Group == "Women|Pre"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+    # Women|Post
+    boot_obj_women_post <- boot(fer_srh %>% filter(Cohort == "FinDonor" & Group == "Women|Post"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- boot_obj_men$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Pre
+    means_women_pre[i] <- boot_obj_women_pre$t0
+    upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+    lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+    # Women|Post
+    means_women_post[i] <- boot_obj_women_post$t0
+    upper_women_post[i] <- ci_obj_women_post$normal[3]
+    lower_women_post[i] <- ci_obj_women_post$normal[2]
+    
+    # Combine
+    means_findonor <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_pre, means_women_post),
+                                 upper = c(upper_men, upper_women_pre, upper_women_post),
+                                 lower = c(lower_men, lower_women_pre, lower_women_post),
+                                 Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+}
+    
+    # Save
+    saveRDS(means_findonor, paste0("./data/findonor_fer_x_SRH_means_", boot_n, ".rds"))
+} else {means_findonor <- readRDS(paste0("./data/findonor_fer_x_SRH_means_", boot_n, ".rds"))}
+
+if (!file.exists(paste0("./data/finrisk_fer_x_SRH_means_", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+    
+    for (i in 1:iterations) {
+        
+        #############
+        #### FinRisk97
+        #############
+        
+        ## Compute
+        # Men
+        boot_obj_men <- boot(fer_srh %>% filter(Cohort == "FinRisk97" & Group == "Men"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        # Women|Pre
+        boot_obj_women_pre <- boot(fer_srh %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+        # Women|Post
+        boot_obj_women_post <- boot(fer_srh %>% filter(Cohort == "FinRisk97" & Group == "Women|Post"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        
+        ## Store
+        # Men
+        means_men[i] <- boot_obj_men$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        # Women|Pre
+        means_women_pre[i] <- boot_obj_women_pre$t0
+        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+        # Women|Post
+        means_women_post[i] <- boot_obj_women_post$t0
+        upper_women_post[i] <- ci_obj_women_post$normal[3]
+        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_pre, means_women_post),
+                                     upper = c(upper_men, upper_women_pre, upper_women_post),
+                                     lower = c(lower_men, lower_women_pre, lower_women_post),
+                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+    
+    }
+    
+    # Save
+    saveRDS(means_finrisk, paste0("./data/finrisk_fer_x_SRH_means_", boot_n, ".rds"))
+} else {means_finrisk <- readRDS(paste0("./data/finrisk_fer_x_SRH_means_", boot_n, ".rds"))}
+
+if (!file.exists(paste0("./data/health2k_fer_x_SRH_means_", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Compute
+    # Men
+    boot_obj_men <- boot(fer_srh %>% filter(Cohort == "Health2k" & Group == "Men"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    # Women|Pre
+    boot_obj_women_pre <- boot(fer_srh %>% filter(Cohort == "Health2k" & Group == "Women|Pre"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+    # Women|Post
+    boot_obj_women_post <- boot(fer_srh %>% filter(Cohort == "Health2k" & Group == "Women|Post"), statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- boot_obj_men$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Pre
+    means_women_pre[i] <- boot_obj_women_pre$t0
+    upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+    lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+    # Women|Post
+    means_women_post[i] <- boot_obj_women_post$t0
+    upper_women_post[i] <- ci_obj_women_post$normal[3]
+    lower_women_post[i] <- ci_obj_women_post$normal[2]
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_pre, means_women_post),
+                                 upper = c(upper_men, upper_women_pre, upper_women_post),
+                                 lower = c(lower_men, lower_women_pre, lower_women_post),
+                                 Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+    
+    
+    }
+    
+    # Save
+    saveRDS(means_health2k, paste0("./data/health2k_fer_x_SRH_means_", boot_n, ".rds"))
+} else {means_health2k <- readRDS(paste0("./data/health2k_fer_x_SRH_means_", boot_n, ".rds"))}
+
+```
+
+
+```{r correlation_lineplot, echo = FALSE, fig.align = "center", fig.height = 12, fig.width = 7}
+findonor_lineplt <- ggplot(data = means_findonor, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .2) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(title = "Mean of self-reported health by ferritin filter level",
+         subtitle = "FinDonor",
+         y = "Mean of self-reported health",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
+    theme(axis.title.x = element_blank())
+
+finrisk_lineplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .2) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(subtitle = "FinRisk 1997",
+         y = "Mean of self-reported health",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
+    theme(axis.title.x = element_blank())
+
+health2k_lineplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .2) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(subtitle = "Health 2000",
+         y = "Mean of self-reported health",
+         x = expression("Ferritin ("*mu* "g/l)"),
+         color = "Marker") + guides(fill = "none", linetype = "none") +
+    theme(legend.position = "bottom")
+
+multiplot(findonor_lineplt, finrisk_lineplt, health2k_lineplt, cols = 1)
+```
+

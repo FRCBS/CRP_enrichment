@@ -1,0 +1,1988 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Low ferritin data},
+  pdfauthor={Sofie Ekroos},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Low ferritin data}
+\author{Sofie Ekroos}
+\date{19.7.2021}
+
+\begin{document}
+\maketitle
+
+Based on Muriel Lobier's original code
+(\url{https://github.com/FRCBS/iron_levels_of_blood_donors/blob/master/src/index.Rmd})
+
+\hypertarget{summary}{%
+\section{Summary}\label{summary}}
+
+This document includes all codes necessary to run the analysis of and
+produce the figures for the three Finnish Cohorts (FinDonor, FINRISK97,
+Health2000). The code allows the user to describe the cohorts and build
+a summary table that can be used in further regression analysis.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\SpecialCharTok{::}\NormalTok{opts\_chunk}\SpecialCharTok{$}\FunctionTok{set}\NormalTok{(}\AttributeTok{echo =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(tableone)}
+\FunctionTok{library}\NormalTok{(GGally)}
+\FunctionTok{library}\NormalTok{(knitr)}
+\FunctionTok{library}\NormalTok{(kableExtra)}
+\FunctionTok{library}\NormalTok{(rmarkdown)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{data-loading-and-preparation}{%
+\section{Data loading and
+preparation}\label{data-loading-and-preparation}}
+
+\hypertarget{data-loading}{%
+\subsection{Data loading}\label{data-loading}}
+
+We have one cohort of blood donors, FinDonor, and two general population
+cohorts, FinRisk97 and Health2000.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# load FinDonor biomarker data}
+\FunctionTok{load}\NormalTok{(}\StringTok{"../data/r02.fd.bd.all.rdata"}\NormalTok{)}
+\NormalTok{indiv\_donations\_data }\OtherTok{\textless{}{-}}\NormalTok{ output}
+\FunctionTok{rm}\NormalTok{(output)}
+
+\CommentTok{\# load FinDonor demographic data}
+\FunctionTok{load}\NormalTok{(}\StringTok{"../data/r02ds.donorData.rdata"}\NormalTok{)}
+\NormalTok{donor\_demo }\OtherTok{\textless{}{-}}\NormalTok{ output}
+\FunctionTok{rm}\NormalTok{(output)}
+
+\CommentTok{\# load THL data}
+\FunctionTok{load}\NormalTok{(}\StringTok{"../data/thldata.rdata"}\NormalTok{)}
+
+\CommentTok{\# thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others }
+\NormalTok{fr1997 }\OtherTok{\textless{}{-}}\NormalTok{ thldata}\SpecialCharTok{$}\NormalTok{fr1997}
+\NormalTok{h2000 }\OtherTok{\textless{}{-}}\NormalTok{ thldata}\SpecialCharTok{$}\NormalTok{h2000}
+\FunctionTok{rm}\NormalTok{(thldata)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{data-preparation}{%
+\subsection{Data preparation}\label{data-preparation}}
+
+First we assign study participants to their cohorts.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{indiv\_donations\_data}\SpecialCharTok{$}\NormalTok{Cohort }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"FINDONOR"}\NormalTok{)}
+\NormalTok{fr1997}\SpecialCharTok{$}\NormalTok{Cohort }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"FINRISK97"}\NormalTok{)}
+\NormalTok{h2000}\SpecialCharTok{$}\NormalTok{Cohort }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"HEALTH00"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+There are ``cohort \%\textgreater\% distinct(ID\_variable)
+\%\textgreater\% nrow()'' individials enrolled in the studies.
+
+\begin{itemize}
+\tightlist
+\item
+  FinDonor: 2584
+\item
+  FinRisk97: 7943
+\item
+  Health2000: 6264
+\end{itemize}
+
+Once we remove participants that have no ferritin or no Hb measurement
+data (and for blood donors for any donation event) there are ``r
+cohort\_name \%\textgreater\% filter(!is.na(Ferritin) \& !is.na(Hb\_v) )
+\%\textgreater\% distinct(ID\_variable) \%\textgreater\% nrow()''
+participants left
+
+\begin{itemize}
+\item
+  FinDonor: 2580
+\item
+  FinRisk97: 462
+
+\begin{verbatim}
+    * 7380
+    * 491
+\end{verbatim}
+\item
+  Health2000: 5250
+\end{itemize}
+
+At this stage we noticed we only had hemoglobin data from 491 FinRisk97
+participants. Using the table function
+(``table(fr1997\(HGB, fr1997\)SUKUP)'', SUKUP = sukupuoli = sex, 1=male,
+2=female) we found out that all these participants are male. As such, we
+didn't remove NA:s for Hb and will not use Hb in the model for this
+specific cohort.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#FINDONOR}
+
+\DocumentationTok{\#\# Get sex for each blood donor}
+\NormalTok{blood\_data\_summary }\OtherTok{\textless{}{-}}\NormalTok{ indiv\_donations\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(donor) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{Sex=}\FunctionTok{first}\NormalTok{(gender)) }
+
+\DocumentationTok{\#\# Get values for first study donation with the required measurements donation (regardless of donation type)}
+\DocumentationTok{\#\# We remove events with no Ferritin and hb\_v to be inline with from when the nb of previous donations were counted.}
+\NormalTok{blood\_values\_init }\OtherTok{\textless{}{-}}\NormalTok{ indiv\_donations\_data }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Ferritin) }\SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Hb\_v) ) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(donor) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(date }\SpecialCharTok{==} \FunctionTok{min}\NormalTok{(date)) }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(age, Ferritin, Hb\_v, CRP, DaysToPreviousFB, donor, Cohort) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{()}
+
+\NormalTok{blood\_data\_summary }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{full\_join}\NormalTok{(blood\_values\_init, }\AttributeTok{by =} \StringTok{"donor"}\NormalTok{) }
+
+\NormalTok{blood\_data\_summary }\OtherTok{\textless{}{-}}\NormalTok{ donor\_demo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{inner\_join}\NormalTok{(blood\_data\_summary, }\AttributeTok{by =} \StringTok{"donor"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{all\_study\_FB\_donation\_count =}\NormalTok{ NonFinnDonorDonationCount\_FB }\SpecialCharTok{+}\NormalTok{ YesFinnDonorDonationCount\_FB) }
+
+\CommentTok{\#FINRISK97 }
+
+\DocumentationTok{\#\# Change sex from binary 1,2 to men, women}
+\NormalTok{fr1997}\SpecialCharTok{$}\NormalTok{SUKUP }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"1"}\NormalTok{, }\StringTok{"Men"}\NormalTok{, fr1997}\SpecialCharTok{$}\NormalTok{SUKUP)}
+\NormalTok{fr1997}\SpecialCharTok{$}\NormalTok{SUKUP }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"2"}\NormalTok{, }\StringTok{"Women"}\NormalTok{, fr1997}\SpecialCharTok{$}\NormalTok{SUKUP)}
+
+\NormalTok{fr1997\_summary }\OtherTok{\textless{}{-}}\NormalTok{ fr1997 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(FERRITIN)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(RELEASE\_ID) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(IKA, SUKUP, FERRITIN, HGB, CRP, RELEASE\_ID, K129, BMI, KY100\_22, KY163, GRAVID, Cohort, ALUE, PAINO, TUPI3) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ungroup}\NormalTok{()}
+
+\CommentTok{\#HEALTH2000}
+\DocumentationTok{\#\# Change sex from binary 1,2 to men, women}
+\NormalTok{h2000}\SpecialCharTok{$}\NormalTok{SP2 }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"1"}\NormalTok{, }\StringTok{"Men"}\NormalTok{, h2000}\SpecialCharTok{$}\NormalTok{SP2)}
+\NormalTok{h2000}\SpecialCharTok{$}\NormalTok{SP2 }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"2"}\NormalTok{, }\StringTok{"Women"}\NormalTok{, h2000}\SpecialCharTok{$}\NormalTok{SP2)  }
+  
+\NormalTok{ h2000\_summary }\OtherTok{\textless{}{-}}\NormalTok{ h2000 }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(FERRITIINI) }\SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(B\_Hb)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{group\_by}\NormalTok{(RELEASE\_ID) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{    dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(IKA2, SP2, FERRITIINI, B\_Hb, CRP, RELEASE\_ID, BD03, BMII\_BMI.x, FB01, FB02, FB03, FB05, synnytys, BD07, Cohort, MENOP, BD06, MP\_2000, BMII\_PAINO.x) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{ungroup}\NormalTok{()  }
+\end{Highlighting}
+\end{Shaded}
+
+Next we rename the variables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Participant ID }
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"donor"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"ID"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"RELEASE\_ID"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"ID"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"RELEASE\_ID"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"ID"}
+
+\DocumentationTok{\#\# Sex}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"SUKUP"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Sex"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"SP2"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Sex"}
+
+\DocumentationTok{\#\# Age}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"IKA"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Age"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"IKA2"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Age"}
+
+\DocumentationTok{\#\# Hemoglobin}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"Hb\_v"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Hb"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"HGB"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Hb"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"B\_Hb"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Hb"}
+
+\DocumentationTok{\#\# Ferritin}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"FERRITIN"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Ferritin"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"FERRITIINI"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Ferritin"}
+
+\DocumentationTok{\#\# Menstruation}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"QR79"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Menstruation"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"K129"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Menstruation"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"BD03"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Menstruation"}
+
+\DocumentationTok{\#\# BMI}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"BMII\_BMI.x"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"BMI"}
+
+\DocumentationTok{\#\# Smoking}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"QR54"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Smoking"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"TUPI3"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Smoking"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"FB01"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"EverSmoked"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"FB02"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Smoked100"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"FB03"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"RegSmoked"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"FB05"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Smoking"}
+
+\DocumentationTok{\#\# Red meat}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"QR40"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"RedMeat"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"KY100\_22"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"RedMeat"}
+
+\DocumentationTok{\#\# Iron supplements}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"vita\_iron"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"HistoryOfIronSupplements"}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"iron\_supp"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"GivenIronSupplements"}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"iron\_comp"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"IronComplience"}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"iron\_comp\_c"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"IronComplienceNumeric"}
+
+\DocumentationTok{\#\# History of childbirth}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"QR83"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"PreviousChildbirth"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"KY163"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"PreviousChildbirth"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"synnytys"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"PreviousChildbirth"}
+
+\DocumentationTok{\#\# Current pregnancy}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"GRAVID"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"CurrentPregnancy"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"BD07"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"CurrentPregnancy"}
+
+\DocumentationTok{\#\# Region}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"ALUE"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Region"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"MP\_2000"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Region"}
+
+\DocumentationTok{\#\# Weight}
+\FunctionTok{names}\NormalTok{(blood\_data\_summary)[}\FunctionTok{names}\NormalTok{(blood\_data\_summary) }\SpecialCharTok{==} \StringTok{"weight"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Weight"}
+\FunctionTok{names}\NormalTok{(fr1997\_summary)[}\FunctionTok{names}\NormalTok{(fr1997\_summary) }\SpecialCharTok{==} \StringTok{"PAINO"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Weight"}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"BMII\_PAINO.x"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"Weight"}
+
+\DocumentationTok{\#\# THESE ARE ONLY NEEDED FOR h2000 to figure out the n/a:s related to menstruation}
+\FunctionTok{names}\NormalTok{(h2000\_summary)[}\FunctionTok{names}\NormalTok{(h2000\_summary) }\SpecialCharTok{==} \StringTok{"BD06"}\NormalTok{] }\OtherTok{\textless{}{-}} \StringTok{"WhyEnd"}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{demographic-group-specification-and-assignment-coninued-after-figuring-out-why-so-many-health2000-participants-are-removed-section}{%
+\subsection{Demographic group specification and assignment (coninued
+after ``figuring out why so many Health2000 participants are removed''
+section)}\label{demographic-group-specification-and-assignment-coninued-after-figuring-out-why-so-many-health2000-participants-are-removed-section}}
+
+In this section we assign women to period/no period groups. The
+menstruation question was similar across all three cohorts:
+
+\begin{itemize}
+\tightlist
+\item
+  FinDonor: Do you still have regular periods? (1=reg., 2=irreg., 3=no)
+\item
+  FinRisk97: Do you still menstruate? (1=reg., 2=irreg., 3=no)
+\item
+  Health2000: BD03 = do you have periods nowadays? (1=reg., 2=irreg.,
+  3=no)
+\end{itemize}
+
+There are ``r cohort\_summary\_name \%\textgreater\% filter(Sex
+==''Women" \& is.na(Menstruation)) \%\textgreater\% nrow()" women with
+no answer to the question regarding their menstrual status.
+
+\begin{itemize}
+\tightlist
+\item
+  FinDonor: 17
+\item
+  FinRisk97: 41
+\item
+  Health00: 1029
+\end{itemize}
+
+Evidently we are missing menstruation data from \textgreater37 \% of
+female Health2000 participants.
+
+\hypertarget{figuring-out-why-so-many-health2000-participants-are-removed-skip-this-part-unless-there-are-problems-with-the-cohort}{%
+\subsubsection{Figuring out why so many Health2000 participants are
+removed (skip this part unless there are problems with the
+cohort)}\label{figuring-out-why-so-many-health2000-participants-are-removed-skip-this-part-unless-there-are-problems-with-the-cohort}}
+
+Menstruation was defined as: 1 = regular menstruation 2 = irregular
+menstruation 3 = no menstruation The cohort also contains a variable for
+reproductive stages, MENOP: 1 = postmenopause 2 = perimenopause 3 =
+premenopause
+
+Removing n/a:s for the MENOP variable 48 would remove only 48
+participants. In the next code chunk we investigate the difference
+between these variables in order to figure out which we can/should use.
+
+In the home interview instruction
+(\url{https://thl.fi/documents/189940/4108213/T2001_eng.pdf/cd17a5fe-ddf3-4649-9ddd-a282b1809de9},
+page 41) we find out that only women under the age of 55 yrs were asked
+about menstruation. This amounts to: * \# NAs in the \textless55 yrs
+group 180 * \# NAs in the \textgreater=55 yrs group 849
+
+Our original plan was to place participants in pre- and postmenopausal
+groups based on menstrual status. Removing n/a:s based on the MENOP
+variable would remove fewer participants, however we are missing this
+data in the other cohorts. Next we try to find out how menstruation,
+reproductive stage and age align in the Health2000 cohort:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h2000\_mens\_missing }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary }
+
+\CommentTok{\# make new variables based on age (\textless{}45 yrs, \textgreater{}=45 yrs) and reproductive stage}
+\NormalTok{h2000\_mens\_missing }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{AgeGroup =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Age }\SpecialCharTok{\textgreater{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"older"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Age }\SpecialCharTok{\textless{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"younger"}\NormalTok{,}
+\NormalTok{    )) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Stage =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    MENOP }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"POSTmenopausal"}\NormalTok{,}
+\NormalTok{    MENOP }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"PERImenopausal"}\NormalTok{,}
+\NormalTok{    MENOP }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"PREmenopausal"}
+\NormalTok{  )) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{MENSTRUATION =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Menstruation }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"regular"}\NormalTok{,}
+\NormalTok{    Menstruation }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"irregular"}\NormalTok{,}
+\NormalTok{    Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"no"}
+\NormalTok{  )) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Sex }\SpecialCharTok{==} \StringTok{"Women"}\NormalTok{) }
+
+\DocumentationTok{\#\# first we check  what data on reproductive state looks like }
+\NormalTok{h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Stage) ) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 48
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h2000\_missing\_stage }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Stage)) }
+
+\CommentTok{\# check to see if recode worked}
+\FunctionTok{table}\NormalTok{(}\FunctionTok{factor}\NormalTok{(h2000\_missing\_stage}\SpecialCharTok{$}\NormalTok{Stage, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"PREmenopausal"}\NormalTok{, }\StringTok{"PERImenopausal"}\NormalTok{, }\StringTok{"POSTmenopausal"}\NormalTok{)), h2000\_missing\_stage}\SpecialCharTok{$}\NormalTok{MENOP)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                 
+##                     1    2    3
+##   PREmenopausal     0    0 1516
+##   PERImenopausal    0  103    0
+##   POSTmenopausal 1092    0    0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# yes, they were assigned to the right groups}
+
+\CommentTok{\# compare reproductive stage with reported bleeding in the two age groups (\textless{}45, \textgreater{}45)}
+\FunctionTok{table}\NormalTok{(}\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{MENSTRUATION, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"regular"}\NormalTok{, }\StringTok{"irregular"}\NormalTok{, }\StringTok{"no"}\NormalTok{)), }\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{Stage, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"PREmenopausal"}\NormalTok{, }\StringTok{"PERImenopausal"}\NormalTok{, }\StringTok{"POSTmenopausal"}\NormalTok{)), }\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{AgeGroup, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"younger"}\NormalTok{, }\StringTok{"older"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## , ,  = younger
+## 
+##            
+##             PREmenopausal PERImenopausal POSTmenopausal
+##   regular             858              0              0
+##   irregular           119              0              0
+##   no                   11              6             57
+## 
+## , ,  = older
+## 
+##            
+##             PREmenopausal PERImenopausal POSTmenopausal
+##   regular             316              0              0
+##   irregular           135              0              0
+##   no                   16             38            160
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# compare reported bleeding in the two age groups }
+\FunctionTok{table}\NormalTok{(}\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{MENSTRUATION, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"regular"}\NormalTok{, }\StringTok{"irregular"}\NormalTok{, }\StringTok{"no"}\NormalTok{)), }\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{AgeGroup, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"younger"}\NormalTok{, }\StringTok{"older"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            
+##             younger older
+##   regular       858   316
+##   irregular     121   141
+##   no             78   216
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# compare reported reproductive stage in the two age groups }
+\FunctionTok{table}\NormalTok{(}\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{Stage, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"PREmenopausal"}\NormalTok{, }\StringTok{"PERImenopausal"}\NormalTok{, }\StringTok{"POSTmenopausal"}\NormalTok{)), }\FunctionTok{factor}\NormalTok{(h2000\_mens\_missing}\SpecialCharTok{$}\NormalTok{AgeGroup, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"younger"}\NormalTok{, }\StringTok{"older"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                 
+##                  younger older
+##   PREmenopausal      995   521
+##   PERImenopausal      11    92
+##   POSTmenopausal      78  1014
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# next we investigate how removing n/a:s only from women under 55 yrs compares to the above data (women older that 55 are considered postmenopausal)}
+
+\NormalTok{women\_older\_than\_55 }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Age }\SpecialCharTok{\textless{}} \DecValTok{55} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(MENSTRUATION)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 180
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Age }\SpecialCharTok{\textless{}} \DecValTok{45} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(MENSTRUATION)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 43
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{women\_older\_than\_55 }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()  }
+
+\NormalTok{women\_older\_than\_55 }\OtherTok{\textless{}{-}} \FunctionTok{filter}\NormalTok{(h2000\_mens\_missing,}
+\NormalTok{                              Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation))}\SpecialCharTok{$}\NormalTok{ID}
+
+\NormalTok{test }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_mens\_missing }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ifelse}\NormalTok{(ID }\SpecialCharTok{\%in\%}\NormalTok{ women\_older\_than\_55, }\StringTok{"no"}\NormalTok{, }\FunctionTok{as.character}\NormalTok{(Menstruation))) }
+\end{Highlighting}
+\end{Shaded}
+
+We will remove n/a:s from women under 55 and use the same strategy for
+assigning reproductive groups as we do for the other cohorts. According
+to THL the MENOP-variable has been constructed from reported
+menstruation and use of hormone therapy in the following manner: 1=
+postmenopause, time since last period \textgreater= 12 months 2=
+perimenoause, time since last period 6-12 months OR hormone replacement
+therapy, period had not stopped before start of use 3= premenopause,
+time since last period \textless{} 6 months 4= . = data missing 5= .X =
+participant was not asked (short forms)
+
+Removing NAs for Menstruation as opposed to MENOP will remove more
+women, but at this point using the same way of filtering participants
+for all cohorts seems to be the best way to move forward. As we are also
+interested in menstruation as a variable in itself, we would still have
+to remove the participants with NAs for this particular question at a
+later stage.
+
+\hypertarget{demographic-group-specification-and-assignment-continued}{%
+\subsection{Demographic group specification and assignment
+continued}\label{demographic-group-specification-and-assignment-continued}}
+
+Out of the women with no answer to the menstruation question, ``r
+cohort\_summary\_name \%\textgreater\% filter(Sex ==''Women" \&
+is.na(Menstruation) \& age \textgreater= 55) \%\textgreater\% nrow()"
+are older than 55. We impute these to no period so they can be included
+in the postmenopausal women.
+
+\begin{itemize}
+\tightlist
+\item
+  FinDonor: 3
+\item
+  FinRisk97: 32
+\item
+  Health2000: 849
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FINDONOR}
+\NormalTok{older\_findonor\_donors }\OtherTok{\textless{}{-}} \FunctionTok{filter}\NormalTok{(blood\_data\_summary, }
+\NormalTok{                       Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation) }\SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55}\NormalTok{)}\SpecialCharTok{$}\NormalTok{ID}
+
+\NormalTok{blood\_data\_summary }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ifelse}\NormalTok{(ID }\SpecialCharTok{\%in\%}\NormalTok{ older\_findonor\_donors, }\StringTok{"no\_period"}\NormalTok{, }\FunctionTok{as.character}\NormalTok{(Menstruation))) }
+
+\CommentTok{\# FINRISK97}
+\NormalTok{older\_fr1997 }\OtherTok{\textless{}{-}} \FunctionTok{filter}\NormalTok{(fr1997\_summary, }
+\NormalTok{                       Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation) }\SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55}\NormalTok{)}\SpecialCharTok{$}\NormalTok{ID}
+
+\NormalTok{fr1997\_summary }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ifelse}\NormalTok{(ID }\SpecialCharTok{\%in\%}\NormalTok{ older\_fr1997, }\StringTok{"no\_period"}\NormalTok{, }\FunctionTok{as.character}\NormalTok{(Menstruation)))}
+
+\CommentTok{\# HEALTH2000}
+\NormalTok{older\_h2000 }\OtherTok{\textless{}{-}} \FunctionTok{filter}\NormalTok{(h2000\_summary,}
+\NormalTok{                      Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation) }\SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55}\NormalTok{)}\SpecialCharTok{$}\NormalTok{ID}
+
+\NormalTok{h2000\_summary }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ifelse}\NormalTok{(ID }\SpecialCharTok{\%in\%}\NormalTok{ older\_h2000, }\StringTok{"no\_period"}\NormalTok{, }\FunctionTok{as.character}\NormalTok{(Menstruation)))}
+\end{Highlighting}
+\end{Shaded}
+
+Female study participants with no menstruation response after imputation
+are removed: ``cohort\_name \%\textgreater\% filter(sex ==''Women" \&
+is.na(Menstruation)) \%\textgreater\% nrow()" donors.)
+
+\begin{itemize}
+\tightlist
+\item
+  FinDonor: 14
+\item
+  FinRisk97: 9
+\item
+  Health2000: 180
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#FINDONOR}
+\NormalTok{findonor\_nb\_women\_no\_menstruation\_response }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+\DocumentationTok{\#\# remove female donors with no menstruation response}
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mens\_ok\_blood =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Menstruation)  }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(mens\_ok\_blood }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{) }
+
+\DocumentationTok{\#\# We define the women\textquotesingle{}s groups: }
+\NormalTok{findonor\_n\_women\_removed }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"irregular\_period"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"regular\_period"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==}  \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{()}
+
+
+\CommentTok{\#FINRISK97}
+
+\NormalTok{finrisk\_nb\_women\_no\_menstruation\_response }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+
+\DocumentationTok{\#\# remove female FinRisk97 participants with no menstruation response}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mens\_ok\_fr1997 =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Menstruation)  }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(mens\_ok\_fr1997 }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{) }
+
+\DocumentationTok{\#\# We define the women\textquotesingle{}s groups:}
+\NormalTok{fr1997\_n\_women\_removed }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==}  \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+
+\CommentTok{\#HEALTH2000}
+
+\NormalTok{h2000\_summary }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ifelse}\NormalTok{(ID }\SpecialCharTok{\%in\%}\NormalTok{ older\_h2000, }\StringTok{"no\_period"}\NormalTok{, }\FunctionTok{as.character}\NormalTok{(Menstruation)))}
+
+\NormalTok{h2000\_nb\_women\_no\_menstruation\_response }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(Menstruation)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+\DocumentationTok{\#\# remove female Health2000 participants with no menstruation response}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mens\_ok\_h2000 =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&} \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Menstruation)  }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(mens\_ok\_h2000 }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{)}
+
+\DocumentationTok{\#\# We define the women\textquotesingle{}s groups:}
+\NormalTok{h2000\_n\_women\_removed }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==}  \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{nrow}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+We now define the following groups:
+
+\begin{itemize}
+\tightlist
+\item
+  premenopausal: regular or irregular menstruation reported
+\item
+  postmenopausal: no menstruation reported and age equal to
+  \textgreater{} 45
+\item
+  donors younger than 45 and no reported menstruation are excluded
+  (``cohort\_n\_women\_removed'')
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FinDonor 77
+  \item
+    FinRisk 81
+  \item
+    Health2000 83
+  \end{itemize}
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#FINDONOR:}
+\DocumentationTok{\#\# We define the women\textquotesingle{}s groups and drop n/a:s: }
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"irregular\_period"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"regular\_period"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Women\_pre\_menop\_no\_mens"} \SpecialCharTok{\&}\NormalTok{ Group }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{droplevels}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{ordered}\NormalTok{(Group, }\AttributeTok{levels =}  \FunctionTok{c}\NormalTok{(}\StringTok{"Pre\_menopause\_women"}\NormalTok{, }\StringTok{"Post\_menopause\_women"}\NormalTok{, }\StringTok{"Men"}\NormalTok{))) }
+
+\CommentTok{\#FINRISK97:}
+\DocumentationTok{\#\# We define the women\textquotesingle{}s groups and drop n/a:s: }
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Women\_pre\_menop\_no\_mens"} \SpecialCharTok{\&}\NormalTok{ Group }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{droplevels}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{ordered}\NormalTok{(Group, }\AttributeTok{levels =}  \FunctionTok{c}\NormalTok{(}\StringTok{"Pre\_menopause\_women"}\NormalTok{, }\StringTok{"Post\_menopause\_women"}\NormalTok{, }\StringTok{"Men"}\NormalTok{))) }
+ 
+\CommentTok{\#HEALTH2000:}
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textgreater{}} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=} \DecValTok{45}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Women\_pre\_menop\_no\_mens"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{|}\NormalTok{ Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Pre\_menopause\_women"}\NormalTok{, }
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"no\_period"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"Post\_menopause\_women"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Women\_pre\_menop\_no\_mens"} \SpecialCharTok{\&}\NormalTok{ Group }\SpecialCharTok{!=} \StringTok{"NA"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{droplevels}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{ordered}\NormalTok{(Group, }\AttributeTok{levels =}  \FunctionTok{c}\NormalTok{(}\StringTok{"Pre\_menopause\_women"}\NormalTok{, }\StringTok{"Post\_menopause\_women"}\NormalTok{, }\StringTok{"Men"}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+In order to later merge the three cohorts into one table, we need to
+make colums for the variables missing variables in each cohort and
+impute values for them.
+
+The general population cohorts don't contain any information on blood
+donor activity. As seen in a previous FinDonor study the effect of full
+blood donation on ferritin levels is marginal after 1000 days (see
+Lobier et al.~2019, \url{https://pubmed.ncbi.nlm.nih.gov/31408501/}).
+After referring to these results we decided to assign a randomized
+donation interval between three to six years for the general population
+cohorts.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Add new columns and impute values for them}
+
+\NormalTok{blood\_data\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{TwoYearsFromStartCount\_FB }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{HistoryOfIronSupplements }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{GivenIronSupplements }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{IronComplience }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{IronComplienceNumeric }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{TwoYearsFromStartCount\_FB }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{HistoryOfIronSupplements }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{GivenIronSupplements }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{IronComplience }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{IronComplienceNumeric }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{RedMeat }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+
+\CommentTok{\# We then  assign a randomized donation interval for 3{-}6 years for the general population cohorts }
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{DaysToPreviousFB =} \FunctionTok{round}\NormalTok{(}\FunctionTok{runif}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(fr1997\_summary\_final), }\AttributeTok{min =} \DecValTok{3}\SpecialCharTok{*}\DecValTok{365}\NormalTok{, }\AttributeTok{max =} \DecValTok{6}\SpecialCharTok{*}\DecValTok{365}\NormalTok{) ,}\DecValTok{0}\NormalTok{))}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{DaysToPreviousFB =} \FunctionTok{round}\NormalTok{(}\FunctionTok{runif}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(h2000\_summary\_final), }\AttributeTok{min =} \DecValTok{3}\SpecialCharTok{*}\DecValTok{365}\NormalTok{, }\AttributeTok{max =} \DecValTok{6}\SpecialCharTok{*}\DecValTok{365}\NormalTok{) ,}\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+We also need to rename observations for the menstruation variable in
+general population participants in order to match blood donors.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"no\_period"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"irregular\_period"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"regular\_period"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ordered}\NormalTok{(Menstruation, }\AttributeTok{levels =}  \FunctionTok{c}\NormalTok{(}\StringTok{"regular\_period"}\NormalTok{, }\StringTok{"irregular\_period"}\NormalTok{, }\StringTok{"no\_period"}\NormalTok{))) }
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"3"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"no\_period"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"irregular\_period"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Menstruation }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"regular\_period"}\NormalTok{,}
+\NormalTok{    Sex }\SpecialCharTok{==} \StringTok{"Women"} \SpecialCharTok{\&}\NormalTok{ (Age }\SpecialCharTok{\textgreater{}=} \DecValTok{55} \SpecialCharTok{\&}\NormalTok{ Group }\SpecialCharTok{==} \StringTok{"Post\_menopause\_women"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \StringTok{"no\_period"}\NormalTok{,}
+    \ConstantTok{TRUE} \SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Menstruation =} \FunctionTok{ordered}\NormalTok{(Menstruation, }\AttributeTok{levels =}  \FunctionTok{c}\NormalTok{(}\StringTok{"regular\_period"}\NormalTok{, }\StringTok{"irregular\_period"}\NormalTok{, }\StringTok{"no\_period"}\NormalTok{))) }
+\end{Highlighting}
+\end{Shaded}
+
+Finally, we will need the smoking variables to just give us informaton
+on current smoking behaviour, not past smoking. This does not need to be
+done in the FinDonor cohort, as the variable gives us the information we
+want as it is.
+
+FinRisk97: TUPI3 was the chosen variable. It's a mutation built out of
+four separate variables in the FinRisk questionnaire: 1=Never smoked
+regurarly --\textgreater{} 0 2=Stopped smoking \textgreater1/2 years ago
+--\textgreater{} 0 3=Stopped smoking \textless1/2 years ago
+--\textgreater{} 0 4=Smokes --\textgreater{} 1
+
+Health00:
+
+For this cohort there was no mutated variable avaliable, so we had to
+build our own from the following avaliable questions:
+
+FB01. Have you ever smoked during your life time? 1 yes 0 no → GA01
+FB02. Have you smoked at least 100 times during your life time
+(cigarettes, cigars or pipe tobacco)? 1 yes 0 no → GA01 FB03. Have you
+ever smoked daily for at least one year? 1 yes 0 no → FB05 FB05. Do you
+smoke nowadays (cigarettes, cigars or pipe): 1 daily 2 occasionally 3
+not at all
+
+People who have never smoked (FB01=EverSmoked), have smoked \textless100
+cigarettes in their lifetime (FB02=Smoked100), have not smoked daily for
+at least 1 year (FB03=SmokedReg) or smoke occasionally/not at all
+(FB05=Smoking) are imputed as non-smokers (0). Participants who report
+daily smoking (FB05=Smoking) are imputed as smokers (1).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Smoking =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Smoking }\SpecialCharTok{==} \StringTok{"4"} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{,}
+\NormalTok{    Smoking }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"1"}\NormalTok{, }\StringTok{"2"}\NormalTok{, }\StringTok{"3"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{))}
+  
+\CommentTok{\# Health2000}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Smoking =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{            Smoking }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{,}
+\NormalTok{            Smoking }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"2"}\NormalTok{ , }\StringTok{"3"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{,}
+\NormalTok{            EverSmoked }\SpecialCharTok{==} \StringTok{"0"} \SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{,}
+\NormalTok{            Smoked100 }\SpecialCharTok{==} \StringTok{"0"} \SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{,}
+\NormalTok{            RegSmoked }\SpecialCharTok{==} \StringTok{"0"} \SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{remove-cohort-participants-with-missing-data}{%
+\subsection{Remove cohort participants with missing
+data}\label{remove-cohort-participants-with-missing-data}}
+
+\hypertarget{donation-history}{%
+\subsubsection{Donation history}\label{donation-history}}
+
+We remove 42 blood donors who have not donated previously (they are
+missing the number of days since last donation variable).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{new\_donors\_data }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(DaysToPreviousFB)) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =} \FunctionTok{case\_when}\NormalTok{(Group }\SpecialCharTok{==} \StringTok{"Pre\_menopause\_women"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Pre{-}menopausal women"}\NormalTok{,}
+\NormalTok{                   Group }\SpecialCharTok{==} \StringTok{"Post\_menopause\_women"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Post{-}menopausal women"}\NormalTok{,}
+\NormalTok{                   Group }\SpecialCharTok{==} \StringTok{"Men"} \SpecialCharTok{\textasciitilde{}} \StringTok{"Men"}\NormalTok{ ,}
+                   \ConstantTok{TRUE}\SpecialCharTok{\textasciitilde{}} \StringTok{"NA"}\NormalTok{),}
+         \AttributeTok{Group =} \FunctionTok{ordered}\NormalTok{(Group)) }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{drop\_na}\NormalTok{(DaysToPreviousFB)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{bmi}{%
+\subsubsection{BMI}\label{bmi}}
+
+We remove ``cohort\_name \%\textgreater\% filter(is.na(BMI))
+\%\textgreater\% nrow()'' participants for whom we do not have the BMI
+data: * FinDonor: 21 * FinRisk97: 8 * Health2000: 1
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\#\# FinDonor}
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ findonor\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(BMI)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(BMI))}
+
+\DocumentationTok{\#\#\#\# FinRisk97}
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ finrisk\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(BMI)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(BMI))}
+
+\DocumentationTok{\#\#\#\# Health2000}
+\NormalTok{nb\_removed\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(BMI)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(BMI))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{smoking}{%
+\subsubsection{Smoking}\label{smoking}}
+
+We remove ``cohort\_name \%\textgreater\% filter(is.na(BMI))
+\%\textgreater\% nrow()'' participants for whom we do not have smoking
+data: * FinDonor: 1 * FinRisk97: 54 * Health2000: 15
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_blood }\SpecialCharTok{+}
+\NormalTok{                            blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Smoking)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Smoking))}
+
+\CommentTok{\# FinRisk97}
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_fr97 }\SpecialCharTok{+}
+\NormalTok{                            fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Smoking)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Smoking))}
+
+\CommentTok{\# Health2000}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{Smoking[}\FunctionTok{is.na}\NormalTok{(h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{Smoking)]  }\OtherTok{\textless{}{-}} \DecValTok{3}
+
+\NormalTok{nb\_removed\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_h2000 }\SpecialCharTok{+}
+\NormalTok{                            h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Smoking)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Smoking))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{previous-childbirth}{%
+\subsubsection{Previous childbirth}\label{previous-childbirth}}
+
+We remove ``cohort\_name \%\textgreater\% filter((group !=''Men" \&
+is.na(PreviousChildbirth)))\%\textgreater\% nrow()" female donors who
+did not answer the question on childbirth: * FinDonor: 3 * FinRisk97: 14
+* Health2000: 6
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\#\# FinDonor}
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_blood }\SpecialCharTok{+}
+\NormalTok{                            blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{((Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth))) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ nrow }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth)))}
+
+\DocumentationTok{\#\#\#\# FinRisk97}
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_fr97 }\SpecialCharTok{+}
+\NormalTok{                            fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{((Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth))) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ nrow }
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth)))}
+
+\DocumentationTok{\#\#\#\# Health2000}
+\NormalTok{nb\_removed\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_h2000 }\SpecialCharTok{+}
+\NormalTok{                            h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{((Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth))) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ nrow }
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(PreviousChildbirth)))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{current-pregnancy}{%
+\subsubsection{Current pregnancy}\label{current-pregnancy}}
+
+Only women \textless45 yrs were asked whether they are currently
+pregnant and if so, how many weeks (source:
+\url{https://www.julkari.fi/bitstream/handle/10024/78181/2005b6.pdf?sequence=1\&isAllowed=y},
+page 56). We added a filter for age \textless45 years old and imputed
+NA:s in \textgreater45-year-oldes as not pregnant. Although pregnancy is
+possible after this age, chances are much lower. We also used this age
+as our cut-off for menopause.
+
+We will now remove ``cohort\_name \%\textgreater\% filter((Group
+!=''Men" \& is.na(CurrentPregnancy)))\%\textgreater\% nrow()" females
+who did not answer the pregnancy question: * FinRisk97: 8 * Health00: 3
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinRisk97}
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_fr97 }\SpecialCharTok{+}
+\NormalTok{                            fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{((Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(CurrentPregnancy))) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ nrow }
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(CurrentPregnancy)))}
+
+\CommentTok{\# Health2000}
+
+\CommentTok{\# check age variance }
+\FunctionTok{table}\NormalTok{(h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy, h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{Age)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    
+##     30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54
+##   0 41 58 84 65 66 61 60 69 60 71 54 63 66 76 57 67 64 56 63 49 41 30 33 33 21
+##   1  1  3  6  2  4  2  1  3  2  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+##    
+##     55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70
+##   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nb\_removed\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_h2000 }\SpecialCharTok{+}
+\NormalTok{                            h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{((Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=}\DecValTok{45} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(CurrentPregnancy))) }\SpecialCharTok{\%\textgreater{}\%}\NormalTok{ nrow }
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&}\NormalTok{ Age }\SpecialCharTok{\textless{}=}\DecValTok{45} \SpecialCharTok{\&} \FunctionTok{is.na}\NormalTok{(CurrentPregnancy)))}
+
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy[}\FunctionTok{is.na}\NormalTok{(h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy)]  }\OtherTok{\textless{}{-}} \DecValTok{0}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{iron-supplementation}{%
+\subsubsection{Iron supplementation}\label{iron-supplementation}}
+
+We remove 77 donors that did not answer the two questions (did they
+receive iron supplements at during their last donation and supplement
+complience)
+
+For the modelling, we impute a 0 (no supplementation) to iron\_comp\_c
+when the donor reports not being offered iron supplementation.
+
+This is not done for the general population cohorts, as they were not
+asked about iron supplementation and as such all observation are input
+as 0 (these questions specifically concern iron supplements provided in
+conjuction with blood donation).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_blood }\SpecialCharTok{+}
+\NormalTok{                            blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+                              \FunctionTok{mutate}\NormalTok{(}\AttributeTok{IronComplienceNumeric =} \FunctionTok{ifelse}\NormalTok{(GivenIronSupplements }\SpecialCharTok{==} \ConstantTok{FALSE}\NormalTok{, }\DecValTok{0}\NormalTok{, IronComplienceNumeric)) }\SpecialCharTok{\%\textgreater{}\%} 
+                              \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(IronComplienceNumeric)) }\SpecialCharTok{\%\textgreater{}\%} 
+                              \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{IronComplienceNumeric =} \FunctionTok{ifelse}\NormalTok{(GivenIronSupplements }\SpecialCharTok{==} \ConstantTok{FALSE}\NormalTok{, }\DecValTok{0}\NormalTok{, IronComplienceNumeric )) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(IronComplienceNumeric))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{red-meat-intake}{%
+\subsubsection{Red meat intake}\label{red-meat-intake}}
+
+We remove ``cohort\_name \%\textgreater\% filter(is.na(RedMeat))
+\%\textgreater\% nrow()'' participants for whom we do not have Smoking
+data: * Findonor: 10 * FinRisk97: 21
+
+Health2000 participants were not asked about red meat intake.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{donors\_to\_remove }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, RedMeat) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{gather}\NormalTok{(}\AttributeTok{key=}\NormalTok{ question, }\AttributeTok{value =}\NormalTok{ answer, }\SpecialCharTok{{-}}\NormalTok{ID,}\SpecialCharTok{{-}}\NormalTok{Group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(answer)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(Group, ID) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{distinct}\NormalTok{(ID, Group)}
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{ID }\SpecialCharTok{\%in\%}\NormalTok{ donors\_to\_remove}\SpecialCharTok{$}\NormalTok{ID)}
+
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_blood }\SpecialCharTok{+}
+\NormalTok{                            donors\_to\_remove }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+
+\CommentTok{\# FinRisk97}
+\NormalTok{finrisk97\_to\_remove }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, RedMeat) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{gather}\NormalTok{(}\AttributeTok{key=}\NormalTok{ question, }\AttributeTok{value =}\NormalTok{ answer, }\SpecialCharTok{{-}}\NormalTok{ID,}\SpecialCharTok{{-}}\NormalTok{Group) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(answer)) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(Group, ID) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{distinct}\NormalTok{(ID, Group)}
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{ID }\SpecialCharTok{\%in\%}\NormalTok{ finrisk97\_to\_remove}\SpecialCharTok{$}\NormalTok{ID)}
+
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ nb\_removed\_fr97 }\SpecialCharTok{+}
+\NormalTok{                            finrisk97\_to\_remove }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{age}{%
+\subsubsection{Age}\label{age}}
+
+We remove ``cohort\_name \%\textgreater\% filter(is.na(Age))
+\%\textgreater\% nrow()'' participants with unknown age: * FinDonor: 0 *
+FinRisk97: 0 * Health2000: 0
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\#\# FinDonor}
+\NormalTok{nb\_removed\_blood }\OtherTok{\textless{}{-}}\NormalTok{ findonor\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Age)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Age))}
+
+\DocumentationTok{\#\#\#\# FinRisk97}
+\NormalTok{nb\_removed\_fr97 }\OtherTok{\textless{}{-}}\NormalTok{ finrisk\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Age)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Age))}
+
+\DocumentationTok{\#\#\#\# Health2000}
+\NormalTok{nb\_removed\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_nb\_women\_no\_menstruation\_response }\SpecialCharTok{+}
+\NormalTok{                            h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(Age)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{nrow}\NormalTok{() }
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(Age))}
+\end{Highlighting}
+\end{Shaded}
+
+The total number removed because of missing questionnaire data is: 14 9
+180
+
+\hypertarget{remove-cohort-participants-who-are-currently-pregnant}{%
+\subsection{Remove cohort participants who are currently
+pregnant}\label{remove-cohort-participants-who-are-currently-pregnant}}
+
+As current pregnancy was an exclusion criteria for the NL general
+population cohort and pregnant women are not allowed to donate blood, we
+will remove women who are currently pregnant from the FIN general
+population cohorts. The number of removed participants is
+
+\begin{itemize}
+\tightlist
+\item
+  FinRisk97: 69
+\item
+  Health00: 25
+\end{itemize}
+
+FinRisk97: 1=no, 2=yes Health2000: 0=no, 1=yes
+
+We will also recode the FinRisk97 cohort answer of 1=no to 0=no.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinRisk97}
+\NormalTok{nb\_removed\_pregnant\_fr1997 }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(CurrentPregnancy }\SpecialCharTok{==} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&}\NormalTok{ CurrentPregnancy }\SpecialCharTok{==} \DecValTok{2}\NormalTok{))}
+
+
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy[fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{CurrentPregnancy }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{] }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\CommentTok{\#Health2000}
+\NormalTok{nb\_removed\_pregnant\_h2000 }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{((CurrentPregnancy }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{nrow}\NormalTok{()}
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(Group }\SpecialCharTok{!=} \StringTok{"Men"} \SpecialCharTok{\&}\NormalTok{ CurrentPregnancy }\SpecialCharTok{==} \DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{remove-participants-with-extreme-physiological-measures}{%
+\subsection{Remove participants with extreme physiological
+measures}\label{remove-participants-with-extreme-physiological-measures}}
+
+As decided previously, we remove data according the following criteria:
+
+\begin{itemize}
+\tightlist
+\item
+  BMI \textgreater{} 50
+\item
+  Ferritin \textgreater{} 400
+\item
+  Weight \textless{} 50kg (blood donor selection criteria)
+\end{itemize}
+
+This amounts to ``cohort\_name \%\textgreater\% filter(BMI \textgreater=
+50 \textbar{} Ferritin \textgreater= 400 \textbar{} Weight \textless{}
+50) \%\textgreater\% nrow()'' participants that are removed. * FinDonor:
+12 * FinRisk97: 279 * Health00: 179
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(BMI }\SpecialCharTok{\textless{}} \DecValTok{50} \SpecialCharTok{\&}\NormalTok{ Ferritin }\SpecialCharTok{\textless{}} \DecValTok{400} \SpecialCharTok{\&}\NormalTok{ Weight }\SpecialCharTok{\textgreater{}=} \DecValTok{50}\NormalTok{)}
+
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(BMI }\SpecialCharTok{\textless{}} \DecValTok{50} \SpecialCharTok{\&}\NormalTok{ Ferritin }\SpecialCharTok{\textless{}} \DecValTok{400} \SpecialCharTok{\&}\NormalTok{ Weight }\SpecialCharTok{\textgreater{}=} \DecValTok{50}\NormalTok{)}
+
+\CommentTok{\#Health2000}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{filter}\NormalTok{(BMI }\SpecialCharTok{\textless{}} \DecValTok{50} \SpecialCharTok{\&}\NormalTok{ Ferritin }\SpecialCharTok{\textless{}} \DecValTok{400} \SpecialCharTok{\&}\NormalTok{ Weight }\SpecialCharTok{\textgreater{}=} \DecValTok{50}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{final-group-n-for-the-three-cohorts}{%
+\subsection{Final group N for the three
+cohorts}\label{final-group-n-for-the-three-cohorts}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(Group, }\AttributeTok{Pre\_menopause\_women =} \StringTok{"Pre{-}menopausal women"}\NormalTok{,}
+         \AttributeTok{Post\_menopause\_women =} \StringTok{"Post{-}menopausal women"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{ ( }\AttributeTok{N =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{kable}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{l|r}
+\hline
+Group & N\\
+\hline
+Pre-menopausal women & 877\\
+\hline
+Post-menopausal women & 492\\
+\hline
+Men & 954\\
+\hline
+\end{tabular}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(Group, }\AttributeTok{Pre\_menopause\_women =} \StringTok{"Pre{-}menopausal women"}\NormalTok{,}
+         \AttributeTok{Post\_menopause\_women =} \StringTok{"Post{-}menopausal women"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{ ( }\AttributeTok{N =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{kable}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{l|r}
+\hline
+Group & N\\
+\hline
+Pre-menopausal women & 2155\\
+\hline
+Post-menopausal women & 1248\\
+\hline
+Men & 3434\\
+\hline
+\end{tabular}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Health2000}
+\NormalTok{h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(Group, }\AttributeTok{Pre\_menopause\_women =} \StringTok{"Pre{-}menopausal women"}\NormalTok{,}
+         \AttributeTok{Post\_menopause\_women =} \StringTok{"Post{-}menopausal women"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{ ( }\AttributeTok{N =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{kable}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{l|r}
+\hline
+Group & N\\
+\hline
+Pre-menopausal women & 1359\\
+\hline
+Post-menopausal women & 1029\\
+\hline
+Men & 2385\\
+\hline
+\end{tabular}
+
+\hypertarget{recode-variables}{%
+\subsection{Recode variables}\label{recode-variables}}
+
+\hypertarget{red-meat}{%
+\subsubsection{Red meat}\label{red-meat}}
+
+Next we recode red meat consumption into a linear variable. We use a
+linear scale from 1 to 4 for and mapped the different responses to
+correspond to the four options for the FinDonor and FinRisk97 cohorts.
+Data on red meat consumption was not avaliable in the Health2000 cohort.
+
+\begin{itemize}
+\tightlist
+\item
+  red meat:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    FinDonor
+
+    \begin{itemize}
+    \tightlist
+    \item
+      ``never'' \textasciitilde{} 1, \# never
+    \item
+      ``less\_than\_once\_weekly'' \textasciitilde{} 2, \# less than
+      once a week
+    \item
+      ``1.3\_week'' or ``4.6\_week''\textasciitilde{} 3, \# 1-3 times a
+      week \# 4-6 times a week
+    \item
+      ``daily'' or ``several\_daily'' \textasciitilde{} 4, \# daily \#
+      several times a day
+    \end{itemize}
+  \item
+    FinRisk97
+
+    \begin{itemize}
+    \tightlist
+    \item
+      ``1'' \textasciitilde{} 1, \# 1 = more seldom than once a month or
+      not at all
+    \item
+      ``2'' \textasciitilde{} 2, \# 2 = once or twice a month
+    \item
+      ``3'' or ``4'' or ``5'' \textasciitilde{} 3, \# 3 = once a week \#
+      4 = twice a week or more often \# 5 = almost daily
+    \item
+      ``5'' or ``several\_daily'' \textasciitilde{} 4, \# 6 = daily \# 7
+      = several times a day
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+This will create a new variable, RedMeat\_n.~As we don't have red meat
+data in the Health2000 cohort, we need to make a column, name it
+RedMeat\_n and impute the observations as n/a.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{RedMeat\_n =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    RedMeat }\SpecialCharTok{==} \StringTok{"never"} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{,}
+\NormalTok{    RedMeat }\SpecialCharTok{==} \StringTok{"less\_than\_once\_weekly"} \SpecialCharTok{\textasciitilde{}} \DecValTok{2}\NormalTok{,}
+\NormalTok{    RedMeat }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"1.3\_week"}\NormalTok{ , }\StringTok{"4.6\_week"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \DecValTok{3}\NormalTok{,}
+    \ConstantTok{TRUE}   \SpecialCharTok{\textasciitilde{}} \DecValTok{4}\NormalTok{ )) }
+
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{RedMeat\_n =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    RedMeat }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{,}
+\NormalTok{    RedMeat }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \DecValTok{2}\NormalTok{,}
+\NormalTok{    RedMeat }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"3"}\NormalTok{ , }\StringTok{"4"}\NormalTok{, }\StringTok{"5"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \DecValTok{3}\NormalTok{,}
+    \ConstantTok{TRUE}   \SpecialCharTok{\textasciitilde{}} \DecValTok{4}\NormalTok{ )) }\CommentTok{\# "6" | "7"}
+  
+\CommentTok{\# Health2000}
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{RedMeat\_n }\OtherTok{\textless{}{-}} \ConstantTok{NA}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{crp}{%
+\subsubsection{CRP}\label{crp}}
+
+Due to difference in the CRP measurements (hs-CRP for the general
+population cohorts, CRP for the blood donor cohort) we decided to impute
+CRP \textless3 mg/l to 2.9 mg/l for the general population cohorts in
+order to align them with the blood donor data. CRP \textless3 mg/l was
+previously imputed as 2.9 mg/ml in the blood donor cohort.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CRPori =}\NormalTok{ CRP) }\CommentTok{\# Save original CRP for later use}
+\NormalTok{fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{CRP[fr1997\_summary\_final}\SpecialCharTok{$}\NormalTok{CRP }\SpecialCharTok{\textless{}} \FloatTok{3.0}\NormalTok{] }\OtherTok{\textless{}{-}} \FloatTok{2.9}
+
+\CommentTok{\# Health2000}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CRPori =}\NormalTok{ CRP) }\CommentTok{\# Save original CRP for later use}
+
+\NormalTok{h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{CRP[h2000\_summary\_final}\SpecialCharTok{$}\NormalTok{CRP }\SpecialCharTok{\textless{}} \FloatTok{3.0}\NormalTok{] }\OtherTok{\textless{}{-}} \FloatTok{2.9}
+
+\CommentTok{\#Blood donors}
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CRPori =}\NormalTok{ CRP) }
+\CommentTok{\# Save original CRP for later use, this is needed as we will concatenate this later}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{previous-childbirth-1}{%
+\subsubsection{Previous childbirth}\label{previous-childbirth-1}}
+
+Previous childbirth is recoded * FinDonor: have you given birth? no=no,
+yes=yes * FinRisk97: how many children have you given birth to? 1=none,
+2=one, 3=two, 4=three or more * Health2000: have you given birth? 0=no,
+1=yes
+
+Nulliparous women are coded as 0 (no) and reporting childbirth or giving
+birth to any number of children as 1 (yes).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# FinDonor}
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{PreviousChildbirth =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    PreviousChildbirth }\SpecialCharTok{==} \StringTok{"no"} \SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{,}
+\NormalTok{    PreviousChildbirth }\SpecialCharTok{==} \StringTok{"yes"} \SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{)) }
+
+\CommentTok{\# FinRisk97}
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{PreviousChildbirth =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    PreviousChildbirth }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \DecValTok{0}\NormalTok{,}
+\NormalTok{    PreviousChildbirth }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"2"}\NormalTok{ , }\StringTok{"3"}\NormalTok{, }\StringTok{"4"}\NormalTok{) }\SpecialCharTok{\textasciitilde{}} \DecValTok{1}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{regions}{%
+\subsubsection{Regions}\label{regions}}
+
+Assign the participants to regions based on university hospital
+districts. FinDonor study participants all come from the capital region.
+
+Health2000: 1 HYKS\\
+2 TYKS 3 TAYS 4 KYS 5 OYS
+
+FinRisk97: 2 North Karelia --\textgreater{} KYS 3 North Savonia
+--\textgreater{} KYS 4 Turku and Loimaa --\textgreater{} TYKS 5 Helsinki
+and Vantaa --\textgreater{} HYKS 6 Oulu province --\textgreater{} OYS
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{blood\_data\_summary\_final}\SpecialCharTok{$}\NormalTok{Region }\OtherTok{\textless{}{-}} \StringTok{"HYKS"}
+
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Region =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"KYS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"KYS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"4"} \SpecialCharTok{\textasciitilde{}} \StringTok{"TYKS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"5"} \SpecialCharTok{\textasciitilde{}} \StringTok{"HYKS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"6"} \SpecialCharTok{\textasciitilde{}} \StringTok{"OYS"}\NormalTok{))}
+
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Region =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"1"} \SpecialCharTok{\textasciitilde{}} \StringTok{"HYKS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"2"} \SpecialCharTok{\textasciitilde{}} \StringTok{"TYKS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"3"} \SpecialCharTok{\textasciitilde{}} \StringTok{"TAYS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"4"} \SpecialCharTok{\textasciitilde{}} \StringTok{"KYS"}\NormalTok{,}
+\NormalTok{    Region }\SpecialCharTok{==} \StringTok{"5"} \SpecialCharTok{\textasciitilde{}} \StringTok{"OYS"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{merging-cohorts-into-one-table}{%
+\subsection{Merging cohorts into one
+table}\label{merging-cohorts-into-one-table}}
+
+For the code to work all three cohorts need to be merged into one single
+table. Before this can be done variables the variables selected need to
+have the same name.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# mutate smoking and pregnancy }
+\NormalTok{blood\_data\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ blood\_data\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, TwoYearsFromStartCount\_FB, DaysToPreviousFB,}
+\NormalTok{                Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, IronComplienceNumeric, PreviousChildbirth,}
+\NormalTok{                CRP, CRPori, Region, Weight, Cohort) }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Smoking =} \FunctionTok{ifelse}\NormalTok{(Smoking }\SpecialCharTok{==} \StringTok{"daily"}\NormalTok{, }\StringTok{"yes"}\NormalTok{, }\StringTok{"no"}\NormalTok{),}
+         \AttributeTok{Smoking =} \FunctionTok{factor}\NormalTok{(Smoking, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{( }\StringTok{"no"}\NormalTok{,  }\StringTok{"yes"}\NormalTok{)))}
+
+\DocumentationTok{\#\#\# mutate smoking and pregnancy }
+\NormalTok{fr1997\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ fr1997\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, TwoYearsFromStartCount\_FB, DaysToPreviousFB,}
+\NormalTok{                Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, IronComplienceNumeric, PreviousChildbirth,}
+\NormalTok{                CRP, CRPori, Region, Weight, Cohort) }\SpecialCharTok{\%\textgreater{}\%} 
+       \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Smoking =} \FunctionTok{ifelse}\NormalTok{(Smoking }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{, }\StringTok{"yes"}\NormalTok{, }\StringTok{"no"}\NormalTok{),}
+       \AttributeTok{Smoking =} \FunctionTok{factor}\NormalTok{(Smoking, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{( }\StringTok{"no"}\NormalTok{,  }\StringTok{"yes"}\NormalTok{)))}
+
+\DocumentationTok{\#\#\# mutate smoking and pregnancy}
+\NormalTok{h2000\_summary\_final }\OtherTok{\textless{}{-}}\NormalTok{ h2000\_summary\_final }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, TwoYearsFromStartCount\_FB, DaysToPreviousFB,}
+\NormalTok{                Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, IronComplienceNumeric, PreviousChildbirth,}
+\NormalTok{                CRP, CRPori,Region, Weight, Cohort) }\SpecialCharTok{\%\textgreater{}\%} 
+         \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Smoking =} \FunctionTok{ifelse}\NormalTok{(Smoking }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{, }\StringTok{"yes"}\NormalTok{, }\StringTok{"no"}\NormalTok{),}
+         \AttributeTok{Smoking =} \FunctionTok{factor}\NormalTok{(Smoking, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{( }\StringTok{"no"}\NormalTok{,  }\StringTok{"yes"}\NormalTok{)))}
+         
+
+\CommentTok{\# merge the cohorts}
+
+\NormalTok{summary\_all\_cohorts }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(blood\_data\_summary\_final, fr1997\_summary\_final, h2000\_summary\_final)}
+
+\NormalTok{file }\OtherTok{\textless{}{-}} \StringTok{"../results/summary\_all\_cohorts.rdata"}
+\FunctionTok{save}\NormalTok{(summary\_all\_cohorts,}\AttributeTok{file=}\NormalTok{file)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{final-group-n-for-the-summarized-table}{%
+\subsection{Final group N for the summarized
+table}\label{final-group-n-for-the-summarized-table}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{summary\_all\_cohorts }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Group =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(Group, }\AttributeTok{Pre\_menopause\_women =} \StringTok{"Pre{-}menopausal women"}\NormalTok{,}
+         \AttributeTok{Post\_menopause\_women =} \StringTok{"Post{-}menopausal women"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Group) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{ ( }\AttributeTok{N =} \FunctionTok{n}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{kable}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{tabular}{l|r}
+\hline
+Group & N\\
+\hline
+Pre-menopausal women & 4391\\
+\hline
+Post-menopausal women & 2769\\
+\hline
+Men & 6773\\
+\hline
+\end{tabular}
+
+\hypertarget{table-1}{%
+\subsection{Table 1}\label{table-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{myVars }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Age"}\NormalTok{ ,}
+  \StringTok{"Ferritin (ug/l)"}\NormalTok{,}
+  \StringTok{"Hb (g/l)"}\NormalTok{,}
+  \StringTok{"BMI"}
+\NormalTok{)}
+\NormalTok{non\_normal\_vars }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Ferritin (ug/l)"}\NormalTok{)}
+\NormalTok{table1data }\OtherTok{\textless{}{-}}\NormalTok{ summary\_all\_cohorts  }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}
+  \StringTok{"Age"} \OtherTok{=}\NormalTok{ Age,}
+  \StringTok{"Ferritin (ug/l)"} \OtherTok{=}\NormalTok{ Ferritin,}
+  \StringTok{"Hb (g/l)"} \OtherTok{=}\NormalTok{ Hb,}
+  \StringTok{"BMI"} \OtherTok{=}\NormalTok{ BMI}
+\NormalTok{)}
+
+\NormalTok{summary\_table }\OtherTok{\textless{}{-}} \FunctionTok{CreateTableOne}\NormalTok{(}\AttributeTok{data =} 
+\NormalTok{                                  table1data,}
+                                \AttributeTok{vars=}\NormalTok{myVars, }
+                                \AttributeTok{strata =} \FunctionTok{c}\NormalTok{(}\StringTok{"Cohort"}\NormalTok{,}\StringTok{"Sex"}\NormalTok{),}
+                                \AttributeTok{test =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in min(x, na.rm = TRUE): no non-missing arguments to min; returning Inf
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in max(x, na.rm = TRUE): no non-missing arguments to max; returning -Inf
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in StdDiff(variable = var, group = strataVar): Variable has only NA's in
+## at least one stratum. na.rm turned off.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tab3Mat }\OtherTok{\textless{}{-}} \FunctionTok{print}\NormalTok{(summary\_table, }
+                 \AttributeTok{nonnormal =}\NormalTok{ non\_normal\_vars,}
+                 \AttributeTok{vars=}\NormalTok{myVars, }
+                 \AttributeTok{quote =} \ConstantTok{FALSE}\NormalTok{, }
+                 \AttributeTok{noSpaces =} \ConstantTok{TRUE}\NormalTok{, }
+                 \AttributeTok{printToggle =} \ConstantTok{FALSE}\NormalTok{)}
+\CommentTok{\#}
+\FunctionTok{colnames}\NormalTok{(tab3Mat) }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{:"}\NormalTok{,}\StringTok{": "}\NormalTok{,}\FunctionTok{colnames}\NormalTok{(tab3Mat))}
+\NormalTok{tab3Mat }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{kable}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+\FunctionTok{kable\_styling}\NormalTok{(}
+  \AttributeTok{full\_width =}\NormalTok{ F,}
+  \AttributeTok{bootstrap\_options =} \StringTok{"striped"}\NormalTok{, }
+  \AttributeTok{font\_size =} \DecValTok{8}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{column\_spec}\NormalTok{(}
+    \AttributeTok{column =} \DecValTok{2}\SpecialCharTok{:}\DecValTok{7}\NormalTok{,}
+    \AttributeTok{width =} \StringTok{\textquotesingle{}2.5cm\textquotesingle{}}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{table}
+\centering\begingroup\fontsize{8}{10}\selectfont
+
+\begin{tabular}{l|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}|>{\raggedright\arraybackslash}p{2.5cm}}
+\hline
+  & FINDONOR: Men & FINRISK97: Men & HEALTH00: Men & FINDONOR: Women & FINRISK97: Women & HEALTH00: Women\\
+\hline
+n & 954 & 3434 & 2385 & 1369 & 3403 & 2388\\
+\hline
+Age (mean (SD)) & 46.05 (13.69) & 48.39 (12.85) & 48.12 (10.97) & 42.77 (14.41) & 46.80 (12.18) & 49.05 (11.37)\\
+\hline
+Ferritin (ug/l) (median [IQR]) & 43.00 [25.00, 69.00] & 106.10 [63.15, 171.99] & 116.80 [71.40, 174.36] & 29.00 [17.00, 45.00] & 33.52 [16.42, 62.89] & 36.11 [17.20, 68.37]\\
+\hline
+Hb (g/l) (mean (SD)) & 150.52 (9.31) & 150.85 (10.93) & 151.62 (11.71) & 136.53 (8.49) & NaN (NA) & 136.09 (12.18)\\
+\hline
+BMI (mean (SD)) & 26.39 (3.92) & 26.83 (3.81) & 26.99 (3.98) & 25.82 (4.89) & 26.34 (4.85) & 26.70 (4.96)\\
+\hline
+\end{tabular}
+\endgroup{}
+\end{table}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \FunctionTok{write.table}\NormalTok{(tab3Mat, }
+              \AttributeTok{file =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"../results/low\_ferritin\_data/table\_1.txt"}\NormalTok{),}\AttributeTok{sep=}\StringTok{"}\SpecialCharTok{\textbackslash{}t}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{results---regression-table}{%
+\section{Results - Regression table}\label{results---regression-table}}
+
+\hypertarget{rename-and-transform}{%
+\subsection{Rename and transform}\label{rename-and-transform}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{regression\_cohorts }\OtherTok{\textless{}{-}}\NormalTok{ summary\_all\_cohorts }\SpecialCharTok{\%\textgreater{}\%} 
+    \FunctionTok{rename}\NormalTok{(}\AttributeTok{donation\_count =}\NormalTok{ TwoYearsFromStartCount\_FB,}
+            \AttributeTok{last\_donation =}\NormalTok{ DaysToPreviousFB,}
+            \AttributeTok{iron\_complience =}\NormalTok{ IronComplienceNumeric) }\SpecialCharTok{\%\textgreater{}\%} 
+     \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Age =}\NormalTok{ Age }\SpecialCharTok{/} \DecValTok{5}\NormalTok{, }
+            \AttributeTok{Weight =}\NormalTok{ Weight }\SpecialCharTok{/} \DecValTok{10}\NormalTok{,}
+            \AttributeTok{donation\_count\_2 =}\NormalTok{ donation\_count}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{,}
+            \AttributeTok{log\_ferritin =} \FunctionTok{log}\NormalTok{(Ferritin),}
+            \AttributeTok{log\_last\_donation =} \FunctionTok{log}\NormalTok{(last\_donation)}\SpecialCharTok{/}\FunctionTok{log}\NormalTok{(}\DecValTok{2}\NormalTok{),}
+            \AttributeTok{log\_CRP =} \FunctionTok{log}\NormalTok{(CRP),}
+            \AttributeTok{iron\_deficiency =}\NormalTok{ Ferritin }\SpecialCharTok{\textless{}} \DecValTok{15}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+Save table
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.table}\NormalTok{(regression\_cohorts, }\AttributeTok{file =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"../results/regressioncohorts"}\NormalTok{,}\StringTok{".txt"}\NormalTok{))}
+
+\FunctionTok{save}\NormalTok{(regression\_cohorts, }\AttributeTok{file =} \StringTok{"../data/ID\_data\_regression\_cohorts.rdata"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Data transformations:
+
+\begin{itemize}
+\tightlist
+\item
+  Log transformed variables:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Ferritin
+  \item
+    CRP
+  \end{itemize}
+\item
+  Age is divided by 5 and weight is devided by 10 to simplify
+  coefficient interpretation
+\item
+  Number of days before donation is transformed as
+  \(log\_last\_donation = log(last\_donation)/log(2)\) to help with the
+  interpretation of coefficients.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    An increase in one of the transformed variable is equivalent to a
+    doubling of the number of days since last donation.
+  \end{itemize}
+\item
+  Standardization:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Standardized coefficients:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      All dependent and independent variables were standardized
+    \end{itemize}
+  \item
+    Coefficients:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      All dependent variables entered as continuous varaibles are
+      centered but not scaled.
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+We center all variables entered as continuous.
+
+\hypertarget{premenopausal-women}{%
+\subsection{Premenopausal women}\label{premenopausal-women}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test\_data\_pre\_women }\OtherTok{\textless{}{-}}\NormalTok{ regression\_cohorts }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==} \StringTok{"Pre\_menopause\_women"}\NormalTok{)}
+
+\NormalTok{test\_data\_pre\_women }\OtherTok{\textless{}{-}}\NormalTok{ test\_data\_pre\_women }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, donation\_count, last\_donation, Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, iron\_complience, PreviousChildbirth, CRP, Cohort, donation\_count\_2, log\_ferritin, log\_last\_donation, log\_CRP, iron\_deficiency, Region, Weight) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Age =} \FunctionTok{scale}\NormalTok{(Age, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{Weight =} \FunctionTok{scale}\NormalTok{(Weight, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_CRP =} \FunctionTok{scale}\NormalTok{(log\_CRP, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count =} \FunctionTok{scale}\NormalTok{(donation\_count, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_last\_donation =} \FunctionTok{scale}\NormalTok{(log\_last\_donation, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{BMI =} \FunctionTok{scale}\NormalTok{(BMI, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count\_2 =}\NormalTok{ donation\_count}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+Save table
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.table}\NormalTok{(test\_data\_pre\_women, }\AttributeTok{file =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"../results/test\_data\_pre\_women"}\NormalTok{,}\StringTok{".txt"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{postmenopausal-women}{%
+\subsection{Postmenopausal women}\label{postmenopausal-women}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test\_data\_post\_women }\OtherTok{\textless{}{-}}\NormalTok{ regression\_cohorts }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==} \StringTok{"Post\_menopause\_women"}\NormalTok{) }
+
+\NormalTok{test\_data\_post\_women }\OtherTok{\textless{}{-}}\NormalTok{ test\_data\_post\_women }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, donation\_count, last\_donation, Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, iron\_complience, PreviousChildbirth, CRP, Cohort, donation\_count\_2, log\_ferritin, log\_last\_donation, log\_CRP, iron\_deficiency, Region, Weight) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Age =} \FunctionTok{scale}\NormalTok{(Age, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{Weight =} \FunctionTok{scale}\NormalTok{(Weight, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_CRP =} \FunctionTok{scale}\NormalTok{(log\_CRP, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count =} \FunctionTok{scale}\NormalTok{(donation\_count, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_last\_donation =} \FunctionTok{scale}\NormalTok{(log\_last\_donation, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{BMI =} \FunctionTok{scale}\NormalTok{(BMI, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count\_2 =}\NormalTok{ donation\_count}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Save table
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.table}\NormalTok{(test\_data\_post\_women, }\AttributeTok{file =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"../results/test\_data\_post\_women"}\NormalTok{,}\StringTok{".txt"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{men}{%
+\subsection{Men}\label{men}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{test\_data\_men }\OtherTok{\textless{}{-}}\NormalTok{ regression\_cohorts }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(Group }\SpecialCharTok{==} \StringTok{"Men"}\NormalTok{) }
+
+\NormalTok{test\_data\_men }\OtherTok{\textless{}{-}}\NormalTok{ test\_data\_men }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{select}\NormalTok{(ID, Group, Sex, Age, donation\_count, last\_donation, Ferritin, Hb, BMI, Menstruation, Smoking, RedMeat\_n, iron\_complience, PreviousChildbirth, CRP, Cohort, donation\_count\_2, log\_ferritin, log\_last\_donation, log\_CRP, iron\_deficiency, Region, Weight) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Age =} \FunctionTok{scale}\NormalTok{(Age, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{Weight =} \FunctionTok{scale}\NormalTok{(Weight, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_CRP =} \FunctionTok{scale}\NormalTok{(log\_CRP, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count =} \FunctionTok{scale}\NormalTok{(donation\_count, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{log\_last\_donation =} \FunctionTok{scale}\NormalTok{(log\_last\_donation, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{BMI =} \FunctionTok{scale}\NormalTok{(BMI, }\AttributeTok{scale =} \ConstantTok{FALSE}\NormalTok{)[,}\DecValTok{1}\NormalTok{],}
+         \AttributeTok{donation\_count\_2 =}\NormalTok{ donation\_count}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+Save table
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{write.table}\NormalTok{(test\_data\_men, }\AttributeTok{file =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"../results/test\_data\_men"}\NormalTok{,}\StringTok{".txt"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{mutiple-regression---ferritin-as-outcome}{%
+\subsection{Mutiple regression - ferritin as
+outcome}\label{mutiple-regression---ferritin-as-outcome}}
+
+\hypertarget{correlograms}{%
+\subsubsection{Correlograms}\label{correlograms}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Premenopausal women}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_pre\_women, }
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-38-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Postmenopausal women}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_post\_women, }
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-38-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Men}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_men, }
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-38-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#same as above, cohorts separated }
+
+\CommentTok{\# Premenopausal women}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_pre\_women, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Premenopausal women"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-39-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Postmenopausal women}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_post\_women, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Postmenopausal women"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-39-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Men}
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_men, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"Age"}\NormalTok{, }\StringTok{"log\_CRP"}\NormalTok{,  }\StringTok{"donation\_count"}\NormalTok{, }\StringTok{"donation\_count\_2"}\NormalTok{,}
+                    \StringTok{"log\_last\_donation"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+} 
+\FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Men"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-39-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_pre\_women, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"PreviousChildbirth"}\NormalTok{,  }\StringTok{"RedMeat\_n"}\NormalTok{, }\StringTok{"Smoking"}\NormalTok{, }\StringTok{"iron\_complience"}\NormalTok{, }\StringTok{"BMI"}\NormalTok{, }\StringTok{"Menstruation"}\NormalTok{, }\StringTok{"Region"}\NormalTok{, }\StringTok{"Weight"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+} 
+\FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Premenopausal women"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-40-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_post\_women, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{), }
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{, }\StringTok{"PreviousChildbirth"}\NormalTok{,  }\StringTok{"RedMeat\_n"}\NormalTok{, }\StringTok{"Smoking"}\NormalTok{, }\StringTok{"iron\_complience"}\NormalTok{, }\StringTok{"BMI"}\NormalTok{, }\StringTok{"Region"}\NormalTok{, }\StringTok{"Weight"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{)}\SpecialCharTok{+} 
+\FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Postmenopausal women"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-40-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggpairs}\NormalTok{(test\_data\_men, ggplot2}\SpecialCharTok{::}\FunctionTok{aes}\NormalTok{(}\AttributeTok{colour =}\NormalTok{ Cohort, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{),}
+        \AttributeTok{columns =} \FunctionTok{c}\NormalTok{(}\StringTok{"log\_ferritin"}\NormalTok{, }\StringTok{"iron\_deficiency"}\NormalTok{,  }\StringTok{"RedMeat\_n"}\NormalTok{, }\StringTok{"Smoking"}\NormalTok{, }\StringTok{"iron\_complience"}\NormalTok{, }\StringTok{"BMI"}\NormalTok{, }\StringTok{"Region"}\NormalTok{, }\StringTok{"Weight"}\NormalTok{),}
+         \AttributeTok{lower =} \FunctionTok{list}\NormalTok{(}\AttributeTok{continuous =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"points"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{,}\AttributeTok{size=}\FloatTok{0.1}\NormalTok{),}
+                      \AttributeTok{combo =} \FunctionTok{wrap}\NormalTok{(}\StringTok{"facethist"}\NormalTok{, }\AttributeTok{binwidth =} \FloatTok{0.5}\NormalTok{)),}
+        \AttributeTok{progress =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+} 
+\FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Men"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{low_ferritin_data_files/figure-latex/unnamed-chunk-40-3.pdf}
+
+\end{document}

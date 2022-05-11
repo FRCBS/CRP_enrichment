@@ -183,6 +183,10 @@ get_mean_boot <- function(cohort, var1, var2, var1_trld, i) {
         select({{var1}}, {{var2}}) %>% # variables of interest
         drop_na()
 
+    # Ensure both variables are numeric
+    vi[, 1] <- as.numeric(vi[, 1][[1]])
+    vi[, 2] <- as.numeric(vi[, 2][[1]])
+
     # Filter base population first using var1
     filtered <- vi %>%
         filter({{var1}} >= var1_trld)
