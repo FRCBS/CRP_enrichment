@@ -15,7 +15,7 @@ library(viridis)
 ### for bootstrapping
 library(boot)
 
-boot_n <- 1000 # number of bootstrap samples
+boot_n <- 100 # number of bootstrap samples
 ```
 
 ```{r create_datasets, echo = FALSE}
@@ -90,6 +90,15 @@ fer_srh <- bind_rows(FinDonor = FinDonor[, c("Ferritin", "SRH", "Group")],
            Cohort = ordered(Cohort, levels = c("FinDonor", "FinRisk97", "Health2k")),
            SRH = ordered(SRH, levels = 1:5)) %>%
     filter(Group != "NA") %>%
+    drop_na()
+
+fer_srh_crp <- bind_rows(FinDonor = FinDonor[, c("Ferritin", "SRH", "Group", "CRP")], 
+                     FinRisk97 = FinRisk97[, c("Ferritin", "SRH", "Group", "CRP")], 
+                     Health2k = Health2k[, c("Ferritin", "SRH", "Group", "CRP")], .id = "Cohort") %>% 
+    mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+           Cohort = ordered(Cohort, levels = c("FinDonor", "FinRisk97", "Health2k")),
+           SRH = ordered(SRH, levels = 1:5)) %>%
+    filter(Group != "NA" | CRP != NA) %>%
     drop_na()
 ```
 
@@ -438,5 +447,378 @@ health2k_lineplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) 
     theme(legend.position = "bottom")
 
 multiplot(findonor_lineplt, finrisk_lineplt, health2k_lineplt, cols = 1)
+```
+
+### Control for CRP
+
+Next we'll see what happens to this relationship, if we control for CRP, a common inflammatory marker. This time, we'll focus on cohorts and groups where any effect was measured, namely the non-menstruating women in the FinRisk97 and Health200 cohorts.
+
+First we'll check how the CRP distributes between these two cohorts, to help us select control points.
+
+```{r crp_distr, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 8, fig.height = 4}
+ggplot(data = fer_srh_crp %>% filter(Cohort != "FinDonor"), aes(x = CRP, y = Cohort, fill = Cohort)) +
+    geom_density_ridges(stat = "binline", bins = 100) +
+    geom_vline(xintercept = c(0.3, 1.65, 3)) +
+    xlab("CRP (mg/l)") +
+    xlim(c(0.1, 5)) +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() + 
+    theme(legend.position = "none",
+          legend.title = element_blank(),
+          legend.background = element_blank()) + 
+    labs(title = "CRP per Cohort")
+```
+
+The FinRisk 1997 and Health 2000 cohorts have largerly similar CRP distributions. We will not use the FinDonor set here at all, because it has no sensible observations under 3 mg/l, and those above are measured in integers. Eyeballing nice control points, we could probably choose 3 equidistant points between the 3 mg/l and the common high point of the histograms, 0.3 mg/l.
+
+```{r control_CRP, echo = FALSE}
+CRP_points <- c(0.3, 1.65, 3)
+
+if (!file.exists(paste0("./data/finrisk_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # CRP >= 0 & CRP <= 0.6
+    means_low <- 1:iterations
+    upper_low <- 1:iterations
+    lower_low <- 1:iterations
+    # CRP >= 1.35 & CRP <= 1.95
+    means_med <- 1:iterations
+    upper_med <- 1:iterations
+    lower_med <- 1:iterations
+    # CRP >= 2.7 & CRP <= 3.3
+    means_hi <- 1:iterations
+    upper_hi <- 1:iterations
+    lower_hi <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### FinRisk
+    #############
+    
+    ## Compute
+    # Low
+    boot_obj_low <- boot(fer_srh_crp %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre")  %>% filter(CRP >= 0 & CRP <= 0.6), 
+                               statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_low <- boot.ci(boot_obj_low, type = "norm")
+    # Med
+    boot_obj_med <- boot(fer_srh_crp %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre")  %>% filter(CRP >= 1.35 & CRP <= 1.95),
+                               statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_med <- boot.ci(boot_obj_med, type = "norm")
+    # Hi
+    boot_obj_hi <- boot(fer_srh_crp %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre")  %>% filter(CRP >= 2.7 & CRP <= 3.3),
+                        statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_hi <- boot.ci(boot_obj_hi, type = "norm")
+    
+    ## Store
+    # Men
+    means_low[i] <- boot_obj_low$t0
+    upper_low[i] <- ci_obj_low$normal[3]
+    lower_low[i] <- ci_obj_low$normal[2]
+    # Women|Pre
+    means_med[i] <- boot_obj_med$t0
+    upper_med[i] <- ci_obj_med$normal[3]
+    lower_med[i] <- ci_obj_med$normal[2]
+    # Women|Post
+    means_hi[i] <- boot_obj_hi$t0
+    upper_hi[i] <- ci_obj_hi$normal[3]
+    lower_hi[i] <- ci_obj_hi$normal[2]
+
+    
+    # Combine
+    means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_low, means_med, means_hi),
+                                 upper = c(upper_low, upper_med, upper_hi),
+                                 lower = c(lower_low, lower_med, lower_hi),
+                                 Control = c(rep("0.3", iterations), rep("1.65", iterations), rep("3", iterations)))
+}
+    
+    # Save
+    saveRDS(means_finrisk, paste0("./data/finrisk_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))
+} else {means_finrisk <- readRDS(paste0("./data/finrisk_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))}
+
+if (!file.exists(paste0("./data/health2k_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # CRP >= 0 & CRP <= 0.6
+    means_low <- 1:iterations
+    upper_low <- 1:iterations
+    lower_low <- 1:iterations
+    # CRP >= 1.35 & CRP <= 1.95
+    means_med <- 1:iterations
+    upper_med <- 1:iterations
+    lower_med <- 1:iterations
+    # CRP >= 2.7 & CRP <= 3.3
+    means_hi <- 1:iterations
+    upper_hi <- 1:iterations
+    lower_hi <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### FinRisk
+    #############
+    
+    ## Compute
+    # Low
+    boot_obj_low <- boot(fer_srh_crp %>% filter(Cohort == "Health2k" & Group == "Women|Pre")  %>% filter(CRP >= 0 & CRP <= 0.6), 
+                               statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_low <- boot.ci(boot_obj_low, type = "norm")
+    # Med
+    boot_obj_med <- boot(fer_srh_crp %>% filter(Cohort == "Health2k" & Group == "Women|Pre")  %>% filter(CRP >= 1.35 & CRP <= 1.95),
+                               statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_med <- boot.ci(boot_obj_med, type = "norm")
+    # Hi
+    boot_obj_hi <- boot(fer_srh_crp %>% filter(Cohort == "Health2k" & Group == "Women|Pre")  %>% filter(CRP >= 2.7 & CRP <= 3.3),
+                        statistic = get_mean_boot, R = boot_n, var1 = Ferritin, var2 = SRH, var1_trld = ferritin_values[i])
+    ci_obj_hi <- boot.ci(boot_obj_hi, type = "norm")
+    
+    ## Store
+    # Men
+    means_low[i] <- boot_obj_low$t0
+    upper_low[i] <- ci_obj_low$normal[3]
+    lower_low[i] <- ci_obj_low$normal[2]
+    # Women|Pre
+    means_med[i] <- boot_obj_med$t0
+    upper_med[i] <- ci_obj_med$normal[3]
+    lower_med[i] <- ci_obj_med$normal[2]
+    # Women|Post
+    means_hi[i] <- boot_obj_hi$t0
+    upper_hi[i] <- ci_obj_hi$normal[3]
+    lower_hi[i] <- ci_obj_hi$normal[2]
+
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_low, means_med, means_hi),
+                                 upper = c(upper_low, upper_med, upper_hi),
+                                 lower = c(lower_low, lower_med, lower_hi),
+                                 Control = c(rep("0.3", iterations), rep("1.65", iterations), rep("3", iterations)))
+}
+    
+    # Save
+    saveRDS(means_health2k, paste0("./data/health2k_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))
+} else {means_health2k <- readRDS(paste0("./data/health2k_CRP_controlled_fer_x_SRH_means_", boot_n, ".rds"))}
+
+```
+
+
+
+```{r CRP_control_plot, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 7, fig.height = 8}
+findonor_ctrlplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Control, fill = Control), alpha = .5) +
+    geom_line(aes(linetype = Control, color = Control)) +
+    geom_point(shape = 4) +
+    scale_color_brewer(palette = "Spectral") +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() +
+    labs(title = "Mean of self-reported health by ferritin filter level",
+         subtitle = "FinRisk 1997",
+         y = "Mean of self-reported health",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
+    theme(axis.title.x = element_blank()) + labs(Marker = "CRP control (+- 0.3 mg/l)")
+health2k_ctrlplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Control, fill = Control), alpha = .5) +
+    geom_line(aes(linetype = Control, color = Control)) +
+    geom_point(shape = 4) +
+    scale_color_brewer(palette = "Spectral") +
+    scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() +
+    labs(subtitle = "Health 2000",
+         y = "Mean of self-reported health",
+         color = "CRP control (+- 0.3 mg/l)") + guides(fill = "none", linetype = "none") +
+    theme(axis.title.x = element_blank(),
+          legend.position = "bottom")
+
+multiplot(findonor_ctrlplt, health2k_ctrlplt, cols = 1)
+```
+
+```{r filter_donor_eligibility, echo = FALSE}
+
+# These are both "approximates" in a sense, we don't have all the necessary variables to
+# filter thoroughly, and we'll be able to do more filtering on Health2000 than FinRisk97
+
+donor_eligible_h2k <- Health2k %>%
+    filter(BMII_PAINO.x >= 50 & BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
+    filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
+    filter((B_Hb >= 125 & Gender == "Women") | (B_Hb >= 135 & Gender == "Men")) %>% # Filter by hemoglobin
+    filter(BA08 == 0) %>% # filter out people with heart attacks
+    filter(BA09 == 0) %>% # filter out people with angina
+    filter(BA10 == 0) %>% # cardiac insufficiency / heart failure
+    filter(!(BA26 == 1 & ATC_A10A == 1)) %>% # filter out people who are diabetic AND use insulin
+    filter(SRH < 4) # filter out "Bad" or "Very bad" SRH
+
+donor_eligible_fr <- FinRisk97 %>%
+    filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
+    filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
+    #filter((HGB >= 125 & Gender == 2) | (HGB >= 135 & Gender == 1)) %>% # DON'T filter by hemoglobin, < 500 values in data
+    filter(Q15A != 2) %>% # STEMI, NSTEMI
+    filter(Q16A != 2) %>% # Stroke
+    # filter(Q38 != 2 & Q38 != 4) %>%  # Insulin treatment (2: just insulin, 4: insulin and a tablet)
+    filter(Q17B != 2) %>% # cardiac insufficiency
+    filter(Q17C != 2) %>% # angina pectoris
+    filter(SRH < 4)
+
+```
+
+
+```{r ratio_boot_CRP_by_subgroup, echo = FALSE}
+ferritin_values <- seq(5, 50, 1)
+iterations <- length(ferritin_values)
+CRP_trld <- 3
+
+if (!file.exists(paste0("./data/finrisk_ratio_CRP", boot_n, ".rds"))) { # run bootstrap only if needed
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+    
+    for (i in 1:iterations) {
+        
+        #############
+        #### FinRisk97
+        #############
+        
+        ## Compute
+        # Men
+        boot_obj_men <- boot(donor_eligible_fr %>% filter(Group == "Men"), statistic = get_ratio_boot, R = boot_n, 
+                             var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld)
+        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        # Women|Pre
+        boot_obj_women_pre <- boot(donor_eligible_fr %>% filter(Group == "Women|Pre"), statistic = get_ratio_boot, R = boot_n, 
+                                   var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld)
+        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+        # Women|Post
+        boot_obj_women_post <- boot(donor_eligible_fr %>% filter(Group == "Women|Post"), statistic = get_ratio_boot, R = boot_n, 
+                                    var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i],var2_trld = CRP_trld)
+        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        
+        ## Store
+        # Men
+        means_men[i] <- boot_obj_men$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        # Women|Pre
+        means_women_pre[i] <- boot_obj_women_pre$t0
+        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+        # Women|Post
+        means_women_post[i] <- boot_obj_women_post$t0
+        upper_women_post[i] <- ci_obj_women_post$normal[3]
+        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_pre, means_women_post),
+                                     upper = c(upper_men, upper_women_pre, upper_women_post),
+                                     lower = c(lower_men, lower_women_pre, lower_women_post),
+                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+    
+    }
+    
+    # Save
+    saveRDS(means_finrisk, paste0("./data/finrisk_ratio_CRP", boot_n, ".rds"))
+} else {means_finrisk <- readRDS(paste0("./data/finrisk_ratio_CRP", boot_n, ".rds"))}
+
+if (!file.exists(paste0("./data/health2k_ratio_CRP", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Compute
+    # Men
+    boot_obj_men <- boot(donor_eligible_h2k %>% filter(Group == "Men"), statistic = get_ratio_boot, R = boot_n, 
+                         var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld)
+    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    # Women|Pre
+    boot_obj_women_pre <- boot(donor_eligible_h2k %>% filter(Group == "Women|Pre"), statistic = get_ratio_boot, R = boot_n, 
+                               var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld)
+    ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+    # Women|Post
+    boot_obj_women_post <- boot(donor_eligible_h2k %>% filter(Group == "Women|Post"), statistic = get_ratio_boot, R = boot_n, 
+                                var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld)
+    ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- boot_obj_men$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Pre
+    means_women_pre[i] <- boot_obj_women_pre$t0
+    upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+    lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+    # Women|Post
+    means_women_post[i] <- boot_obj_women_post$t0
+    upper_women_post[i] <- ci_obj_women_post$normal[3]
+    lower_women_post[i] <- ci_obj_women_post$normal[2]
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_pre, means_women_post),
+                                 upper = c(upper_men, upper_women_pre, upper_women_post),
+                                 lower = c(lower_men, lower_women_pre, lower_women_post),
+                                 Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+    
+    
+    }
+    
+    # Save
+    saveRDS(means_health2k, paste0("./data/health2k_ratio_CRP", boot_n, ".rds"))
+} else {means_health2k <- readRDS(paste0("./data/health2k_ratio_CRP", boot_n, ".rds"))}
+
+```
+
+```{r CRP_ratio_plot, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 7, fig.height = 8}
+findonor_ctrlplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    # scale_color_brewer(palette = "Spectral") +
+    # scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() +
+    labs(title = "Increase in ratio of people over 3 mg/l CRP",
+         subtitle = "FinRisk 1997",
+         y = "Mean of self-reported health",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
+    theme(axis.title.x = element_blank()) + labs(Marker = "Gender")
+health2k_ctrlplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    # scale_color_brewer(palette = "Spectral") +
+    # scale_fill_brewer(palette = "Spectral") +
+    theme_minimal() +
+    labs(subtitle = "Health 2000",
+         y = "Mean of self-reported health",
+         color = "Gender") + guides(fill = "none", linetype = "none") +
+    theme(axis.title.x = element_blank(),
+          legend.position = "bottom")
+
+multiplot(findonor_ctrlplt, health2k_ctrlplt, cols = 1)
 ```
 
