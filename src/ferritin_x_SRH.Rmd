@@ -2,7 +2,7 @@
 title: "Does Ferritin Affect Self-Reported Health?"
 author: "Esa Turkulainen"
 date: "5/10/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include = FALSE}
@@ -15,7 +15,7 @@ library(viridis)
 ### for bootstrapping
 library(boot)
 
-boot_n <- 100 # number of bootstrap samples
+boot_n <- 1000 # number of bootstrap samples
 ```
 
 ```{r create_datasets, echo = FALSE}
@@ -644,7 +644,9 @@ donor_eligible_h2k <- Health2k %>%
     filter(BA09 == 0) %>% # filter out people with angina
     filter(BA10 == 0) %>% # cardiac insufficiency / heart failure
     filter(!(BA26 == 1 & ATC_A10A == 1)) %>% # filter out people who are diabetic AND use insulin
-    filter(SRH < 4) # filter out "Bad" or "Very bad" SRH
+    filter(SRH < 4) %>% # filter out "Bad" or "Very bad" SRH
+    rename(GlycA = GP) %>% # rename for ease of use
+    mutate(HbA1C = B_GHb_A1C * 10.93 - 23.50)
 
 donor_eligible_fr <- FinRisk97 %>%
     filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
@@ -655,7 +657,8 @@ donor_eligible_fr <- FinRisk97 %>%
     # filter(Q38 != 2 & Q38 != 4) %>%  # Insulin treatment (2: just insulin, 4: insulin and a tablet)
     filter(Q17B != 2) %>% # cardiac insufficiency
     filter(Q17C != 2) %>% # angina pectoris
-    filter(SRH < 4)
+    filter(SRH < 4) %>% # filter out "Bad" or "Very bad" SRH
+    rename(GlycA = GP) # rename for ease of use
 
 ```
 
@@ -794,31 +797,301 @@ if (!file.exists(paste0("./data/health2k_ratio_CRP", boot_n, ".rds"))) { # run b
 ```
 
 ```{r CRP_ratio_plot, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 7, fig.height = 8}
-findonor_ctrlplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
+finrisk_ctrlplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
     geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
     geom_line(aes(linetype = Gender, color = Gender)) +
     geom_point(shape = 4) +
-    # scale_color_brewer(palette = "Spectral") +
-    # scale_fill_brewer(palette = "Spectral") +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
     theme_minimal() +
     labs(title = "Increase in ratio of people over 3 mg/l CRP",
          subtitle = "FinRisk 1997",
-         y = "Mean of self-reported health",
+         y = "Increase (%-p)",
          color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
     theme(axis.title.x = element_blank()) + labs(Marker = "Gender")
 health2k_ctrlplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
     geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
     geom_line(aes(linetype = Gender, color = Gender)) +
     geom_point(shape = 4) +
-    # scale_color_brewer(palette = "Spectral") +
-    # scale_fill_brewer(palette = "Spectral") +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
     theme_minimal() +
     labs(subtitle = "Health 2000",
-         y = "Mean of self-reported health",
+         y = "Increase (%-p)",
          color = "Gender") + guides(fill = "none", linetype = "none") +
     theme(axis.title.x = element_blank(),
           legend.position = "bottom")
 
-multiplot(findonor_ctrlplt, health2k_ctrlplt, cols = 1)
+multiplot(finrisk_ctrlplt, health2k_ctrlplt, cols = 1)
 ```
 
+```{r ratio_boot_GlycA_by_subgroup, echo = FALSE}
+ferritin_values <- seq(5, 50, 1)
+iterations <- length(ferritin_values)
+
+if (!file.exists(paste0("./data/finrisk_ratio_GlycA", boot_n, ".rds"))) { # run bootstrap only if needed
+    
+    #############
+    #### FinRisk97
+    #############
+    
+    GlycA_trld <- median(donor_eligible_fr$GlycA, na.rm = T)
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+    
+    for (i in 1:iterations) {
+        
+        ## Compute
+        # Men
+        boot_obj_men <- boot(donor_eligible_fr %>% filter(Group == "Men"), statistic = get_ratio_boot, R = boot_n, 
+                             var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        # Women|Pre
+        boot_obj_women_pre <- boot(donor_eligible_fr %>% filter(Group == "Women|Pre"), statistic = get_ratio_boot, R = boot_n, 
+                                   var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+        # Women|Post
+        boot_obj_women_post <- boot(donor_eligible_fr %>% filter(Group == "Women|Post"), statistic = get_ratio_boot, R = boot_n, 
+                                    var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        
+        ## Store
+        # Men
+        means_men[i] <- boot_obj_men$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        # Women|Pre
+        means_women_pre[i] <- boot_obj_women_pre$t0
+        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+        # Women|Post
+        means_women_post[i] <- boot_obj_women_post$t0
+        upper_women_post[i] <- ci_obj_women_post$normal[3]
+        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_pre, means_women_post),
+                                     upper = c(upper_men, upper_women_pre, upper_women_post),
+                                     lower = c(lower_men, lower_women_pre, lower_women_post),
+                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+    
+    }
+    
+    # Save
+    saveRDS(means_finrisk, paste0("./data/finrisk_ratio_GlycA", boot_n, ".rds"))
+} else {means_finrisk <- readRDS(paste0("./data/finrisk_ratio_GlycA", boot_n, ".rds"))}
+
+if (!file.exists(paste0("./data/health2k_ratio_GlycA", boot_n, ".rds"))) { # run bootstrap only if needed
+    
+    #############
+    #### Health2000
+    #############
+    
+    GlycA_trld <- median(donor_eligible_h2k$GlycA, na.rm = T)
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Compute
+    # Men
+    boot_obj_men <- boot(donor_eligible_h2k %>% filter(Group == "Men"), statistic = get_ratio_boot, R = boot_n, 
+                         var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    # Women|Pre
+    boot_obj_women_pre <- boot(donor_eligible_h2k %>% filter(Group == "Women|Pre"), statistic = get_ratio_boot, R = boot_n, 
+                               var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+    ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+    # Women|Post
+    boot_obj_women_post <- boot(donor_eligible_h2k %>% filter(Group == "Women|Post"), statistic = get_ratio_boot, R = boot_n, 
+                                var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld)
+    ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- boot_obj_men$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Pre
+    means_women_pre[i] <- boot_obj_women_pre$t0
+    upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+    lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+    # Women|Post
+    means_women_post[i] <- boot_obj_women_post$t0
+    upper_women_post[i] <- ci_obj_women_post$normal[3]
+    lower_women_post[i] <- ci_obj_women_post$normal[2]
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_pre, means_women_post),
+                                 upper = c(upper_men, upper_women_pre, upper_women_post),
+                                 lower = c(lower_men, lower_women_pre, lower_women_post),
+                                 Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+    
+    
+    }
+    
+    # Save
+    saveRDS(means_health2k, paste0("./data/health2k_ratio_GlycA", boot_n, ".rds"))
+} else {means_health2k <- readRDS(paste0("./data/health2k_ratio_GlycA", boot_n, ".rds"))}
+
+```
+
+```{r GlycA_ratio_plot, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 7, fig.height = 8}
+finrisk_glycaplt <- ggplot(data = means_finrisk, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(title = "Increase in ratio of people over the population median GlycA",
+         subtitle = expression("FinRisk 1997 (1.35" *mu*"mol/l)"),
+         y = "Increase (%-p)",
+         color = "Marker") + guides(fill = "none", color = "none", linetype = "none") +
+    theme(axis.title.x = element_blank()) + labs(Marker = "Gender")
+health2k_glycaplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(subtitle = expression("Health 2000 (1.15" *mu*"mol/l)"),
+         y = "Increase (%-p)",
+         color = "Gender") + guides(fill = "none", linetype = "none") +
+    theme(axis.title.x = element_blank(),
+          legend.position = "bottom")
+
+multiplot(finrisk_glycaplt, health2k_glycaplt, cols = 1)
+```
+```{r ratio_boot_HbA1C_by_subgroup, echo = FALSE}
+ferritin_values <- seq(5, 50, 1)
+iterations <- length(ferritin_values)
+HbA1C_trld <- 42
+
+if (!file.exists(paste0("./data/health2k_ratio_HbA1C", boot_n, ".rds"))) { # run bootstrap only if needed
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Pre
+    means_women_pre <- 1:iterations
+    upper_women_pre <- 1:iterations
+    lower_women_pre <- 1:iterations
+    # Women|Post
+    means_women_post <- 1:iterations
+    upper_women_post <- 1:iterations
+    lower_women_post <- 1:iterations
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Compute
+    # Men
+    boot_obj_men <- boot(donor_eligible_h2k %>% filter(Group == "Men"), statistic = get_ratio_boot, R = boot_n, 
+                         var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld)
+    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    # Women|Pre
+    boot_obj_women_pre <- boot(donor_eligible_h2k %>% filter(Group == "Women|Pre"), statistic = get_ratio_boot, R = boot_n, 
+                               var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld)
+    ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
+    # Women|Post
+    boot_obj_women_post <- boot(donor_eligible_h2k %>% filter(Group == "Women|Post"), statistic = get_ratio_boot, R = boot_n, 
+                                var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld)
+    ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- boot_obj_men$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Pre
+    means_women_pre[i] <- boot_obj_women_pre$t0
+    upper_women_pre[i] <- ci_obj_women_pre$normal[3]
+    lower_women_pre[i] <- ci_obj_women_pre$normal[2]
+    # Women|Post
+    means_women_post[i] <- boot_obj_women_post$t0
+    upper_women_post[i] <- ci_obj_women_post$normal[3]
+    lower_women_post[i] <- ci_obj_women_post$normal[2]
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_pre, means_women_post),
+                                 upper = c(upper_men, upper_women_pre, upper_women_post),
+                                 lower = c(lower_men, lower_women_pre, lower_women_post),
+                                 Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+    
+    
+    }
+    
+    # Save
+    saveRDS(means_health2k, paste0("./data/health2k_ratio_HbA1C", boot_n, ".rds"))
+} else {means_health2k <- readRDS(paste0("./data/health2k_ratio_HbA1C", boot_n, ".rds"))}
+
+```
+
+```{r HbA1C_ratio_plot, echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 8, fig.height = 7}
+health2k_hba1cplt <- ggplot(data = means_health2k, aes(x = Ferritin, y = means)) + 
+    geom_ribbon(aes(ymin = lower, ymax = upper, group = Gender, fill = Gender), alpha = .5) +
+    geom_line(aes(linetype = Gender, color = Gender)) +
+    geom_point(shape = 4) +
+    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                       limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+                      limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+    theme_minimal() +
+    labs(title = "Increase in ratio of people over HbA1C 42 mmol/mol",
+         subtitle = "Health 2000",
+         y = "Increase (%-p)",
+         color = "Gender") + guides(fill = "none", linetype = "none") +
+    theme(axis.title.x = element_blank(),
+          legend.position = "bottom")
+health2k_hba1cplt
+```
