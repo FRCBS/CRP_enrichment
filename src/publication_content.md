@@ -116,10 +116,13 @@
     ##   Men             2603     1710 4313
     ##   Sum             5402     3314 8716
 
-    ggplot(data = fer_srh_crp, aes(x = log(Ferritin), y = log(CRP))) + 
-        geom_point() +
+    options(scipen = 10000)
+    ggplot(data = fer_srh_crp, aes(x = Ferritin, y = CRP)) + 
+        geom_point(alpha = 0.1) +
+        scale_x_log10() +
+        scale_y_log10() +
         theme_minimal() + 
-        geom_smooth(method = "lm") +
+        geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         facet_grid(rows = vars(Group), cols = vars(Cohort))
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated-1.png)
