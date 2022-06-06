@@ -105,14 +105,28 @@
         filter(CRP >= 0.01) %>%
         drop_na()
 
-    addmargins(table(fer_crp$Group, fer_crp$Cohort))
+    table1 <- as.data.frame(table(fer_crp$Group, fer_crp$Cohort))
+    table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
+    table1$FER <- c(paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
+    table1
 
-    ##             
-    ##              FinRisk97 Health2k  Sum
-    ##   Women|Pre       1915      943 2858
-    ##   Women|Post       884      661 1545
-    ##   Men             2603     1710 4313
-    ##   Sum             5402     3314 8716
+    ##         Var1      Var2 Freq                 CRP                      FER
+    ## 1  Women|Pre FinRisk97 1915  0.77 | (0.4, 1.87)   24.02 | (12.39, 42.53)
+    ## 2 Women|Post FinRisk97  884 1.27 | (0.62, 2.65)   55.79 | (31.06, 93.72)
+    ## 3        Men FinRisk97 2603 0.89 | (0.46, 1.88) 112.06 | (66.46, 182.07)
+    ## 4  Women|Pre  Health2k  943 0.62 | (0.27, 1.81)        28 | (15.2, 48.6)
+    ## 5 Women|Post  Health2k  661  1.02 | (0.38, 2.4)      55.9 | (32.7, 95.5)
+    ## 6        Men  Health2k 1710 0.77 | (0.35, 1.75)   124.7 | (76.67, 193.9)
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
@@ -120,7 +134,8 @@
         scale_x_log10() +
         scale_y_log10() +
         theme_minimal() + 
-        geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
+        geom_smooth(method = "lm", formula = y ~ x, color = "black", linetype = "dashed", size = 0.5) +
+        stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort))
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated-1.png)
@@ -136,6 +151,7 @@
                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
+        stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         theme(legend.position = "none")
 
@@ -152,6 +168,7 @@
                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
+        stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(cols = vars(Cohort)) +
         theme(legend.position = "bottom") + guides(colour = guide_legend(override.aes = list(alpha = 1)))
 
@@ -346,20 +363,47 @@
         filter(Group != "NA") %>%
         drop_na()
 
-    addmargins(table(fer_glyca$Group, fer_glyca$Cohort))
+    suptable1 <- as.data.frame(table(fer_glyca$Group, fer_glyca$Cohort))
 
-    ##             
-    ##              FinRisk97 Health2k  Sum
-    ##   Women|Pre       1977     1072 3049
-    ##   Women|Post       891      704 1595
-    ##   Men             2640     1903 4543
-    ##   Sum             5508     3679 9187
+    suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
 
-    addmargins(table(fer_hba1c$Group))
+    suptable1$FER <- c(paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
 
-    ## 
-    ##  Women|Pre Women|Post        Men        Sum 
-    ##       1074        705       1910       3689
+    suptable2 <- as.data.frame(table(fer_hba1c$Group))
+    suptable2$HbA1C <- c(paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable2$FER <-  c(paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable1
+
+    ##         Var1      Var2 Freq               GlycA                     FER
+    ## 1  Women|Pre FinRisk97 1977 1.28 | (1.17, 1.42)    23.9 | (12.3, 42.52)
+    ## 2 Women|Post FinRisk97  891 1.38 | (1.25, 1.52)   55.78 | (31.2, 93.21)
+    ## 3        Men FinRisk97 2640 1.38 | (1.25, 1.55)  112.1 | (66.53, 183.4)
+    ## 4  Women|Pre  Health2k 1072  1.1 | (0.96, 1.23)  27.64 | (14.78, 48.25)
+    ## 5 Women|Post  Health2k  704     1.15 | (1, 1.3)      55.6 | (32, 95.25)
+    ## 6        Men  Health2k 1903 1.19 | (1.05, 1.35) 121.8 | (75.72, 189.34)
+
+    suptable2
+
+    ##         Var1 Freq                  HbA1C                    FER
+    ## 1  Women|Pre 1074 31.15 | (28.96, 33.34) 27.62 | (14.72, 48.19)
+    ## 2 Women|Post  705 33.34 | (31.15, 36.61)      55.6 | (32, 95.4)
+    ## 3        Men 1910 34.43 | (32.24, 35.52) 121.8 | (75.8, 189.42)
 
     options(scipen = 10000)
     ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) + 
@@ -372,6 +416,7 @@
                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
+        stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         theme(legend.position = "none")
 
@@ -539,8 +584,10 @@
                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
+        stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group)) +
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        labs(y = expression(HbA[1*C]))
 
 ![](publication_content_files/figure-markdown_strict/hba1c_scatter-1.png)
 
