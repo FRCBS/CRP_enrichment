@@ -136,7 +136,7 @@ get_ratio <- function(cohort, var1, var2, var1_trld, var2_trld) {
     return(diff)
 }
 
-get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
+get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, var2_over = T, i) {
     # requires dplyr
     # Answers the question:
     # How much the proportion of individuals with var2 >< var2_trld
@@ -147,9 +147,15 @@ get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
         select({{var1}}, {{var2}}) %>% # variables of interest
         drop_na()
 
-    # Find individuals of interest (ioi, above/below of var2_trld)
-    ioi <- vi %>%
-        filter({{var2}} >= var2_trld)
+    if (var2_over) {
+        # Find individuals of interest (ioi, over var2_trld)
+        ioi <- vi %>%
+            filter({{var2}} >= var2_trld)
+    } else {
+        # Find individuals of interest (ioi, under var2_trld)
+        ioi <- vi %>%
+            filter({{var2}} <= var2_trld)
+      }
 
     # Get proportion
     prop <- 100 * dim(ioi)[1] / dim(vi)[1]
@@ -159,8 +165,13 @@ get_ratio_boot <- function(cohort, var1, var2, var1_trld, var2_trld, i) {
         filter({{var1}} >= var1_trld)
 
     # And find IoI again
-    f_ioi <- filtered %>%
-        filter({{var2}} >= var2_trld)
+    if (var2_over) {
+        f_ioi <- filtered %>%
+            filter({{var2}} >= var2_trld)
+    } else {
+        f_ioi <- filtered %>%
+            filter({{var2}} <= var2_trld)
+      }
 
     # Now get proportion (filtered population)
     f_prop <- 100 * dim(f_ioi)[1] / dim(filtered)[1]
