@@ -58,6 +58,7 @@
         mutate(Gender = case_when(Gender == 1 ~ "Men",
                                   Gender == 2 ~ "Women",
                                   TRUE ~ "NA"),
+               # It is worth noting here, that menstruation status was not asked from women over 55. So, we treat these as postmenopausal.
                Group = case_when(Gender == "Men" ~ "Men",
                                  Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Pre",
                                  Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Post",
@@ -347,10 +348,13 @@
 
 # Ferritin X CRP
 
-Subgroups: menstruating women, non-menstruating women, men
+Subgroups: menstruating women, non-menstruating women, men. Grey box
+highlights all individuals that go over 3 mg/l CRP at ferritin &gt;15
+ug/l.
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
         geom_point(alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -365,6 +369,7 @@ Subgroups: menstruating women, non-menstruating women, men
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -384,6 +389,7 @@ Subgroups: menstruating women, non-menstruating women, men
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.2) +
         scale_x_log10() +
         scale_y_log10() +
@@ -410,7 +416,6 @@ often indicated by elevated hs-CRP (&gt;3 mg/l). Does this proportion
 increase in a statistically significant manner, if we start requiring
 higher ferritin levels from donors?
 
-    ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
     CRP_trld <- 3
 
@@ -735,6 +740,7 @@ haemoglobin, and apolipoproteins A1 and B.
 
     options(scipen = 10000)
     ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 1.35, ymax = 3, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -756,7 +762,6 @@ For the acetylated glycoprotein we don’t have any well established
 thresholds for “healthy” and “unhealthy”. We’ll use the population
 median here.
 
-    ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
 
     if (!file.exists(paste0("./data/PUBL_finrisk_ratio_glyca", boot_n, ".rds"))) { # run bootstrap only if needed
@@ -913,6 +918,7 @@ median here.
 
     options(scipen = 10000)
     ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 42, ymax = 100, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -935,7 +941,6 @@ The reference values for healthy people are between 20 - 42 mmol/mol
 (<https://www.terveyskirjasto.fi/snk03092>). Because the relationship
 with ferritin appears to be positive, we’ll use the upper bound.
 
-    ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
     HbA1C_trld <- 42
 
@@ -1026,6 +1031,7 @@ with ferritin appears to be positive, we’ll use the upper bound.
 
     options(scipen = 10000)
     ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 1.3, ymax = 3, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -1045,6 +1051,7 @@ with ferritin appears to be positive, we’ll use the upper bound.
 
     options(scipen = 10000)
     ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) + 
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 0.4, ymax = 1.2, alpha = .5, fill = "grey") +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -1068,7 +1075,6 @@ men are 0.6 - 1.5 (of which we’ll use 1.5) and for healthy women they
 are 0.6 - 1.3 (we’ll use 1.3).
 (<https://huslab.fi/ohjekirja/20705.html>)
 
-    ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
     APOB_trld_men <- 1.5 # for males [0.6, 1.5]
     APOB_trld_women <- 1.3 # for females [0.6, 1.3]
@@ -1227,7 +1233,6 @@ ferritin. Thus, we will use the lower bounds of the reference intervals
 for healthy individuals here. These are 1.1 - 2.0 for men and 1.2 - 2.3
 for women. (<https://huslab.fi/ohjekirja/20705.html>)
 
-    ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
     APOA1_trld_men <- 1.1 # for males [1.1, 2.0]
     APOA1_trld_women <- 1.2 # for females [1.2, 2.3]
