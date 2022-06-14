@@ -1,3 +1,5 @@
+# Create datasets
+
     # Load data on individual donations
     load("./data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
     donations <- output
@@ -65,8 +67,8 @@
     # These are both "approximates" in a sense, we don't have all the necessary variables to
     # filter thoroughly, and we'll be able to do more filtering on Health2000 than FinRisk97
     donor_eligible_h2k <- Health2k %>%
-        filter(BMII_PAINO.x >= 50 & BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
-        filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
+        filter(BMII_PAINO.x >= 50 | BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
+        filter(Age >= 18 | Age <= 66) %>% # Filter away too young and too old
         filter((B_Hb >= 125 & Gender == "Women") | (B_Hb >= 135 & Gender == "Men")) %>% # Filter by hemoglobin
         filter(BA08 == 0) %>% # filter out people with heart attacks
         filter(BA09 == 0) %>% # filter out people with angina
@@ -77,8 +79,8 @@
         mutate(HbA1C = B_GHb_A1C * 10.93 - 23.50)
 
     donor_eligible_fr <- FinRisk97 %>%
-        filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
-        filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
+        filter(PAINO >= 50 | PAINO <= 200) %>% # Filter away people <50kg and >200kg
+        filter(Age >= 18 | Age <= 66) %>% # Filter away too young and too old
         #filter((HGB >= 125 & Gender == 2) | (HGB >= 135 & Gender == 1)) %>% # DON'T filter by hemoglobin, < 500 values in data
         filter(Q15A != 2) %>% # STEMI, NSTEMI
         filter(Q16A != 2) %>% # Stroke
@@ -105,6 +107,8 @@
         filter(CRP >= 0.01) %>%
         drop_na()
 
+# Mock Cohort|Var Tables
+
     table1 <- as.data.frame(table(fer_crp$Group, fer_crp$Cohort))
     table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
                       paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
@@ -120,13 +124,230 @@
                       paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
     table1
 
-    ##         Var1      Var2 Freq                 CRP                      FER
-    ## 1  Women|Pre FinRisk97 1915  0.77 | (0.4, 1.87)   24.02 | (12.39, 42.53)
-    ## 2 Women|Post FinRisk97  884 1.27 | (0.62, 2.65)   55.79 | (31.06, 93.72)
-    ## 3        Men FinRisk97 2603 0.89 | (0.46, 1.88) 112.06 | (66.46, 182.07)
-    ## 4  Women|Pre  Health2k  943 0.62 | (0.27, 1.81)        28 | (15.2, 48.6)
-    ## 5 Women|Post  Health2k  661  1.02 | (0.38, 2.4)      55.9 | (32.7, 95.5)
-    ## 6        Men  Health2k 1710 0.77 | (0.35, 1.75)   124.7 | (76.67, 193.9)
+    ##         Var1      Var2 Freq                 CRP                     FER
+    ## 1  Women|Pre FinRisk97 1980 0.76 | (0.38, 1.85)  23.97 | (12.35, 42.51)
+    ## 2 Women|Post FinRisk97 1001  1.26 | (0.61, 2.6)   55.8 | (31.42, 94.74)
+    ## 3        Men FinRisk97 2801 0.91 | (0.47, 1.92) 110.99 | (65.87, 181.3)
+    ## 4  Women|Pre  Health2k  976 0.61 | (0.26, 1.78)   27.9 | (15.17, 48.54)
+    ## 5 Women|Post  Health2k  785  1.02 | (0.4, 2.35)      55.97 | (32, 95.1)
+    ## 6        Men  Health2k 1793 0.79 | (0.35, 1.77)  123.1 | (76.32, 192.7)
+
+# Exclusions: Health2000
+
+    h2k <- "Health2000"
+    fr <- "FinRisk1997"
+    women_m <- "Menstruating women"
+    women_nm <- "Non-menstruating women"
+    men <- "Men"
+    paste0(h2k, ", ", women_m, ": ",  nrow(Health2k %>% filter(Group == "Women|Pre")))
+
+    ## [1] "Health2000, Menstruating women: 1508"
+
+    paste0(h2k, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+
+    ## [1] "Health2000, Menstruating women, under 50kg or over 200kg: 48"
+
+    paste0(h2k, ", ", women_m, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "Health2000, Menstruating women, under 18y or over 66y: 0"
+
+    paste0(h2k, ", ", women_m, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(B_Hb < 125)))
+
+    ## [1] "Health2000, Menstruating women, Hb under 125: 284"
+
+    paste0(h2k, ", ", women_m, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA08 == 1)))
+
+    ## [1] "Health2000, Menstruating women, heart attack: 1"
+
+    paste0(h2k, ", ", women_m, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA09 == 1)))
+
+    ## [1] "Health2000, Menstruating women, angina: 2"
+
+    paste0(h2k, ", ", women_m, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA10 == 1)))
+
+    ## [1] "Health2000, Menstruating women, heart failure/insuff: 3"
+
+    paste0(h2k, ", ", women_m, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter((BA26 == 1 & ATC_A10A == 1))))
+
+    ## [1] "Health2000, Menstruating women, diabetics on insulin: 7"
+
+    paste0(h2k, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(SRH >= 4)))
+
+    ## [1] "Health2000, Menstruating women, bad or very bad self-reported health: 51"
+
+    paste0(h2k, ", ", women_nm, ": ",  nrow(Health2k %>% filter(Group == "Women|Post")))
+
+    ## [1] "Health2000, Non-menstruating women: 1505"
+
+    paste0(h2k, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+
+    ## [1] "Health2000, Non-menstruating women, under 50kg or over 200kg: 27"
+
+    paste0(h2k, ", ", women_nm, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "Health2000, Non-menstruating women, under 18y or over 66y: 279"
+
+    paste0(h2k, ", ", women_nm, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(B_Hb < 125)))
+
+    ## [1] "Health2000, Non-menstruating women, Hb under 125: 117"
+
+    paste0(h2k, ", ", women_nm, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA08 == 1)))
+
+    ## [1] "Health2000, Non-menstruating women, heart attack: 30"
+
+    paste0(h2k, ", ", women_nm, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA09 == 1)))
+
+    ## [1] "Health2000, Non-menstruating women, angina: 90"
+
+    paste0(h2k, ", ", women_nm, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA10 == 1)))
+
+    ## [1] "Health2000, Non-menstruating women, heart failure/insuff: 52"
+
+    paste0(h2k, ", ", women_nm, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter((BA26 == 1 & ATC_A10A == 1))))
+
+    ## [1] "Health2000, Non-menstruating women, diabetics on insulin: 19"
+
+    paste0(h2k, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(SRH >= 4)))
+
+    ## [1] "Health2000, Non-menstruating women, bad or very bad self-reported health: 175"
+
+    paste0(h2k, ", ", men, ": ",  nrow(Health2k %>% filter(Group == "Men")))
+
+    ## [1] "Health2000, Men: 2944"
+
+    paste0(h2k, ", ", men, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+
+    ## [1] "Health2000, Men, under 50kg or over 200kg: 3"
+
+    paste0(h2k, ", ", men, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "Health2000, Men, under 18y or over 66y: 229"
+
+    paste0(h2k, ", ", men, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(B_Hb < 125)))
+
+    ## [1] "Health2000, Men, Hb under 125: 40"
+
+    paste0(h2k, ", ", men, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA08 == 1)))
+
+    ## [1] "Health2000, Men, heart attack: 116"
+
+    paste0(h2k, ", ", men, ", angina: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA09 == 1)))
+
+    ## [1] "Health2000, Men, angina: 144"
+
+    paste0(h2k, ", ", men, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA10 == 1)))
+
+    ## [1] "Health2000, Men, heart failure/insuff: 67"
+
+    paste0(h2k, ", ", men, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter((BA26 == 1 & ATC_A10A == 1))))
+
+    ## [1] "Health2000, Men, diabetics on insulin: 50"
+
+    paste0(h2k, ", ", men, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(SRH >= 4)))
+
+    ## [1] "Health2000, Men, bad or very bad self-reported health: 271"
+
+# Exclusions: FinRisk1997
+
+    paste0(fr, ", ", women_m, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre")))
+
+    ## [1] "FinRisk1997, Menstruating women: 2469"
+
+    paste0(fr, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(PAINO < 50 | PAINO > 200)))
+
+    ## [1] "FinRisk1997, Menstruating women, under 50kg or over 200kg: 81"
+
+    paste0(fr, ", ", women_m, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "FinRisk1997, Menstruating women, under 18y or over 66y: 8"
+
+    paste0(fr, ", ", women_m, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q15A == 2)))
+
+    ## [1] "FinRisk1997, Menstruating women, STEMI, NSTEMI: 6"
+
+    paste0(fr, ", ", women_m, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q16A == 2)))
+
+    ## [1] "FinRisk1997, Menstruating women, stroke: 11"
+
+    paste0(fr, ", ", women_m, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q17B == 2)))
+
+    ## [1] "FinRisk1997, Menstruating women, heart insuff: 12"
+
+    paste0(fr, ", ", women_m, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q17C == 2)))
+
+    ## [1] "FinRisk1997, Menstruating women, angina: 37"
+
+    paste0(fr, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(SRH >= 4)))
+
+    ## [1] "FinRisk1997, Menstruating women, bad or very bad self-reported health: 114"
+
+    paste0(fr, ", ", women_nm, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Post")))
+
+    ## [1] "FinRisk1997, Non-menstruating women: 1463"
+
+    paste0(fr, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(PAINO < 50 | PAINO > 200)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, under 50kg or over 200kg: 31"
+
+    paste0(fr, ", ", women_nm, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, under 18y or over 66y: 156"
+
+    paste0(fr, ", ", women_nm, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q15A == 2)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, STEMI, NSTEMI: 34"
+
+    paste0(fr, ", ", women_nm, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q16A == 2)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, stroke: 43"
+
+    paste0(fr, ", ", women_nm, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q17B == 2)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, heart insuff: 69"
+
+    paste0(fr, ", ", women_nm, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q17C == 2)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, angina: 94"
+
+    paste0(fr, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(SRH >= 4)))
+
+    ## [1] "FinRisk1997, Non-menstruating women, bad or very bad self-reported health: 179"
+
+    paste0(fr, ", ", men, ": ",  nrow(FinRisk97 %>% filter(Group == "Men")))
+
+    ## [1] "FinRisk1997, Men: 3943"
+
+    paste0(fr, ", ", men, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(PAINO < 50 | PAINO > 200)))
+
+    ## [1] "FinRisk1997, Men, under 50kg or over 200kg: 4"
+
+    paste0(fr, ", ", men, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Age < 18 | Age > 66)))
+
+    ## [1] "FinRisk1997, Men, under 18y or over 66y: 375"
+
+    paste0(fr, ", ", men, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q15A == 2)))
+
+    ## [1] "FinRisk1997, Men, STEMI, NSTEMI: 160"
+
+    paste0(fr, ", ", men, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q16A == 2)))
+
+    ## [1] "FinRisk1997, Men, stroke: 95"
+
+    paste0(fr, ", ", men, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q17B == 2)))
+
+    ## [1] "FinRisk1997, Men, heart insuff: 155"
+
+    paste0(fr, ", ", men, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q17C == 2)))
+
+    ## [1] "FinRisk1997, Men, angina: 224"
+
+    paste0(fr, ", ", men, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(SRH >= 4)))
+
+    ## [1] "FinRisk1997, Men, bad or very bad self-reported health: 382"
+
+# Ferritin X CRP
+
+Subgroups: menstruating women, non-menstruating women, men
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
@@ -139,6 +360,8 @@
         facet_grid(rows = vars(Group), cols = vars(Cohort))
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated-1.png)
+
+# Ferritin X CRP | COLORED
 
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
@@ -157,6 +380,8 @@
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated_colored-1.png)
 
+# Ferritin X CRP | GROUPS ONLY BY COLOR
+
     options(scipen = 10000)
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
         geom_point(aes(color = Group), alpha = 0.2) +
@@ -173,6 +398,17 @@
         theme(legend.position = "bottom") + guides(colour = guide_legend(override.aes = list(alpha = 1)))
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_colored-1.png)
+
+# Proportion analysis code
+
+The estimate: *How many more people are over 3 mg/l in CRP when we
+filter the populations by different ferritin thresholds? Expressed in
+percentage point difference.* The intuition: We currently don’t do
+ferritin filtering. The population from which we draw donors has a
+certain proportion of people in risk of cardiac/chronic inflammation,
+often indicated by elevated hs-CRP (&gt;3 mg/l). Does this proportion
+increase in a statistically significant manner, if we start requiring
+higher ferritin levels from donors?
 
     ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
@@ -308,6 +544,8 @@
     means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
+# Proportion analysis plot
+
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
         geom_line(aes(linetype = Group)) +
@@ -316,6 +554,15 @@
         labs(y = "%p") + guides(linetype = "none")
 
 ![](publication_content_files/figure-markdown_strict/ratio_plot_separated-1.png)
+
+# Checking statistical significance at points of interest
+
+IMPORTANT: We are checking for non-overlaps of 95% confidence intervals.
+These intervals have been derived from 100 bootstrap samples using
+normal approximation. Normal approximation relies on the assumption,
+that our bootstrapped estimates are normally distributed, which we have
+confirmed separately using both visual assessment (a histogram) and a
+standard Shapiro-Wilk test.
 
     # FINRISK
     # Menstruating Women
@@ -355,6 +602,20 @@
     h2kmen30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 30)
     h2kmen50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 50)
 
+Using these objects, we can check the significance of between the points
+of interest. For example
+“h2kwomenpre5*u**p**p**e**r* &lt; *h*2*k**w**o**m**e**n**p**r**e*15lower”
+would evaluate to TRUE, if the proportion of menstruating women over 3
+mg/l CRP is significantly higher in the population filtered by ferritin
+15 ug/l than 5 ug/l. Indeed, for menstruating women, the proportion is
+significantly higher at filter levels of 15, 30, and 50 ug/l when
+compared with 5 ug/l. This holds for non-menstruating women also, except
+for the FinRisk 1997 cohort, where the difference between levels 5 and
+15 was not significant. The differences are all significant also in men,
+but the respective increases in proportions are much smaller.
+
+# Proportion analysis plot | COLORED
+
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
@@ -369,6 +630,8 @@
         theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/ratio_plot_separated_colored-1.png)
+
+# Proportion analysis plot | COLORED & ALL-IN-1
 
     ggplot(data = means_all, aes(x = Ferritin, y = means, group = Group)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
@@ -385,6 +648,11 @@
         theme(legend.position = "bottom")
 
 ![](publication_content_files/figure-markdown_strict/ratio_plot_colored-1.png)
+
+# Additional markers (for the supplement)
+
+We’ll also take a look at acetylated glycoprotein measurements, glucated
+haemoglobin, and apolipoproteins A1 and B.
 
     # mastersets for the Supplement
     # GlycA
@@ -416,6 +684,8 @@
         filter(Group != "NA") %>%
         drop_na()
 
+# Mock Cohort|Var Tables (Supplement)
+
     suptable1 <- as.data.frame(table(fer_glyca$Group, fer_glyca$Cohort))
 
     suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
@@ -444,22 +714,24 @@
     suptable1
 
     ##         Var1      Var2 Freq               GlycA                     FER
-    ## 1  Women|Pre FinRisk97 1977 1.28 | (1.17, 1.42)    23.9 | (12.3, 42.52)
-    ## 2 Women|Post FinRisk97  891 1.38 | (1.25, 1.52)   55.78 | (31.2, 93.21)
-    ## 3        Men FinRisk97 2640 1.38 | (1.25, 1.55)  112.1 | (66.53, 183.4)
-    ## 4  Women|Pre  Health2k 1072  1.1 | (0.96, 1.23)  27.64 | (14.78, 48.25)
-    ## 5 Women|Post  Health2k  704     1.15 | (1, 1.3)      55.6 | (32, 95.25)
-    ## 6        Men  Health2k 1903 1.19 | (1.05, 1.35) 121.8 | (75.72, 189.34)
+    ## 1  Women|Pre FinRisk97 2045 1.28 | (1.17, 1.42)     23.9 | (12.3, 42.5)
+    ## 2 Women|Post FinRisk97 1002 1.38 | (1.26, 1.53)  55.79 | (31.42, 94.53)
+    ## 3        Men FinRisk97 2821 1.39 | (1.26, 1.56) 111.37 | (66.46, 181.9)
+    ## 4  Women|Pre  Health2k 1108 1.09 | (0.95, 1.23)    27.6 | (14.8, 48.23)
+    ## 5 Women|Post  Health2k  834     1.15 | (1, 1.3)   55.8 | (31.42, 94.36)
+    ## 6        Men  Health2k 1990 1.19 | (1.05, 1.35) 120.8 | (75.15, 189.15)
 
     suptable2
 
-    ##         Var1 Freq                  HbA1C                    FER
-    ## 1  Women|Pre 1074 31.15 | (28.96, 33.34) 27.62 | (14.72, 48.19)
-    ## 2 Women|Post  705 33.34 | (31.15, 36.61)      55.6 | (32, 95.4)
-    ## 3        Men 1910 34.43 | (32.24, 35.52) 121.8 | (75.8, 189.42)
+    ##         Var1 Freq                  HbA1C                   FER
+    ## 1  Women|Pre 1111 31.15 | (28.96, 33.34)  27.6 | (14.8, 48.17)
+    ## 2 Women|Post  836 33.34 | (31.15, 36.61) 55.8 | (31.48, 94.51)
+    ## 3        Men 1997 34.43 | (32.24, 36.61) 120.8 | (75.5, 189.2)
 
     # TODO: suptable3
     # TODO: suptable4
+
+# Ferritin X GlycA | COLORED
 
     options(scipen = 10000)
     ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) + 
@@ -477,6 +749,12 @@
         theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/glyca_scatter-1.png)
+
+# Proportion analysis code (GlycA)
+
+For the acetylated glycoprotein we don’t have any well established
+thresholds for “healthy” and “unhealthy”. We’ll use the population
+median here.
 
     ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
@@ -616,6 +894,8 @@
     means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
+# Proportion analysis plot (GlycA)
+
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
@@ -628,6 +908,8 @@
         labs(y = "%p") + theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/glyca_ratio_plot_separated_colored-1.png)
+
+# Ferritin X HbA1C | COLORED
 
     options(scipen = 10000)
     ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) + 
@@ -646,6 +928,12 @@
         labs(y = expression(HbA[1*C]))
 
 ![](publication_content_files/figure-markdown_strict/hba1c_scatter-1.png)
+
+# Proportion analysis code (HbA1C)
+
+The reference values for healthy people are between 20 - 42 mmol/mol
+(<https://www.terveyskirjasto.fi/snk03092>). Because the relationship
+with ferritin appears to be positive, we’ll use the upper bound.
 
     ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
@@ -719,6 +1007,8 @@
     means_all$Cohort <- c(rep("Health2k", 138))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
+# Proportion analysis plot (HbA1C)
+
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
@@ -731,6 +1021,8 @@
         labs(y = "%p") + theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/hba1c_ratio_plot_separated_colored-1.png)
+
+# Ferritin X APOB | COLORED
 
     options(scipen = 10000)
     ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) + 
@@ -749,6 +1041,8 @@
 
 ![](publication_content_files/figure-markdown_strict/apob_scatter-1.png)
 
+# Ferritin X APOA1 | COLORED
+
     options(scipen = 10000)
     ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) + 
         geom_point(aes(color = Group), alpha = 0.1) +
@@ -765,6 +1059,14 @@
         theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/apoa1_scatter-1.png)
+
+# Proportion analysis code (APOB)
+
+Apolipoprotein B elevates with the risk of cardiovascular diseases and
+it correlates positively with ferritin. The reference values for healthy
+men are 0.6 - 1.5 (of which we’ll use 1.5) and for healthy women they
+are 0.6 - 1.3 (we’ll use 1.3).
+(<https://huslab.fi/ohjekirja/20705.html>)
 
     ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
@@ -902,6 +1204,8 @@
     means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
+# Proportion analysis plot (APOB)
+
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
@@ -914,6 +1218,14 @@
         labs(y = "%p") + theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/apob_ratio_plot_separated_colored-1.png)
+
+# Proportion analysis code (APOA1)
+
+Apolipoprotein A1 decreases with the risk of atherosclerosis
+(peripheral, coronary, brain) and appears to correlate negatively with
+ferritin. Thus, we will use the lower bounds of the reference intervals
+for healthy individuals here. These are 1.1 - 2.0 for men and 1.2 - 2.3
+for women. (<https://huslab.fi/ohjekirja/20705.html>)
 
     ferritin_values <- seq(5, 50, 1)
     iterations <- length(ferritin_values)
@@ -1050,6 +1362,8 @@
     means_all <- rbind(means_finrisk, means_health2k)
     means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+
+# Proportion analysis plot (APOA1)
 
     ggplot(data = means_all, aes(x = Ferritin, y = means)) +
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
