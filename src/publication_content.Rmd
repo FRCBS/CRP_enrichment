@@ -2,7 +2,7 @@
 title: "Publication content"
 author: "Esa Turkulainen"
 date: "5/30/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include = FALSE}
@@ -16,7 +16,7 @@ library(ggpubr)
 ### for bootstrapping
 library(boot)
 
-boot_n <- 100 # number of bootstrap samples
+boot_n <- 1000 # number of bootstrap samples
 ferritin_values <- seq(0, 50, 1) # Start filtering thresholds from 0 (no filtering / current situation)
 set.seed(01062022) # set seed
 ```
@@ -412,7 +412,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))) { # 
 } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))}
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 ```
 
@@ -738,7 +738,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))) { 
 } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))}
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 ```
 
@@ -851,7 +851,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))) { 
 } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))}
 
 means_all <- means_health2k
-means_all$Cohort <- c(rep("Health2k", 138))
+means_all$Cohort <- c(rep("Health2k", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 ```
 
@@ -1047,7 +1047,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))) { #
 } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))}
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 ```
 
@@ -1203,7 +1203,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))) { 
 } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))}
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 ```
 

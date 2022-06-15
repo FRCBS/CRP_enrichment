@@ -546,7 +546,7 @@ higher ferritin levels from donors?
     } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))}
 
     means_all <- rbind(means_finrisk, means_health2k)
-    means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+    means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
 # Proportion analysis plot
@@ -563,7 +563,7 @@ higher ferritin levels from donors?
 # Checking statistical significance at points of interest
 
 IMPORTANT: We are checking for non-overlaps of 95% confidence intervals.
-These intervals have been derived from 100 bootstrap samples using
+These intervals have been derived from 1000 bootstrap samples using
 normal approximation. Normal approximation relies on the assumption,
 that our bootstrapped estimates are normally distributed, which we have
 confirmed separately using both visual assessment (a histogram) and a
@@ -896,7 +896,7 @@ median here.
     } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))}
 
     means_all <- rbind(means_finrisk, means_health2k)
-    means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+    means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
 # Proportion analysis plot (GlycA)
@@ -1009,7 +1009,7 @@ with ferritin appears to be positive, we’ll use the upper bound.
     } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))}
 
     means_all <- means_health2k
-    means_all$Cohort <- c(rep("Health2k", 138))
+    means_all$Cohort <- c(rep("Health2k", 153))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
 # Proportion analysis plot (HbA1C)
@@ -1207,7 +1207,7 @@ are 0.6 - 1.3 (we’ll use 1.3).
     } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))}
 
     means_all <- rbind(means_finrisk, means_health2k)
-    means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+    means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
 # Proportion analysis plot (APOB)
@@ -1365,7 +1365,7 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
     } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))}
 
     means_all <- rbind(means_finrisk, means_health2k)
-    means_all$Cohort <- c(rep("FinRisk97", 138), rep("Health2k", 138))
+    means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
     means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
 
 # Proportion analysis plot (APOA1)
