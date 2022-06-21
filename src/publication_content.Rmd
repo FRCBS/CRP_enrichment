@@ -16,8 +16,10 @@ library(ggpubr)
 ### for bootstrapping
 library(boot)
 
-boot_n <- 10000 # number of bootstrap samples
+boot_n <- 15 # number of bootstrap samples
 ferritin_values <- seq(0, 50, 1) # Start filtering thresholds from 0 (no filtering / current situation)
+iterations <- length(ferritin_values)
+CRP_trld <- 3
 set.seed(01062022) # set seed
 ```
 
@@ -303,9 +305,6 @@ The estimate: *How many more people are over 3 mg/l in CRP when we filter the po
 The intuition: We currently don't do ferritin filtering. The population from which we draw donors has a certain proportion of people in risk of cardiac/chronic inflammation, often indicated by elevated hs-CRP (>3 mg/l). Does this proportion increase in a statistically significant manner, if we start requiring higher ferritin levels from donors?
 
 ```{r ratio_boot_CRP_by_subgroup}
-iterations <- length(ferritin_values)
-CRP_trld <- 3
-
 if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
     
     ## Preallocate
@@ -322,6 +321,8 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
     
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+    
     for (i in 1:iterations) {
         
         #############
@@ -330,29 +331,29 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        boot_obj_women_mens <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-        ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        boot_obj_women_nonmens <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i],var2_trld = CRP_trld, var2_over = T)
-        ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
         # Women|Menstr
-        means_women_mens[i] <- boot_obj_women_mens$t0
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
         upper_women_mens[i] <- ci_obj_women_mens$normal[3]
         lower_women_mens[i] <- ci_obj_women_mens$normal[2]
         # Women|Non-menstr
-        means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
         upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
         lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
@@ -366,27 +367,40 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
+    
     
     # Combine
     means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -410,6 +424,8 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     means_women_nonmens <- 1:iterations
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
     for (i in 1:iterations) {
     
@@ -419,29 +435,29 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     
     ## Compute
     # Men
-    boot_obj_men <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    boot_obj_women_mens <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    boot_obj_women_nonmens <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
     ## Store
     # Men
-    means_men[i] <- boot_obj_men$t0
+    means_men[i] <- bootobs$men[[i]]$t0
     upper_men[i] <- ci_obj_men$normal[3]
     lower_men[i] <- ci_obj_men$normal[2]
     # Women|Menstr
-    means_women_mens[i] <- boot_obj_women_mens$t0
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
     upper_women_mens[i] <- ci_obj_women_mens$normal[3]
     lower_women_mens[i] <- ci_obj_women_mens$normal[2]
     # Women|Non-menstr
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
     upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
     lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
     
@@ -456,28 +472,39 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
     
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
                                  means = c(means_men, means_women_mens, means_women_nonmens),
@@ -707,6 +734,8 @@ if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run 
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
     
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+    
     for (i in 1:iterations) {
         
         #############
@@ -715,29 +744,29 @@ if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run 
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        boot_obj_women_mens <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        boot_obj_women_nonmens <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
         # Women|Menstr
-        means_women_mens[i] <- boot_obj_women_mens$t0
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
         upper_women_mens[i] <- ci_obj_women_mens$normal[3]
         lower_women_mens[i] <- ci_obj_women_mens$normal[2]
         # Women|Non-menstr
-        means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
         upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
         lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
@@ -751,27 +780,39 @@ if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run 
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     
     # Combine
     means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -798,6 +839,8 @@ if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run
     means_women_nonmens <- 1:iterations
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
     for (i in 1:iterations) {
     
@@ -807,29 +850,29 @@ if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    boot_obj_men <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    boot_obj_women_mens <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    boot_obj_women_nonmens <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
     ## Store
     # Men
-    means_men[i] <- boot_obj_men$t0
+    means_men[i] <- bootobs$men[[i]]$t0
     upper_men[i] <- ci_obj_men$normal[3]
     lower_men[i] <- ci_obj_men$normal[2]
     # Women|Menstr
-    means_women_mens[i] <- boot_obj_women_mens$t0
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
     upper_women_mens[i] <- ci_obj_women_mens$normal[3]
     lower_women_mens[i] <- ci_obj_women_mens$normal[2]
     # Women|Non-menstr
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
     upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
     lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
     
@@ -844,27 +887,39 @@ if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -943,6 +998,8 @@ if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run
     means_women_nonmens <- 1:iterations
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
     for (i in 1:iterations) {
     
@@ -952,29 +1009,29 @@ if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    boot_obj_men <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    boot_obj_women_mens <- boot(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    boot_obj_women_nonmens <- boot(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
     ## Store
     # Men
-    means_men[i] <- boot_obj_men$t0
+    means_men[i] <- bootobs$men[[i]]$t0
     upper_men[i] <- ci_obj_men$normal[3]
     lower_men[i] <- ci_obj_men$normal[2]
     # Women|Menstr
-    means_women_mens[i] <- boot_obj_women_mens$t0
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
     upper_women_mens[i] <- ci_obj_women_mens$normal[3]
     lower_women_mens[i] <- ci_obj_women_mens$normal[2]
     # Women|Non-menstr
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
     upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
     lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
     
@@ -989,27 +1046,39 @@ if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }    
     
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -1120,6 +1189,8 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))) { # run b
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
     
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+    
     for (i in 1:iterations) {
         
         #############
@@ -1128,29 +1199,29 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))) { # run b
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        boot_obj_women_mens <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-        ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        boot_obj_women_nonmens <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-        ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
         # Women|Menstr
-        means_women_mens[i] <- boot_obj_women_mens$t0
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
         upper_women_mens[i] <- ci_obj_women_mens$normal[3]
         lower_women_mens[i] <- ci_obj_women_mens$normal[2]
         # Women|Non-menstr
-        means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
         upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
         lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
@@ -1164,27 +1235,39 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))) { # run b
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     
     # Combine
     means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -1209,6 +1292,8 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run 
     means_women_nonmens <- 1:iterations
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
     for (i in 1:iterations) {
     
@@ -1218,29 +1303,29 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run 
     
     ## Compute
     # Men
-    boot_obj_men <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    boot_obj_women_mens <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    boot_obj_women_nonmens <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
     ## Store
     # Men
-    means_men[i] <- boot_obj_men$t0
+    means_men[i] <- bootobs$men[[i]]$t0
     upper_men[i] <- ci_obj_men$normal[3]
     lower_men[i] <- ci_obj_men$normal[2]
     # Women|Menstr
-    means_women_mens[i] <- boot_obj_women_mens$t0
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
     upper_women_mens[i] <- ci_obj_women_mens$normal[3]
     lower_women_mens[i] <- ci_obj_women_mens$normal[2]
     # Women|Non-menstr
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
     upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
     lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
     
@@ -1255,27 +1340,39 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run 
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -1330,6 +1427,8 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))) { # run 
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
     
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+    
     for (i in 1:iterations) {
         
         #############
@@ -1338,29 +1437,29 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))) { # run 
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        boot_obj_women_mens <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-        ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        boot_obj_women_nonmens <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-        ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
         # Women|Menstr
-        means_women_mens[i] <- boot_obj_women_mens$t0
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
         upper_women_mens[i] <- ci_obj_women_mens$normal[3]
         lower_women_mens[i] <- ci_obj_women_mens$normal[2]
         # Women|Non-menstr
-        means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
         upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
         lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
@@ -1374,27 +1473,39 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))) { # run 
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
     
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
@@ -1419,6 +1530,8 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run
     means_women_nonmens <- 1:iterations
     upper_women_nonmens <- 1:iterations
     lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
     for (i in 1:iterations) {
     
@@ -1428,29 +1541,29 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    boot_obj_men <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    boot_obj_women_mens <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    boot_obj_women_nonmens <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
     ## Store
     # Men
-    means_men[i] <- boot_obj_men$t0
+    means_men[i] <- bootobs$men[[i]]$t0
     upper_men[i] <- ci_obj_men$normal[3]
     lower_men[i] <- ci_obj_men$normal[2]
     # Women|Menstr
-    means_women_mens[i] <- boot_obj_women_mens$t0
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
     upper_women_mens[i] <- ci_obj_women_mens$normal[3]
     lower_women_mens[i] <- ci_obj_women_mens$normal[2]
     # Women|Non-menstr
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
     upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
     lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
     
@@ -1465,27 +1578,39 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run
     }
     
     # Save
-    bootob_list <- list(men = boot_obj_men, women_mens = boot_obj_women_mens, women_nonmens = boot_obj_women_nonmens)
-    saveRDS(bootob_list, paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
 } else {
-    bootob_list <- readRDS(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
-    boot_obj_men <- bootob_list$men
-    boot_obj_women_mens <- bootob_list$women_mens
-    boot_obj_women_nonmens <- bootob_list$women_nonmens
-    ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-    ci_obj_women_mens <- boot.ci(boot_obj_women_mens, type = "norm")
-    ci_obj_women_nonmens <- boot.ci(boot_obj_women_nonmens, type = "norm")
+    bootobs <- readRDS(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
     
-    # Store
-    means_men[i] <- boot_obj_men$t0
-    upper_men[i] <- ci_obj_men$normal[3]
-    lower_men[i] <- ci_obj_men$normal[2]
-    means_women_mens[i] <- boot_obj_women_mens$t0
-    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
-    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
-    means_women_nonmens[i] <- boot_obj_women_nonmens$t0
-    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
-    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }    
     
     # Combine
     means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
