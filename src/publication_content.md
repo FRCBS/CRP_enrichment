@@ -41,8 +41,8 @@
                                SRH == "Satisfactory" ~ 4,
                                SRH == "Poor" ~ 5),
                Group = case_when(Gender == "Men" ~ "Men",
-                                 Gender == "Women" & (Menstruation == "regular_period" | Menstruation == "irregular_period") ~ "Women|Pre",
-                                 Gender == "Women" & Menstruation == "no_period" ~ "Women|Post",
+                                 Gender == "Women" & (Menstruation == "regular_period" | Menstruation == "irregular_period") ~ "Women|Menstr",
+                                 Gender == "Women" & Menstruation == "no_period" ~ "Women|Non-menstr",
                                  TRUE ~ "NA")) # Equates to "else"
 
     FinRisk97 <- FinRisk97 %>%
@@ -50,8 +50,8 @@
                                   Gender == 2 ~ "Women",
                                   TRUE ~ "NA"),
                Group = case_when(Gender == "Men" ~ "Men",
-                                 Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Pre",
-                                 Gender == "Women" & Menstruation == 3 ~ "Women|Post",
+                                 Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Menstr",
+                                 Gender == "Women" & Menstruation == 3 ~ "Women|Non-menstr",
                                  TRUE ~ "NA"))
 
     Health2k <- Health2k %>%
@@ -60,8 +60,8 @@
                                   TRUE ~ "NA"),
                # It is worth noting here, that menstruation status was not asked from women over 55. So, we treat these as postmenopausal.
                Group = case_when(Gender == "Men" ~ "Men",
-                                 Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Pre",
-                                 Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Post",
+                                 Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Menstr",
+                                 Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Non-menstr",
                                  TRUE ~ "NA"))
 
     # Donation eligibility
@@ -94,7 +94,7 @@
     # Create useful mastersets
     # fer_srh <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "SRH", "Group")], 
     #                      Health2k = donor_eligible_h2k[, c("Ferritin", "SRH", "Group")], .id = "Cohort") %>% 
-    #     mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+    #     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
     #            Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k")),
     #            SRH = ordered(SRH, levels = 1:5)) %>%
     #     filter(Group != "NA") %>%
@@ -102,7 +102,7 @@
 
     fer_crp <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "CRP")], 
                              Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
-        mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+        mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
                Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
         filter(Group != "NA") %>%
         filter(CRP >= 0.01) %>%
@@ -111,27 +111,27 @@
 # Mock Cohort|Var Tables
 
     table1 <- as.data.frame(table(fer_crp$Group, fer_crp$Cohort))
-    table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+    table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
                       paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
-    table1$FER <- c(paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+    table1$FER <- c(paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
                       paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Pre" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Post" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
     table1
 
-    ##         Var1      Var2 Freq                 CRP                     FER
-    ## 1  Women|Pre FinRisk97 1980 0.76 | (0.38, 1.85)  23.97 | (12.35, 42.51)
-    ## 2 Women|Post FinRisk97 1001  1.26 | (0.61, 2.6)   55.8 | (31.42, 94.74)
-    ## 3        Men FinRisk97 2801 0.91 | (0.47, 1.92) 110.99 | (65.87, 181.3)
-    ## 4  Women|Pre  Health2k  976 0.61 | (0.26, 1.78)   27.9 | (15.17, 48.54)
-    ## 5 Women|Post  Health2k  785  1.02 | (0.4, 2.35)      55.97 | (32, 95.1)
-    ## 6        Men  Health2k 1793 0.79 | (0.35, 1.77)  123.1 | (76.32, 192.7)
+    ##               Var1      Var2 Freq                 CRP                     FER
+    ## 1     Women|Menstr FinRisk97 1980 0.76 | (0.38, 1.85)  23.97 | (12.35, 42.51)
+    ## 2 Women|Non-menstr FinRisk97 1001  1.26 | (0.61, 2.6)   55.8 | (31.42, 94.74)
+    ## 3              Men FinRisk97 2801 0.91 | (0.47, 1.92) 110.99 | (65.87, 181.3)
+    ## 4     Women|Menstr  Health2k  976 0.61 | (0.26, 1.78)   27.9 | (15.17, 48.54)
+    ## 5 Women|Non-menstr  Health2k  785  1.02 | (0.4, 2.35)      55.97 | (32, 95.1)
+    ## 6              Men  Health2k 1793 0.79 | (0.35, 1.77)  123.1 | (76.32, 192.7)
 
 # Exclusions: Health2000
 
@@ -140,75 +140,75 @@
     women_m <- "Menstruating women"
     women_nm <- "Non-menstruating women"
     men <- "Men"
-    paste0(h2k, ", ", women_m, ": ",  nrow(Health2k %>% filter(Group == "Women|Pre")))
+    paste0(h2k, ", ", women_m, ": ",  nrow(Health2k %>% filter(Group == "Women|Menstr")))
 
     ## [1] "Health2000, Menstruating women: 1508"
 
-    paste0(h2k, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+    paste0(h2k, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
 
     ## [1] "Health2000, Menstruating women, under 50kg or over 200kg: 48"
 
-    paste0(h2k, ", ", women_m, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(Age < 18 | Age > 66)))
+    paste0(h2k, ", ", women_m, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(Age < 18 | Age > 66)))
 
     ## [1] "Health2000, Menstruating women, under 18y or over 66y: 0"
 
-    paste0(h2k, ", ", women_m, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(B_Hb < 125)))
+    paste0(h2k, ", ", women_m, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(B_Hb < 125)))
 
     ## [1] "Health2000, Menstruating women, Hb under 125: 284"
 
-    paste0(h2k, ", ", women_m, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA08 == 1)))
+    paste0(h2k, ", ", women_m, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA08 == 1)))
 
     ## [1] "Health2000, Menstruating women, heart attack: 1"
 
-    paste0(h2k, ", ", women_m, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA09 == 1)))
+    paste0(h2k, ", ", women_m, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA09 == 1)))
 
     ## [1] "Health2000, Menstruating women, angina: 2"
 
-    paste0(h2k, ", ", women_m, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(BA10 == 1)))
+    paste0(h2k, ", ", women_m, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA10 == 1)))
 
     ## [1] "Health2000, Menstruating women, heart failure/insuff: 3"
 
-    paste0(h2k, ", ", women_m, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter((BA26 == 1 & ATC_A10A == 1))))
+    paste0(h2k, ", ", women_m, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter((BA26 == 1 & ATC_A10A == 1))))
 
     ## [1] "Health2000, Menstruating women, diabetics on insulin: 7"
 
-    paste0(h2k, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Pre") %>% filter(SRH >= 4)))
+    paste0(h2k, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(SRH >= 4)))
 
     ## [1] "Health2000, Menstruating women, bad or very bad self-reported health: 51"
 
-    paste0(h2k, ", ", women_nm, ": ",  nrow(Health2k %>% filter(Group == "Women|Post")))
+    paste0(h2k, ", ", women_nm, ": ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr")))
 
     ## [1] "Health2000, Non-menstruating women: 1505"
 
-    paste0(h2k, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+    paste0(h2k, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
 
     ## [1] "Health2000, Non-menstruating women, under 50kg or over 200kg: 27"
 
-    paste0(h2k, ", ", women_nm, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(Age < 18 | Age > 66)))
+    paste0(h2k, ", ", women_nm, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(Age < 18 | Age > 66)))
 
     ## [1] "Health2000, Non-menstruating women, under 18y or over 66y: 279"
 
-    paste0(h2k, ", ", women_nm, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(B_Hb < 125)))
+    paste0(h2k, ", ", women_nm, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(B_Hb < 125)))
 
     ## [1] "Health2000, Non-menstruating women, Hb under 125: 117"
 
-    paste0(h2k, ", ", women_nm, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA08 == 1)))
+    paste0(h2k, ", ", women_nm, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA08 == 1)))
 
     ## [1] "Health2000, Non-menstruating women, heart attack: 30"
 
-    paste0(h2k, ", ", women_nm, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA09 == 1)))
+    paste0(h2k, ", ", women_nm, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA09 == 1)))
 
     ## [1] "Health2000, Non-menstruating women, angina: 90"
 
-    paste0(h2k, ", ", women_nm, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(BA10 == 1)))
+    paste0(h2k, ", ", women_nm, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA10 == 1)))
 
     ## [1] "Health2000, Non-menstruating women, heart failure/insuff: 52"
 
-    paste0(h2k, ", ", women_nm, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter((BA26 == 1 & ATC_A10A == 1))))
+    paste0(h2k, ", ", women_nm, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter((BA26 == 1 & ATC_A10A == 1))))
 
     ## [1] "Health2000, Non-menstruating women, diabetics on insulin: 19"
 
-    paste0(h2k, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Post") %>% filter(SRH >= 4)))
+    paste0(h2k, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(SRH >= 4)))
 
     ## [1] "Health2000, Non-menstruating women, bad or very bad self-reported health: 175"
 
@@ -250,67 +250,67 @@
 
 # Exclusions: FinRisk1997
 
-    paste0(fr, ", ", women_m, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre")))
+    paste0(fr, ", ", women_m, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr")))
 
     ## [1] "FinRisk1997, Menstruating women: 2469"
 
-    paste0(fr, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(PAINO < 50 | PAINO > 200)))
+    paste0(fr, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(PAINO < 50 | PAINO > 200)))
 
     ## [1] "FinRisk1997, Menstruating women, under 50kg or over 200kg: 81"
 
-    paste0(fr, ", ", women_m, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Age < 18 | Age > 66)))
+    paste0(fr, ", ", women_m, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Age < 18 | Age > 66)))
 
     ## [1] "FinRisk1997, Menstruating women, under 18y or over 66y: 8"
 
-    paste0(fr, ", ", women_m, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q15A == 2)))
+    paste0(fr, ", ", women_m, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q15A == 2)))
 
     ## [1] "FinRisk1997, Menstruating women, STEMI, NSTEMI: 6"
 
-    paste0(fr, ", ", women_m, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q16A == 2)))
+    paste0(fr, ", ", women_m, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q16A == 2)))
 
     ## [1] "FinRisk1997, Menstruating women, stroke: 11"
 
-    paste0(fr, ", ", women_m, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q17B == 2)))
+    paste0(fr, ", ", women_m, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q17B == 2)))
 
     ## [1] "FinRisk1997, Menstruating women, heart insuff: 12"
 
-    paste0(fr, ", ", women_m, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(Q17C == 2)))
+    paste0(fr, ", ", women_m, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q17C == 2)))
 
     ## [1] "FinRisk1997, Menstruating women, angina: 37"
 
-    paste0(fr, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Pre") %>% filter(SRH >= 4)))
+    paste0(fr, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(SRH >= 4)))
 
     ## [1] "FinRisk1997, Menstruating women, bad or very bad self-reported health: 114"
 
-    paste0(fr, ", ", women_nm, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Post")))
+    paste0(fr, ", ", women_nm, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr")))
 
     ## [1] "FinRisk1997, Non-menstruating women: 1463"
 
-    paste0(fr, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(PAINO < 50 | PAINO > 200)))
+    paste0(fr, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(PAINO < 50 | PAINO > 200)))
 
     ## [1] "FinRisk1997, Non-menstruating women, under 50kg or over 200kg: 31"
 
-    paste0(fr, ", ", women_nm, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Age < 18 | Age > 66)))
+    paste0(fr, ", ", women_nm, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Age < 18 | Age > 66)))
 
     ## [1] "FinRisk1997, Non-menstruating women, under 18y or over 66y: 156"
 
-    paste0(fr, ", ", women_nm, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q15A == 2)))
+    paste0(fr, ", ", women_nm, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q15A == 2)))
 
     ## [1] "FinRisk1997, Non-menstruating women, STEMI, NSTEMI: 34"
 
-    paste0(fr, ", ", women_nm, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q16A == 2)))
+    paste0(fr, ", ", women_nm, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q16A == 2)))
 
     ## [1] "FinRisk1997, Non-menstruating women, stroke: 43"
 
-    paste0(fr, ", ", women_nm, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q17B == 2)))
+    paste0(fr, ", ", women_nm, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q17B == 2)))
 
     ## [1] "FinRisk1997, Non-menstruating women, heart insuff: 69"
 
-    paste0(fr, ", ", women_nm, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(Q17C == 2)))
+    paste0(fr, ", ", women_nm, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q17C == 2)))
 
     ## [1] "FinRisk1997, Non-menstruating women, angina: 94"
 
-    paste0(fr, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Post") %>% filter(SRH >= 4)))
+    paste0(fr, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(SRH >= 4)))
 
     ## [1] "FinRisk1997, Non-menstruating women, bad or very bad self-reported health: 179"
 
@@ -353,8 +353,16 @@ highlights all individuals that go over 3 mg/l CRP at ferritin &gt;15
 ug/l.
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
+    ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
+    ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
@@ -368,15 +376,23 @@ ug/l.
 # Ferritin X CRP | COLORED
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
+    ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
+    ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -388,15 +404,19 @@ ug/l.
 # Ferritin X CRP | GROUPS ONLY BY COLOR
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_crp %>% filter(Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_crp %>% filter(Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 2), CRP = rep(50, 2), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%")), Cohort = c("FinRisk97", "Health2k"))
     ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.2) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -416,24 +436,23 @@ often indicated by elevated hs-CRP (&gt;3 mg/l). Does this proportion
 increase in a statistically significant manner, if we start requiring
 higher ferritin levels from donors?
 
-    iterations <- length(ferritin_values)
-    CRP_trld <- 3
-
-    if (!file.exists(paste0("./data/PUBL_finrisk_ratio_CRP", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
         
         for (i in 1:iterations) {
             
@@ -443,59 +462,101 @@ higher ferritin levels from donors?
             
             ## Compute
             # Men
-            boot_obj_men <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                  var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-            ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-            # Women|Pre
-            boot_obj_women_pre <- boot(fer_crp %>% filter(Group == "Women|Pre" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            # Women|Menstr
+            bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-            ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-            # Women|Post
-            boot_obj_women_post <- boot(fer_crp %>% filter(Group == "Women|Post" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            # Women|Non-menstr
+            bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                         var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i],var2_trld = CRP_trld, var2_over = T)
-            ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
             
             ## Store
             # Men
-            means_men[i] <- boot_obj_men$t0
+            means_men[i] <- bootobs$men[[i]]$t0
             upper_men[i] <- ci_obj_men$normal[3]
             lower_men[i] <- ci_obj_men$normal[2]
-            # Women|Pre
-            means_women_pre[i] <- boot_obj_women_pre$t0
-            upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-            lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-            # Women|Post
-            means_women_post[i] <- boot_obj_women_post$t0
-            upper_women_post[i] <- ci_obj_women_post$normal[3]
-            lower_women_post[i] <- ci_obj_women_post$normal[2]
+            # Women|Menstr
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            # Women|Non-menstr
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
             
             # Combine
             means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                         means = c(means_men, means_women_pre, means_women_post),
-                                         upper = c(upper_men, upper_women_pre, upper_women_post),
-                                         lower = c(lower_men, lower_women_pre, lower_women_post),
-                                         Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+                                         means = c(means_men, means_women_mens, means_women_nonmens),
+                                         upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                         lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                         Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
         
         }
         
         # Save
-        saveRDS(means_finrisk, paste0("./data/PUBL_finrisk_ratio_CRP", boot_n, ".rds"))
-    } else {means_finrisk <- readRDS(paste0("./data/PUBL_finrisk_ratio_CRP", boot_n, ".rds"))}
-
-    if (!file.exists(paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))) { # run bootstrap only if needed
+        saveRDS(bootobs, paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
+        
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
+
+    if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
         for (i in 1:iterations) {
         
@@ -505,49 +566,87 @@ higher ferritin levels from donors?
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-        # Women|Pre
-        boot_obj_women_pre <- boot(fer_crp %>% filter(Group == "Women|Pre" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-        # Women|Post
-        boot_obj_women_post <- boot(fer_crp %>% filter(Group == "Women|Post" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
-        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
-        # Women|Pre
-        means_women_pre[i] <- boot_obj_women_pre$t0
-        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-        # Women|Post
-        means_women_post[i] <- boot_obj_women_post$t0
-        upper_women_post[i] <- ci_obj_women_post$normal[3]
-        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
         # Combine
         means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                     means = c(means_men, means_women_pre, means_women_post),
-                                     upper = c(upper_men, upper_women_pre, upper_women_post),
-                                     lower = c(lower_men, lower_women_pre, lower_women_post),
-                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
         
         
         }
         
         # Save
-        saveRDS(means_health2k, paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))
-    } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_CRP", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
     means_all <- rbind(means_finrisk, means_health2k)
     means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
-    means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+    means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 
 # Proportion analysis plot
 
@@ -563,7 +662,7 @@ higher ferritin levels from donors?
 # Checking statistical significance at points of interest
 
 IMPORTANT: We are checking for non-overlaps of 95% confidence intervals.
-These intervals have been derived from 1000 bootstrap samples using
+These intervals have been derived from 10000 bootstrap samples using
 normal approximation. Normal approximation relies on the assumption,
 that our bootstrapped estimates are normally distributed, which we have
 confirmed separately using both visual assessment (a histogram) and a
@@ -571,16 +670,16 @@ standard Shapiro-Wilk test.
 
     # FINRISK
     # Menstruating Women
-    frwomenpre5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre" & Ferritin == 5)
-    frwomenpre15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre" & Ferritin == 15)
-    frwomenpre30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre" & Ferritin == 30)
-    frwomenpre50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Pre" & Ferritin == 50)
+    frwomenpre5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 5)
+    frwomenpre15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 15)
+    frwomenpre30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 30)
+    frwomenpre50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 50)
 
     # Non-menstruating Women
-    frwomenpost5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Post" & Ferritin == 5)
-    frwomenpost15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Post" & Ferritin == 15)
-    frwomenpost30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Post" & Ferritin == 30)
-    frwomenpost50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Post" & Ferritin == 50)
+    frwomenpost5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 5)
+    frwomenpost15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 15)
+    frwomenpost30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 30)
+    frwomenpost50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 50)
 
     # Men
     frmen5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Men" & Ferritin == 5)
@@ -590,16 +689,16 @@ standard Shapiro-Wilk test.
 
     # H2K
     # Menstruating Women
-    h2kwomenpre5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Pre" & Ferritin == 5)
-    h2kwomenpre15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Pre" & Ferritin == 15)
-    h2kwomenpre30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Pre" & Ferritin == 30)
-    h2kwomenpre50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Pre" & Ferritin == 50)
+    h2kwomenpre5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 5)
+    h2kwomenpre15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 15)
+    h2kwomenpre30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 30)
+    h2kwomenpre50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 50)
 
     # Non-menstruating Women
-    h2kwomenpost5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Post" & Ferritin == 5)
-    h2kwomenpost15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Post" & Ferritin == 15)
-    h2kwomenpost30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Post" & Ferritin == 30)
-    h2kwomenpost50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Post" & Ferritin == 50)
+    h2kwomenpost5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 5)
+    h2kwomenpost15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 15)
+    h2kwomenpost30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 30)
+    h2kwomenpost50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 50)
 
     # Men
     h2kmen5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 5)
@@ -626,9 +725,9 @@ but the respective increases in proportions are much smaller.
         geom_line(aes(linetype = Group)) +
         #geom_point(aes(color = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         labs(y = "%p") +
@@ -643,9 +742,9 @@ but the respective increases in proportions are much smaller.
         geom_line(aes(linetype = Group)) +
         #geom_point(aes(color = Group, shape = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(cols = vars(Cohort)) +
         labs(y = "%p") + 
@@ -663,13 +762,13 @@ haemoglobin, and apolipoproteins A1 and B.
     # GlycA
     fer_glyca <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "GlycA")], 
                            Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "GlycA")], .id = "Cohort") %>% 
-        mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+        mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
                Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
         filter(Group != "NA") %>%
         drop_na()
     # HbA1C
     fer_hba1c <- bind_rows(Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "HbA1C")], .id = "Cohort") %>% 
-        mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+        mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
                Cohort = ordered(Cohort, levels = c("Health2k"))) %>%
         filter(Group != "NA") %>%
         drop_na()
@@ -677,14 +776,14 @@ haemoglobin, and apolipoproteins A1 and B.
     # APOB
     fer_apob <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "APOB")], 
                            Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "APOB")], .id = "Cohort") %>% 
-        mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+        mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
                Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
         filter(Group != "NA") %>%
         drop_na()
     # APOA1
     fer_apoa1 <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "APOA1")], 
                            Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "APOA1")], .id = "Cohort") %>% 
-        mutate(Group = ordered(Group, levels = c("Women|Pre", "Women|Post", "Men")),
+        mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
                Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
         filter(Group != "NA") %>%
         drop_na()
@@ -693,45 +792,45 @@ haemoglobin, and apolipoproteins A1 and B.
 
     suptable1 <- as.data.frame(table(fer_glyca$Group, fer_glyca$Cohort))
 
-    suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+    suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
                       paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
 
-    suptable1$FER <- c(paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+    suptable1$FER <- c(paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
                       paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Pre" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Post" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
 
     suptable2 <- as.data.frame(table(fer_hba1c$Group))
-    suptable2$HbA1C <- c(paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+    suptable2$HbA1C <- c(paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
 
-    suptable2$FER <-  c(paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Pre" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                      paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Post" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+    suptable2$FER <-  c(paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
                       paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
 
     suptable1
 
-    ##         Var1      Var2 Freq               GlycA                     FER
-    ## 1  Women|Pre FinRisk97 2045 1.28 | (1.17, 1.42)     23.9 | (12.3, 42.5)
-    ## 2 Women|Post FinRisk97 1002 1.38 | (1.26, 1.53)  55.79 | (31.42, 94.53)
-    ## 3        Men FinRisk97 2821 1.39 | (1.26, 1.56) 111.37 | (66.46, 181.9)
-    ## 4  Women|Pre  Health2k 1108 1.09 | (0.95, 1.23)    27.6 | (14.8, 48.23)
-    ## 5 Women|Post  Health2k  834     1.15 | (1, 1.3)   55.8 | (31.42, 94.36)
-    ## 6        Men  Health2k 1990 1.19 | (1.05, 1.35) 120.8 | (75.15, 189.15)
+    ##               Var1      Var2 Freq               GlycA                     FER
+    ## 1     Women|Menstr FinRisk97 2045 1.28 | (1.17, 1.42)     23.9 | (12.3, 42.5)
+    ## 2 Women|Non-menstr FinRisk97 1002 1.38 | (1.26, 1.53)  55.79 | (31.42, 94.53)
+    ## 3              Men FinRisk97 2821 1.39 | (1.26, 1.56) 111.37 | (66.46, 181.9)
+    ## 4     Women|Menstr  Health2k 1108 1.09 | (0.95, 1.23)    27.6 | (14.8, 48.23)
+    ## 5 Women|Non-menstr  Health2k  834     1.15 | (1, 1.3)   55.8 | (31.42, 94.36)
+    ## 6              Men  Health2k 1990 1.19 | (1.05, 1.35) 120.8 | (75.15, 189.15)
 
     suptable2
 
-    ##         Var1 Freq                  HbA1C                   FER
-    ## 1  Women|Pre 1111 31.15 | (28.96, 33.34)  27.6 | (14.8, 48.17)
-    ## 2 Women|Post  836 33.34 | (31.15, 36.61) 55.8 | (31.48, 94.51)
-    ## 3        Men 1997 34.43 | (32.24, 36.61) 120.8 | (75.5, 189.2)
+    ##               Var1 Freq                  HbA1C                   FER
+    ## 1     Women|Menstr 1111 31.15 | (28.96, 33.34)  27.6 | (14.8, 48.17)
+    ## 2 Women|Non-menstr  836 33.34 | (31.15, 36.61) 55.8 | (31.48, 94.51)
+    ## 3              Men 1997 34.43 | (32.24, 36.61) 120.8 | (75.5, 189.2)
 
     # TODO: suptable3
     # TODO: suptable4
@@ -739,15 +838,23 @@ haemoglobin, and apolipoproteins A1 and B.
 # Ferritin X GlycA | COLORED
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
+    ratio3 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
+    ratio4 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 6), GlycA = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) + 
-        annotate("rect", xmin = 15, xmax = 2000, ymin = 1.35, ymax = 3, alpha = .5, fill = "grey") +
+        annotate("rect", xmin = 15, xmax = 2000, ymin = 1.35, ymax = 3.7, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -764,7 +871,7 @@ median here.
 
     iterations <- length(ferritin_values)
 
-    if (!file.exists(paste0("./data/PUBL_finrisk_ratio_glyca", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "FinRisk97", "GlycA"][[1]], na.rm = T)
         
@@ -773,14 +880,16 @@ median here.
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
         
         for (i in 1:iterations) {
             
@@ -790,46 +899,85 @@ median here.
             
             ## Compute
             # Men
-            boot_obj_men <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                  var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-            ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-            # Women|Pre
-            boot_obj_women_pre <- boot(fer_glyca %>% filter(Group == "Women|Pre" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            # Women|Menstr
+            bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-            ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-            # Women|Post
-            boot_obj_women_post <- boot(fer_glyca %>% filter(Group == "Women|Post" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            # Women|Non-menstr
+            bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                         var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-            ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
             
             ## Store
             # Men
-            means_men[i] <- boot_obj_men$t0
+            means_men[i] <- bootobs$men[[i]]$t0
             upper_men[i] <- ci_obj_men$normal[3]
             lower_men[i] <- ci_obj_men$normal[2]
-            # Women|Pre
-            means_women_pre[i] <- boot_obj_women_pre$t0
-            upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-            lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-            # Women|Post
-            means_women_post[i] <- boot_obj_women_post$t0
-            upper_women_post[i] <- ci_obj_women_post$normal[3]
-            lower_women_post[i] <- ci_obj_women_post$normal[2]
+            # Women|Menstr
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            # Women|Non-menstr
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
             
             # Combine
             means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                         means = c(means_men, means_women_pre, means_women_post),
-                                         upper = c(upper_men, upper_women_pre, upper_women_post),
-                                         lower = c(lower_men, lower_women_pre, lower_women_post),
-                                         Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+                                         means = c(means_men, means_women_mens, means_women_nonmens),
+                                         upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                         lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                         Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
         
         }
         
         # Save
-        saveRDS(means_finrisk, paste0("./data/PUBL_finrisk_ratio_glyca", boot_n, ".rds"))
-    } else {means_finrisk <- readRDS(paste0("./data/PUBL_finrisk_ratio_glyca", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
-    if (!file.exists(paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "Health2k", "GlycA"][[1]], na.rm = T)
         
@@ -838,14 +986,16 @@ median here.
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
         for (i in 1:iterations) {
         
@@ -855,49 +1005,88 @@ median here.
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-        # Women|Pre
-        boot_obj_women_pre <- boot(fer_glyca %>% filter(Group == "Women|Pre" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-        # Women|Post
-        boot_obj_women_post <- boot(fer_glyca %>% filter(Group == "Women|Post" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
-        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
-        # Women|Pre
-        means_women_pre[i] <- boot_obj_women_pre$t0
-        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-        # Women|Post
-        means_women_post[i] <- boot_obj_women_post$t0
-        upper_women_post[i] <- ci_obj_women_post$normal[3]
-        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
         # Combine
         means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                     means = c(means_men, means_women_pre, means_women_post),
-                                     upper = c(upper_men, upper_women_pre, upper_women_post),
-                                     lower = c(lower_men, lower_women_pre, lower_women_post),
-                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
         
         
         }
         
         # Save
-        saveRDS(means_health2k, paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))
-    } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_glyca", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
     means_all <- rbind(means_finrisk, means_health2k)
     means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
-    means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+    means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 
 # Proportion analysis plot (GlycA)
 
@@ -905,9 +1094,9 @@ median here.
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         labs(y = "%p") + theme(legend.position = "none")
@@ -917,15 +1106,20 @@ median here.
 # Ferritin X HbA1C | COLORED
 
     options(scipen = 10000)
+    ratio4 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 3), HbA1C = rep(60, 3), lab = c(paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = rep("Health2k", 3), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 42, ymax = 100, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -944,21 +1138,23 @@ with ferritin appears to be positive, we’ll use the upper bound.
     iterations <- length(ferritin_values)
     HbA1C_trld <- 42
 
-    if (!file.exists(paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
         for (i in 1:iterations) {
         
@@ -968,49 +1164,88 @@ with ferritin appears to be positive, we’ll use the upper bound.
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-        # Women|Pre
-        boot_obj_women_pre <- boot(fer_hba1c %>% filter(Group == "Women|Pre" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-        # Women|Post
-        boot_obj_women_post <- boot(fer_hba1c %>% filter(Group == "Women|Post" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
-        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
-        # Women|Pre
-        means_women_pre[i] <- boot_obj_women_pre$t0
-        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-        # Women|Post
-        means_women_post[i] <- boot_obj_women_post$t0
-        upper_women_post[i] <- ci_obj_women_post$normal[3]
-        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
         # Combine
         means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                     means = c(means_men, means_women_pre, means_women_post),
-                                     upper = c(upper_men, upper_women_pre, upper_women_post),
-                                     lower = c(lower_men, lower_women_pre, lower_women_post),
-                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
         
         
         }
         
         # Save
-        saveRDS(means_health2k, paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))
-    } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_hba1c", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }    
+        
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
     means_all <- means_health2k
     means_all$Cohort <- c(rep("Health2k", 153))
-    means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+    means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 
 # Proportion analysis plot (HbA1C)
 
@@ -1018,9 +1253,9 @@ with ferritin appears to be positive, we’ll use the upper bound.
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group)) +
         labs(y = "%p") + theme(legend.position = "none")
@@ -1030,15 +1265,23 @@ with ferritin appears to be positive, we’ll use the upper bound.
 # Ferritin X APOB | COLORED
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
+    ratio3 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
+    ratio4 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 6), APOB = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 1.3, ymax = 3, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -1050,15 +1293,23 @@ with ferritin appears to be positive, we’ll use the upper bound.
 # Ferritin X APOA1 | COLORED
 
     options(scipen = 10000)
+    ratio1 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
+    ratio2 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
+    ratio3 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
+    ratio4 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
+    ratio5 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
+    ratio6 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
+    ann_text <- data.frame(Ferritin = rep(900, 6), APOA1 = rep(0.6, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
     ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) + 
         annotate("rect", xmin = 15, xmax = 2000, ymin = 0.4, ymax = 1.2, alpha = .5, fill = "grey") +
+        geom_text(data = ann_text, aes(label = lab)) +
         geom_point(aes(color = Group), alpha = 0.1) +
         scale_x_log10() +
         scale_y_log10() +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() + 
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
@@ -1079,21 +1330,23 @@ are 0.6 - 1.3 (we’ll use 1.3).
     APOB_trld_men <- 1.5 # for males [0.6, 1.5]
     APOB_trld_women <- 1.3 # for females [0.6, 1.3]
 
-    if (!file.exists(paste0("./data/PUBL_finrisk_ratio_APOB", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
         
         for (i in 1:iterations) {
             
@@ -1103,60 +1356,101 @@ are 0.6 - 1.3 (we’ll use 1.3).
             
             ## Compute
             # Men
-            boot_obj_men <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                  var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
-            ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-            # Women|Pre
-            boot_obj_women_pre <- boot(fer_apob %>% filter(Group == "Women|Pre" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            # Women|Menstr
+            bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-            ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-            # Women|Post
-            boot_obj_women_post <- boot(fer_apob %>% filter(Group == "Women|Post" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            # Women|Non-menstr
+            bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-            ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
             
             ## Store
             # Men
-            means_men[i] <- boot_obj_men$t0
+            means_men[i] <- bootobs$men[[i]]$t0
             upper_men[i] <- ci_obj_men$normal[3]
             lower_men[i] <- ci_obj_men$normal[2]
-            # Women|Pre
-            means_women_pre[i] <- boot_obj_women_pre$t0
-            upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-            lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-            # Women|Post
-            means_women_post[i] <- boot_obj_women_post$t0
-            upper_women_post[i] <- ci_obj_women_post$normal[3]
-            lower_women_post[i] <- ci_obj_women_post$normal[2]
+            # Women|Menstr
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            # Women|Non-menstr
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
             
             # Combine
             means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                         means = c(means_men, means_women_pre, means_women_post),
-                                         upper = c(upper_men, upper_women_pre, upper_women_post),
-                                         lower = c(lower_men, lower_women_pre, lower_women_post),
-                                         Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+                                         means = c(means_men, means_women_mens, means_women_nonmens),
+                                         upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                         lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                         Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
         
         }
         
         # Save
-        saveRDS(means_finrisk, paste0("./data/PUBL_finrisk_ratio_APOB", boot_n, ".rds"))
-    } else {means_finrisk <- readRDS(paste0("./data/PUBL_finrisk_ratio_APOB", boot_n, ".rds"))}
-
-    if (!file.exists(paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))) { # run bootstrap only if needed
+        saveRDS(bootobs, paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
+
+    if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run bootstrap only if needed
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
         for (i in 1:iterations) {
         
@@ -1166,49 +1460,88 @@ are 0.6 - 1.3 (we’ll use 1.3).
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-        # Women|Pre
-        boot_obj_women_pre <- boot(fer_apob %>% filter(Group == "Women|Pre" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-        # Women|Post
-        boot_obj_women_post <- boot(fer_apob %>% filter(Group == "Women|Post" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
-        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
-        # Women|Pre
-        means_women_pre[i] <- boot_obj_women_pre$t0
-        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-        # Women|Post
-        means_women_post[i] <- boot_obj_women_post$t0
-        upper_women_post[i] <- ci_obj_women_post$normal[3]
-        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
         # Combine
         means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                     means = c(means_men, means_women_pre, means_women_post),
-                                     upper = c(upper_men, upper_women_pre, upper_women_post),
-                                     lower = c(lower_men, lower_women_pre, lower_women_post),
-                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
         
         
         }
         
         # Save
-        saveRDS(means_health2k, paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))
-    } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOB", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
     means_all <- rbind(means_finrisk, means_health2k)
     means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
-    means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+    means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 
 # Proportion analysis plot (APOB)
 
@@ -1216,9 +1549,9 @@ are 0.6 - 1.3 (we’ll use 1.3).
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         labs(y = "%p") + theme(legend.position = "none")
@@ -1237,21 +1570,23 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
     APOA1_trld_men <- 1.1 # for males [1.1, 2.0]
     APOA1_trld_women <- 1.2 # for females [1.2, 2.3]
 
-    if (!file.exists(paste0("./data/PUBL_finrisk_ratio_APOA1", boot_n, ".rds"))) { # run bootstrap only if needed
+    if (!file.exists(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))) { # run bootstrap only if needed
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
         
         for (i in 1:iterations) {
             
@@ -1261,60 +1596,101 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
             
             ## Compute
             # Men
-            boot_obj_men <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                  var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
-            ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-            # Women|Pre
-            boot_obj_women_pre <- boot(fer_apoa1 %>% filter(Group == "Women|Pre" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            # Women|Menstr
+            bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-            ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-            # Women|Post
-            boot_obj_women_post <- boot(fer_apoa1 %>% filter(Group == "Women|Post" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            # Women|Non-menstr
+            bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
                                        var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-            ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
             
             ## Store
             # Men
-            means_men[i] <- boot_obj_men$t0
+            means_men[i] <- bootobs$men[[i]]$t0
             upper_men[i] <- ci_obj_men$normal[3]
             lower_men[i] <- ci_obj_men$normal[2]
-            # Women|Pre
-            means_women_pre[i] <- boot_obj_women_pre$t0
-            upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-            lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-            # Women|Post
-            means_women_post[i] <- boot_obj_women_post$t0
-            upper_women_post[i] <- ci_obj_women_post$normal[3]
-            lower_women_post[i] <- ci_obj_women_post$normal[2]
+            # Women|Menstr
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            # Women|Non-menstr
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
             
             # Combine
             means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                         means = c(means_men, means_women_pre, means_women_post),
-                                         upper = c(upper_men, upper_women_pre, upper_women_post),
-                                         lower = c(lower_men, lower_women_pre, lower_women_post),
-                                         Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))
+                                         means = c(means_men, means_women_mens, means_women_nonmens),
+                                         upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                         lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                         Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
         
         }
         
         # Save
-        saveRDS(means_finrisk, paste0("./data/PUBL_finrisk_ratio_APOA1", boot_n, ".rds"))
-    } else {means_finrisk <- readRDS(paste0("./data/PUBL_finrisk_ratio_APOA1", boot_n, ".rds"))}
-
-    if (!file.exists(paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))) { # run bootstrap only if needed
+        saveRDS(bootobs, paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))
         
         ## Preallocate
         # Men
         means_men <- 1:iterations
         upper_men <- 1:iterations
         lower_men <- 1:iterations
-        # Women|Pre
-        means_women_pre <- 1:iterations
-        upper_women_pre <- 1:iterations
-        lower_women_pre <- 1:iterations
-        # Women|Post
-        means_women_post <- 1:iterations
-        upper_women_post <- 1:iterations
-        lower_women_post <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }
+        
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
+
+    if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run bootstrap only if needed
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
 
         for (i in 1:iterations) {
         
@@ -1324,49 +1700,88 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
         
         ## Compute
         # Men
-        boot_obj_men <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
-        ci_obj_men <- boot.ci(boot_obj_men, type = "norm")
-        # Women|Pre
-        boot_obj_women_pre <- boot(fer_apoa1 %>% filter(Group == "Women|Pre" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-        ci_obj_women_pre <- boot.ci(boot_obj_women_pre, type = "norm")
-        # Women|Post
-        boot_obj_women_post <- boot(fer_apoa1 %>% filter(Group == "Women|Post" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
-        ci_obj_women_post <- boot.ci(boot_obj_women_post, type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
         ## Store
         # Men
-        means_men[i] <- boot_obj_men$t0
+        means_men[i] <- bootobs$men[[i]]$t0
         upper_men[i] <- ci_obj_men$normal[3]
         lower_men[i] <- ci_obj_men$normal[2]
-        # Women|Pre
-        means_women_pre[i] <- boot_obj_women_pre$t0
-        upper_women_pre[i] <- ci_obj_women_pre$normal[3]
-        lower_women_pre[i] <- ci_obj_women_pre$normal[2]
-        # Women|Post
-        means_women_post[i] <- boot_obj_women_post$t0
-        upper_women_post[i] <- ci_obj_women_post$normal[3]
-        lower_women_post[i] <- ci_obj_women_post$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
         
         # Combine
         means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
-                                     means = c(means_men, means_women_pre, means_women_post),
-                                     upper = c(upper_men, upper_women_pre, upper_women_post),
-                                     lower = c(lower_men, lower_women_pre, lower_women_post),
-                                     Gender = c(rep("Men", iterations), rep("Women|Pre", iterations), rep("Women|Post", iterations)))    
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
         
         
         }
         
         # Save
-        saveRDS(means_health2k, paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))
-    } else {means_health2k <- readRDS(paste0("./data/PUBL_health2k_ratio_APOA1", boot_n, ".rds"))}
+        saveRDS(bootobs, paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
+    } else {
+        bootobs <- readRDS(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))
+        
+        ## Preallocate
+        # Men
+        means_men <- 1:iterations
+        upper_men <- 1:iterations
+        lower_men <- 1:iterations
+        # Women|Menstr
+        means_women_mens <- 1:iterations
+        upper_women_mens <- 1:iterations
+        lower_women_mens <- 1:iterations
+        # Women|Non-menstr
+        means_women_nonmens <- 1:iterations
+        upper_women_nonmens <- 1:iterations
+        lower_women_nonmens <- 1:iterations
+        
+        for (i in 1:iterations) {
+            ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+            ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+            ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+            # Store
+            means_men[i] <- bootobs$men[[i]]$t0
+            upper_men[i] <- ci_obj_men$normal[3]
+            lower_men[i] <- ci_obj_men$normal[2]
+            means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+            upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+            lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+            means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+            upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+            lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        }    
+        
+        # Combine
+        means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+        }
 
     means_all <- rbind(means_finrisk, means_health2k)
     means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
-    means_all$Group <- factor(means_all$Gender, levels = c("Women|Pre", "Women|Post", "Men"))
+    means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 
 # Proportion analysis plot (APOA1)
 
@@ -1374,9 +1789,9 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
         geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
         geom_line(aes(linetype = Group)) +
         scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                           limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
-                          limits = c( "Men",  "Women|Post", "Women|Pre" )) +
+                          limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
         labs(y = "%p") + theme(legend.position = "none")
