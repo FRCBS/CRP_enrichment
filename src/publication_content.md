@@ -135,216 +135,210 @@
 
 # Exclusions: Health2000
 
-    h2k <- "Health2000"
-    fr <- "FinRisk1997"
-    women_m <- "Menstruating women"
-    women_nm <- "Non-menstruating women"
-    men <- "Men"
-    paste0(h2k, ", ", women_m, ": ",  nrow(Health2k %>% filter(Group == "Women|Menstr")))
+    # ExclusionTable method
+    excl_h2k_women_mens <- exclusion_table(data = Health2k,
+                    inclusion_criteria = c("Group == 'Women|Menstr'"),
+                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    keep_data = TRUE)
+    excl_h2k_women_mens
 
-    ## [1] "Health2000, Menstruating women: 1508"
+    ## 
+    ## ======================================================
+    ## Excluded the following observations:
+    ## ======================================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##                 inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Women|Menstr'    6264   1508       4756
+    ## 2                   TOTAL    6264   1508       4756
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##                    exclusion n_prior n_post n_excluded
+    ## 1          BMII_PAINO.x < 50    1508   1459         49
+    ## 2         BMII_PAINO.x > 200    1459   1459          0
+    ## 3                   Age < 18    1459   1459          0
+    ## 4                   Age > 66    1459   1459          0
+    ## 5                   SRH >= 4    1459   1409         50
+    ## 6                 B_Hb < 125    1409   1115        294
+    ## 7                  BA08 == 1    1115   1114          1
+    ## 8                  BA09 == 1    1114   1113          1
+    ## 9                  BA10 == 1    1113   1111          2
+    ## 10 BA26 == 1 & ATC_A10A == 1    1111   1105          6
+    ## 11                     TOTAL    1508   1105        403
+    ## 
+    ## ======================================================
 
-    paste0(h2k, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
+    excl_h2k_women_nonmens <- exclusion_table(data = Health2k,
+                    inclusion_criteria = c("Group == 'Women|Non-menstr'"),
+                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    keep_data = TRUE)
+    excl_h2k_women_nonmens
 
-    ## [1] "Health2000, Menstruating women, under 50kg or over 200kg: 48"
+    ## 
+    ## ========================================================
+    ## Excluded the following observations:
+    ## ========================================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##                     inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Women|Non-menstr'    6264   1505       4759
+    ## 2                       TOTAL    6264   1505       4759
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##                    exclusion n_prior n_post n_excluded
+    ## 1          BMII_PAINO.x < 50    1505   1474         31
+    ## 2         BMII_PAINO.x > 200    1474   1474          0
+    ## 3                   Age < 18    1474   1474          0
+    ## 4                   Age > 66    1474   1199        275
+    ## 5                   SRH >= 4    1199   1066        133
+    ## 6                 B_Hb < 125    1066    772        294
+    ## 7                  BA08 == 1     772    764          8
+    ## 8                  BA09 == 1     764    739         25
+    ## 9                  BA10 == 1     739    729         10
+    ## 10 BA26 == 1 & ATC_A10A == 1     729    722          7
+    ## 11                     TOTAL    1505    722        783
+    ## 
+    ## ========================================================
 
-    paste0(h2k, ", ", women_m, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(Age < 18 | Age > 66)))
+    excl_h2k_men <- exclusion_table(data = Health2k,
+                    inclusion_criteria = c("Group == 'Men'"),
+                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "B_Hb < 135", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    keep_data = TRUE)
+    excl_h2k_men
 
-    ## [1] "Health2000, Menstruating women, under 18y or over 66y: 0"
-
-    paste0(h2k, ", ", women_m, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(B_Hb < 125)))
-
-    ## [1] "Health2000, Menstruating women, Hb under 125: 284"
-
-    paste0(h2k, ", ", women_m, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA08 == 1)))
-
-    ## [1] "Health2000, Menstruating women, heart attack: 1"
-
-    paste0(h2k, ", ", women_m, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA09 == 1)))
-
-    ## [1] "Health2000, Menstruating women, angina: 2"
-
-    paste0(h2k, ", ", women_m, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(BA10 == 1)))
-
-    ## [1] "Health2000, Menstruating women, heart failure/insuff: 3"
-
-    paste0(h2k, ", ", women_m, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter((BA26 == 1 & ATC_A10A == 1))))
-
-    ## [1] "Health2000, Menstruating women, diabetics on insulin: 7"
-
-    paste0(h2k, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Menstr") %>% filter(SRH >= 4)))
-
-    ## [1] "Health2000, Menstruating women, bad or very bad self-reported health: 51"
-
-    paste0(h2k, ", ", women_nm, ": ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr")))
-
-    ## [1] "Health2000, Non-menstruating women: 1505"
-
-    paste0(h2k, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
-
-    ## [1] "Health2000, Non-menstruating women, under 50kg or over 200kg: 27"
-
-    paste0(h2k, ", ", women_nm, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(Age < 18 | Age > 66)))
-
-    ## [1] "Health2000, Non-menstruating women, under 18y or over 66y: 279"
-
-    paste0(h2k, ", ", women_nm, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(B_Hb < 125)))
-
-    ## [1] "Health2000, Non-menstruating women, Hb under 125: 117"
-
-    paste0(h2k, ", ", women_nm, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA08 == 1)))
-
-    ## [1] "Health2000, Non-menstruating women, heart attack: 30"
-
-    paste0(h2k, ", ", women_nm, ", angina: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA09 == 1)))
-
-    ## [1] "Health2000, Non-menstruating women, angina: 90"
-
-    paste0(h2k, ", ", women_nm, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(BA10 == 1)))
-
-    ## [1] "Health2000, Non-menstruating women, heart failure/insuff: 52"
-
-    paste0(h2k, ", ", women_nm, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter((BA26 == 1 & ATC_A10A == 1))))
-
-    ## [1] "Health2000, Non-menstruating women, diabetics on insulin: 19"
-
-    paste0(h2k, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Women|Non-menstr") %>% filter(SRH >= 4)))
-
-    ## [1] "Health2000, Non-menstruating women, bad or very bad self-reported health: 175"
-
-    paste0(h2k, ", ", men, ": ",  nrow(Health2k %>% filter(Group == "Men")))
-
-    ## [1] "Health2000, Men: 2944"
-
-    paste0(h2k, ", ", men, ", under 50kg or over 200kg: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BMII_PAINO.x < 50 | BMII_PAINO.x > 200)))
-
-    ## [1] "Health2000, Men, under 50kg or over 200kg: 3"
-
-    paste0(h2k, ", ", men, ", under 18y or over 66y: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(Age < 18 | Age > 66)))
-
-    ## [1] "Health2000, Men, under 18y or over 66y: 229"
-
-    paste0(h2k, ", ", men, ", Hb under 125: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(B_Hb < 125)))
-
-    ## [1] "Health2000, Men, Hb under 125: 40"
-
-    paste0(h2k, ", ", men, ", heart attack: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA08 == 1)))
-
-    ## [1] "Health2000, Men, heart attack: 116"
-
-    paste0(h2k, ", ", men, ", angina: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA09 == 1)))
-
-    ## [1] "Health2000, Men, angina: 144"
-
-    paste0(h2k, ", ", men, ", heart failure/insuff: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(BA10 == 1)))
-
-    ## [1] "Health2000, Men, heart failure/insuff: 67"
-
-    paste0(h2k, ", ", men, ", diabetics on insulin: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter((BA26 == 1 & ATC_A10A == 1))))
-
-    ## [1] "Health2000, Men, diabetics on insulin: 50"
-
-    paste0(h2k, ", ", men, ", bad or very bad self-reported health: ",  nrow(Health2k %>% filter(Group == "Men") %>% filter(SRH >= 4)))
-
-    ## [1] "Health2000, Men, bad or very bad self-reported health: 271"
+    ## 
+    ## ======================================================
+    ## Excluded the following observations:
+    ## ======================================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##        inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Men'    6264   2944       3320
+    ## 2          TOTAL    6264   2944       3320
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##                    exclusion n_prior n_post n_excluded
+    ## 1          BMII_PAINO.x < 50    2944   2938          6
+    ## 2         BMII_PAINO.x > 200    2938   2938          0
+    ## 3                   Age < 18    2938   2938          0
+    ## 4                   Age > 66    2938   2711        227
+    ## 5                   SRH >= 4    2711   2443        268
+    ## 6                 B_Hb < 135    2443   2062        381
+    ## 7                  BA08 == 1    2062   2023         39
+    ## 8                  BA09 == 1    2023   1999         24
+    ## 9                  BA10 == 1    1999   1990          9
+    ## 10 BA26 == 1 & ATC_A10A == 1    1990   1970         20
+    ## 11                     TOTAL    2944   1970        974
+    ## 
+    ## ======================================================
 
 # Exclusions: FinRisk1997
 
-    paste0(fr, ", ", women_m, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr")))
+    # ExclusionTable method
+    excl_fr_women_mens <- exclusion_table(data = FinRisk97,
+                    inclusion_criteria = c("Group == 'Women|Menstr'"),
+                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    keep_data = TRUE)
+    excl_fr_women_mens
 
-    ## [1] "FinRisk1997, Menstruating women: 2469"
+    ## 
+    ## ====================================================
+    ## Excluded the following observations:
+    ## ====================================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##                 inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Women|Menstr'    7943   2469       5474
+    ## 2                   TOTAL    7943   2469       5474
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##      exclusion n_prior n_post n_excluded
+    ## 1   PAINO < 50    2469   2387         82
+    ## 2  PAINO > 200    2387   2387          0
+    ## 3     Age < 18    2387   2387          0
+    ## 4     Age > 66    2387   2379          8
+    ## 5     SRH >= 4    2379   2265        114
+    ## 6    Q15A == 2    2265   2258          7
+    ## 7    Q16A == 2    2258   2249          9
+    ## 8    Q17B == 2    2249   2223         26
+    ## 9    Q17C == 2    2223   2196         27
+    ## 10       TOTAL    2469   2196        273
+    ## 
+    ## ====================================================
 
-    paste0(fr, ", ", women_m, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(PAINO < 50 | PAINO > 200)))
+    excl_fr_women_nonmens <- exclusion_table(data = FinRisk97,
+                    inclusion_criteria = c("Group == 'Women|Non-menstr'"),
+                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    keep_data = TRUE)
+    excl_fr_women_nonmens
 
-    ## [1] "FinRisk1997, Menstruating women, under 50kg or over 200kg: 81"
+    ## 
+    ## ========================================================
+    ## Excluded the following observations:
+    ## ========================================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##                     inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Women|Non-menstr'    7943   1463       6480
+    ## 2                       TOTAL    7943   1463       6480
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##      exclusion n_prior n_post n_excluded
+    ## 1   PAINO < 50    1463   1430         33
+    ## 2  PAINO > 200    1430   1430          0
+    ## 3     Age < 18    1430   1430          0
+    ## 4     Age > 66    1430   1280        150
+    ## 5     SRH >= 4    1280   1117        163
+    ## 6    Q15A == 2    1117   1100         17
+    ## 7    Q16A == 2    1100   1071         29
+    ## 8    Q17B == 2    1071   1012         59
+    ## 9    Q17C == 2    1012    985         27
+    ## 10       TOTAL    1463    985        478
+    ## 
+    ## ========================================================
 
-    paste0(fr, ", ", women_m, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Age < 18 | Age > 66)))
+    excl_fr_men <- exclusion_table(data = FinRisk97,
+                    inclusion_criteria = c("Group == 'Men'"),
+                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
+                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    keep_data = TRUE)
+    excl_fr_men
 
-    ## [1] "FinRisk1997, Menstruating women, under 18y or over 66y: 8"
-
-    paste0(fr, ", ", women_m, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q15A == 2)))
-
-    ## [1] "FinRisk1997, Menstruating women, STEMI, NSTEMI: 6"
-
-    paste0(fr, ", ", women_m, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q16A == 2)))
-
-    ## [1] "FinRisk1997, Menstruating women, stroke: 11"
-
-    paste0(fr, ", ", women_m, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q17B == 2)))
-
-    ## [1] "FinRisk1997, Menstruating women, heart insuff: 12"
-
-    paste0(fr, ", ", women_m, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(Q17C == 2)))
-
-    ## [1] "FinRisk1997, Menstruating women, angina: 37"
-
-    paste0(fr, ", ", women_m, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Menstr") %>% filter(SRH >= 4)))
-
-    ## [1] "FinRisk1997, Menstruating women, bad or very bad self-reported health: 114"
-
-    paste0(fr, ", ", women_nm, ": ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr")))
-
-    ## [1] "FinRisk1997, Non-menstruating women: 1463"
-
-    paste0(fr, ", ", women_nm, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(PAINO < 50 | PAINO > 200)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, under 50kg or over 200kg: 31"
-
-    paste0(fr, ", ", women_nm, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Age < 18 | Age > 66)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, under 18y or over 66y: 156"
-
-    paste0(fr, ", ", women_nm, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q15A == 2)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, STEMI, NSTEMI: 34"
-
-    paste0(fr, ", ", women_nm, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q16A == 2)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, stroke: 43"
-
-    paste0(fr, ", ", women_nm, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q17B == 2)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, heart insuff: 69"
-
-    paste0(fr, ", ", women_nm, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q17C == 2)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, angina: 94"
-
-    paste0(fr, ", ", women_nm, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Women|Non-menstr") %>% filter(SRH >= 4)))
-
-    ## [1] "FinRisk1997, Non-menstruating women, bad or very bad self-reported health: 179"
-
-    paste0(fr, ", ", men, ": ",  nrow(FinRisk97 %>% filter(Group == "Men")))
-
-    ## [1] "FinRisk1997, Men: 3943"
-
-    paste0(fr, ", ", men, ", under 50kg or over 200kg: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(PAINO < 50 | PAINO > 200)))
-
-    ## [1] "FinRisk1997, Men, under 50kg or over 200kg: 4"
-
-    paste0(fr, ", ", men, ", under 18y or over 66y: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Age < 18 | Age > 66)))
-
-    ## [1] "FinRisk1997, Men, under 18y or over 66y: 375"
-
-    paste0(fr, ", ", men, ", STEMI, NSTEMI: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q15A == 2)))
-
-    ## [1] "FinRisk1997, Men, STEMI, NSTEMI: 160"
-
-    paste0(fr, ", ", men, ", stroke: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q16A == 2)))
-
-    ## [1] "FinRisk1997, Men, stroke: 95"
-
-    paste0(fr, ", ", men, ", heart insuff: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q17B == 2)))
-
-    ## [1] "FinRisk1997, Men, heart insuff: 155"
-
-    paste0(fr, ", ", men, ", angina: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(Q17C == 2)))
-
-    ## [1] "FinRisk1997, Men, angina: 224"
-
-    paste0(fr, ", ", men, ", bad or very bad self-reported health: ",  nrow(FinRisk97 %>% filter(Group == "Men") %>% filter(SRH >= 4)))
-
-    ## [1] "FinRisk1997, Men, bad or very bad self-reported health: 382"
+    ## 
+    ## ===========================================
+    ## Excluded the following observations:
+    ## ===========================================
+    ## Exclusions based on INCLUSION criteria
+    ## 
+    ##        inclusion n_prior n_post n_excluded
+    ## 1 Group == 'Men'    7943   3943       4000
+    ## 2          TOTAL    7943   3943       4000
+    ## 
+    ## Exclusions based on EXCLUSION criteria
+    ## 
+    ##      exclusion n_prior n_post n_excluded
+    ## 1   PAINO < 50    3943   3873         70
+    ## 2  PAINO > 200    3873   3873          0
+    ## 3     Age < 18    3873   3873          0
+    ## 4     Age > 66    3873   3548        325
+    ## 5     SRH >= 4    3548   3190        358
+    ## 6    Q15A == 2    3190   3124         66
+    ## 7    Q16A == 2    3124   3072         52
+    ## 8    Q17B == 2    3072   2987         85
+    ## 9    Q17C == 2    2987   2935         52
+    ## 10       TOTAL    3943   2935       1008
+    ## 
+    ## ===========================================
 
 # Ferritin X CRP
 
