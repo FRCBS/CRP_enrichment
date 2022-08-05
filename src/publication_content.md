@@ -67,9 +67,9 @@
     # Donation eligibility
     # These are both "approximates" in a sense, we don't have all the necessary variables to
     # filter thoroughly, and we'll be able to do more filtering on Health2000 than FinRisk97
-    donor_eligible_h2k <- Health2k %>%
-        filter(BMII_PAINO.x >= 50 | BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
-        filter(Age >= 18 | Age <= 66) %>% # Filter away too young and too old
+    donor_eligible_h2k <- Health2k %>% 
+        filter(BMII_PAINO.x >= 50 & BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
+        filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
         filter((B_Hb >= 125 & Gender == "Women") | (B_Hb >= 135 & Gender == "Men")) %>% # Filter by hemoglobin
         filter(BA08 == 0) %>% # filter out people with heart attacks
         filter(BA09 == 0) %>% # filter out people with angina
@@ -80,8 +80,8 @@
         mutate(HbA1C = B_GHb_A1C * 10.93 - 23.50)
 
     donor_eligible_fr <- FinRisk97 %>%
-        filter(PAINO >= 50 | PAINO <= 200) %>% # Filter away people <50kg and >200kg
-        filter(Age >= 18 | Age <= 66) %>% # Filter away too young and too old
+        filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
+        filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
         #filter((HGB >= 125 & Gender == 2) | (HGB >= 135 & Gender == 1)) %>% # DON'T filter by hemoglobin, < 500 values in data
         filter(Q15A != 2) %>% # STEMI, NSTEMI
         filter(Q16A != 2) %>% # Stroke
@@ -125,21 +125,21 @@
                       paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
     table1
 
-    ##               Var1      Var2 Freq                 CRP                     FER
-    ## 1     Women|Menstr FinRisk97 1980 0.76 | (0.38, 1.85)  23.97 | (12.35, 42.51)
-    ## 2 Women|Non-menstr FinRisk97 1001  1.26 | (0.61, 2.6)   55.8 | (31.42, 94.74)
-    ## 3              Men FinRisk97 2801 0.91 | (0.47, 1.92) 110.99 | (65.87, 181.3)
-    ## 4     Women|Menstr  Health2k  976 0.61 | (0.26, 1.78)   27.9 | (15.17, 48.54)
-    ## 5 Women|Non-menstr  Health2k  785  1.02 | (0.4, 2.35)      55.97 | (32, 95.1)
-    ## 6              Men  Health2k 1793 0.79 | (0.35, 1.77)  123.1 | (76.32, 192.7)
+    ##               Var1      Var2 Freq                 CRP                      FER
+    ## 1     Women|Menstr FinRisk97 1915  0.77 | (0.4, 1.87)   24.02 | (12.39, 42.53)
+    ## 2 Women|Non-menstr FinRisk97  884 1.27 | (0.62, 2.65)   55.79 | (31.06, 93.72)
+    ## 3              Men FinRisk97 2603 0.89 | (0.46, 1.88) 112.06 | (66.46, 182.07)
+    ## 4     Women|Menstr  Health2k  943 0.62 | (0.27, 1.81)        28 | (15.2, 48.6)
+    ## 5 Women|Non-menstr  Health2k  661  1.02 | (0.38, 2.4)      55.9 | (32.7, 95.5)
+    ## 6              Men  Health2k 1710 0.77 | (0.35, 1.75)   124.7 | (76.67, 193.9)
 
 # Exclusions: Health2000
 
     # ExclusionTable method
     excl_h2k_women_mens <- exclusion_table(data = Health2k,
                     inclusion_criteria = c("Group == 'Women|Menstr'"),
-                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
+                                           "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
                     keep_data = TRUE)
     excl_h2k_women_mens
 
@@ -156,24 +156,27 @@
     ## Exclusions based on EXCLUSION criteria
     ## 
     ##                    exclusion n_prior n_post n_excluded
-    ## 1          BMII_PAINO.x < 50    1508   1459         49
-    ## 2         BMII_PAINO.x > 200    1459   1459          0
-    ## 3                   Age < 18    1459   1459          0
-    ## 4                   Age > 66    1459   1459          0
-    ## 5                   SRH >= 4    1459   1409         50
-    ## 6                 B_Hb < 125    1409   1115        294
-    ## 7                  BA08 == 1    1115   1114          1
-    ## 8                  BA09 == 1    1114   1113          1
-    ## 9                  BA10 == 1    1113   1111          2
-    ## 10 BA26 == 1 & ATC_A10A == 1    1111   1105          6
-    ## 11                     TOTAL    1508   1105        403
+    ## 1                 is.na(CRP)    1508   1464         44
+    ## 2            is.na(Ferritin)    1464   1442         22
+    ## 3                 CRP < 0.01    1442   1270        172
+    ## 4          BMII_PAINO.x < 50    1270   1230         40
+    ## 5         BMII_PAINO.x > 200    1230   1230          0
+    ## 6                   Age < 18    1230   1230          0
+    ## 7                   Age > 66    1230   1230          0
+    ## 8                   SRH >= 4    1230   1187         43
+    ## 9                 B_Hb < 125    1187    953        234
+    ## 10                 BA08 == 1     953    952          1
+    ## 11                 BA09 == 1     952    951          1
+    ## 12                 BA10 == 1     951    949          2
+    ## 13 BA26 == 1 & ATC_A10A == 1     949    943          6
+    ## 14                     TOTAL    1508    943        565
     ## 
     ## ======================================================
 
     excl_h2k_women_nonmens <- exclusion_table(data = Health2k,
                     inclusion_criteria = c("Group == 'Women|Non-menstr'"),
-                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
+                                           "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
                     keep_data = TRUE)
     excl_h2k_women_nonmens
 
@@ -190,24 +193,27 @@
     ## Exclusions based on EXCLUSION criteria
     ## 
     ##                    exclusion n_prior n_post n_excluded
-    ## 1          BMII_PAINO.x < 50    1505   1474         31
-    ## 2         BMII_PAINO.x > 200    1474   1474          0
-    ## 3                   Age < 18    1474   1474          0
-    ## 4                   Age > 66    1474   1199        275
-    ## 5                   SRH >= 4    1199   1066        133
-    ## 6                 B_Hb < 125    1066    772        294
-    ## 7                  BA08 == 1     772    764          8
-    ## 8                  BA09 == 1     764    739         25
-    ## 9                  BA10 == 1     739    729         10
-    ## 10 BA26 == 1 & ATC_A10A == 1     729    722          7
-    ## 11                     TOTAL    1505    722        783
+    ## 1                 is.na(CRP)    1505   1160        345
+    ## 2            is.na(Ferritin)    1160   1148         12
+    ## 3                 CRP < 0.01    1148   1078         70
+    ## 4          BMII_PAINO.x < 50    1078   1061         17
+    ## 5         BMII_PAINO.x > 200    1061   1061          0
+    ## 6                   Age < 18    1061   1061          0
+    ## 7                   Age > 66    1061    878        183
+    ## 8                   SRH >= 4     878    782         96
+    ## 9                 B_Hb < 125     782    706         76
+    ## 10                 BA08 == 1     706    700          6
+    ## 11                 BA09 == 1     700    678         22
+    ## 12                 BA10 == 1     678    668         10
+    ## 13 BA26 == 1 & ATC_A10A == 1     668    661          7
+    ## 14                     TOTAL    1505    661        844
     ## 
     ## ========================================================
 
     excl_h2k_men <- exclusion_table(data = Health2k,
                     inclusion_criteria = c("Group == 'Men'"),
-                    exclusion_criteria = c("BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "B_Hb < 135", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
+                                           "Age > 66", "SRH >= 4", "B_Hb < 135", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
                     keep_data = TRUE)
     excl_h2k_men
 
@@ -224,17 +230,20 @@
     ## Exclusions based on EXCLUSION criteria
     ## 
     ##                    exclusion n_prior n_post n_excluded
-    ## 1          BMII_PAINO.x < 50    2944   2938          6
-    ## 2         BMII_PAINO.x > 200    2938   2938          0
-    ## 3                   Age < 18    2938   2938          0
-    ## 4                   Age > 66    2938   2711        227
-    ## 5                   SRH >= 4    2711   2443        268
-    ## 6                 B_Hb < 135    2443   2062        381
-    ## 7                  BA08 == 1    2062   2023         39
-    ## 8                  BA09 == 1    2023   1999         24
-    ## 9                  BA10 == 1    1999   1990          9
-    ## 10 BA26 == 1 & ATC_A10A == 1    1990   1970         20
-    ## 11                     TOTAL    2944   1970        974
+    ## 1                 is.na(CRP)    2944   2517        427
+    ## 2            is.na(Ferritin)    2517   2494         23
+    ## 3                 CRP < 0.01    2494   2254        240
+    ## 4          BMII_PAINO.x < 50    2254   2251          3
+    ## 5         BMII_PAINO.x > 200    2251   2251          0
+    ## 6                   Age < 18    2251   2251          0
+    ## 7                   Age > 66    2251   2103        148
+    ## 8                   SRH >= 4    2103   1886        217
+    ## 9                 B_Hb < 135    1886   1791         95
+    ## 10                 BA08 == 1    1791   1756         35
+    ## 11                 BA09 == 1    1756   1735         21
+    ## 12                 BA10 == 1    1735   1727          8
+    ## 13 BA26 == 1 & ATC_A10A == 1    1727   1710         17
+    ## 14                     TOTAL    2944   1710       1234
     ## 
     ## ======================================================
 
@@ -243,8 +252,8 @@
     # ExclusionTable method
     excl_fr_women_mens <- exclusion_table(data = FinRisk97,
                     inclusion_criteria = c("Group == 'Women|Menstr'"),
-                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
+                                           "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
                     keep_data = TRUE)
     excl_fr_women_mens
 
@@ -260,24 +269,27 @@
     ## 
     ## Exclusions based on EXCLUSION criteria
     ## 
-    ##      exclusion n_prior n_post n_excluded
-    ## 1   PAINO < 50    2469   2387         82
-    ## 2  PAINO > 200    2387   2387          0
-    ## 3     Age < 18    2387   2387          0
-    ## 4     Age > 66    2387   2379          8
-    ## 5     SRH >= 4    2379   2265        114
-    ## 6    Q15A == 2    2265   2258          7
-    ## 7    Q16A == 2    2258   2249          9
-    ## 8    Q17B == 2    2249   2223         26
-    ## 9    Q17C == 2    2223   2196         27
-    ## 10       TOTAL    2469   2196        273
+    ##          exclusion n_prior n_post n_excluded
+    ## 1       is.na(CRP)    2469   2288        181
+    ## 2  is.na(Ferritin)    2288   2159        129
+    ## 3       CRP < 0.01    2159   2159          0
+    ## 4       PAINO < 50    2159   2092         67
+    ## 5      PAINO > 200    2092   2092          0
+    ## 6         Age < 18    2092   2092          0
+    ## 7         Age > 66    2092   2084          8
+    ## 8         SRH >= 4    2084   1977        107
+    ## 9        Q15A == 2    1977   1971          6
+    ## 10       Q16A == 2    1971   1962          9
+    ## 11       Q17B == 2    1962   1939         23
+    ## 12       Q17C == 2    1939   1915         24
+    ## 13           TOTAL    2469   1915        554
     ## 
     ## ====================================================
 
     excl_fr_women_nonmens <- exclusion_table(data = FinRisk97,
                     inclusion_criteria = c("Group == 'Women|Non-menstr'"),
-                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
+                                           "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
                     keep_data = TRUE)
     excl_fr_women_nonmens
 
@@ -293,31 +305,34 @@
     ## 
     ## Exclusions based on EXCLUSION criteria
     ## 
-    ##      exclusion n_prior n_post n_excluded
-    ## 1   PAINO < 50    1463   1430         33
-    ## 2  PAINO > 200    1430   1430          0
-    ## 3     Age < 18    1430   1430          0
-    ## 4     Age > 66    1430   1280        150
-    ## 5     SRH >= 4    1280   1117        163
-    ## 6    Q15A == 2    1117   1100         17
-    ## 7    Q16A == 2    1100   1071         29
-    ## 8    Q17B == 2    1071   1012         59
-    ## 9    Q17C == 2    1012    985         27
-    ## 10       TOTAL    1463    985        478
+    ##          exclusion n_prior n_post n_excluded
+    ## 1       is.na(CRP)    1463   1389         74
+    ## 2  is.na(Ferritin)    1389   1319         70
+    ## 3       CRP < 0.01    1319   1319          0
+    ## 4       PAINO < 50    1319   1289         30
+    ## 5      PAINO > 200    1289   1289          0
+    ## 6         Age < 18    1289   1289          0
+    ## 7         Age > 66    1289   1145        144
+    ## 8         SRH >= 4    1145   1002        143
+    ## 9        Q15A == 2    1002    986         16
+    ## 10       Q16A == 2     986    959         27
+    ## 11       Q17B == 2     959    908         51
+    ## 12       Q17C == 2     908    884         24
+    ## 13           TOTAL    1463    884        579
     ## 
     ## ========================================================
 
     excl_fr_men <- exclusion_table(data = FinRisk97,
                     inclusion_criteria = c("Group == 'Men'"),
-                    exclusion_criteria = c("PAINO < 50", "PAINO > 200", "Age < 18", "Age > 66", "SRH >= 4",
-                                           "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
+                    exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
+                                           "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
                     keep_data = TRUE)
     excl_fr_men
 
     ## 
-    ## ===========================================
+    ## ============================================
     ## Excluded the following observations:
-    ## ===========================================
+    ## ============================================
     ## Exclusions based on INCLUSION criteria
     ## 
     ##        inclusion n_prior n_post n_excluded
@@ -326,19 +341,22 @@
     ## 
     ## Exclusions based on EXCLUSION criteria
     ## 
-    ##      exclusion n_prior n_post n_excluded
-    ## 1   PAINO < 50    3943   3873         70
-    ## 2  PAINO > 200    3873   3873          0
-    ## 3     Age < 18    3873   3873          0
-    ## 4     Age > 66    3873   3548        325
-    ## 5     SRH >= 4    3548   3190        358
-    ## 6    Q15A == 2    3190   3124         66
-    ## 7    Q16A == 2    3124   3072         52
-    ## 8    Q17B == 2    3072   2987         85
-    ## 9    Q17C == 2    2987   2935         52
-    ## 10       TOTAL    3943   2935       1008
+    ##          exclusion n_prior n_post n_excluded
+    ## 1       is.na(CRP)    3943   3685        258
+    ## 2  is.na(Ferritin)    3685   3476        209
+    ## 3       CRP < 0.01    3476   3476          0
+    ## 4       PAINO < 50    3476   3469          7
+    ## 5      PAINO > 200    3469   3469          0
+    ## 6         Age < 18    3469   3469          0
+    ## 7         Age > 66    3469   3159        310
+    ## 8         SRH >= 4    3159   2833        326
+    ## 9        Q15A == 2    2833   2773         60
+    ## 10       Q16A == 2    2773   2729         44
+    ## 11       Q17B == 2    2729   2652         77
+    ## 12       Q17C == 2    2652   2603         49
+    ## 13           TOTAL    3943   2603       1340
     ## 
-    ## ===========================================
+    ## ============================================
 
 # Ferritin X CRP
 
@@ -363,7 +381,9 @@ ug/l.
         theme_minimal() + 
         geom_smooth(method = "lm", formula = y ~ x, color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
-        facet_grid(rows = vars(Group), cols = vars(Cohort))
+        facet_grid(rows = vars(Group), cols = vars(Cohort)) +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "CRP (mg/l)")
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated-1.png)
 
@@ -391,7 +411,9 @@ ug/l.
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "CRP (mg/l)")
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_separated_colored-1.png)
 
@@ -415,7 +437,9 @@ ug/l.
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(cols = vars(Cohort)) +
-        theme(legend.position = "bottom") + guides(colour = guide_legend(override.aes = list(alpha = 1)))
+        theme(legend.position = "bottom") + guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "CRP (mg/l)")
 
 ![](publication_content_files/figure-markdown_strict/scatterplot_colored-1.png)
 
@@ -649,7 +673,8 @@ higher ferritin levels from donors?
         geom_line(aes(linetype = Group)) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        labs(y = "%p") + guides(linetype = "none")
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") + guides(linetype = "none")
 
 ![](publication_content_files/figure-markdown_strict/ratio_plot_separated-1.png)
 
@@ -724,7 +749,8 @@ but the respective increases in proportions are much smaller.
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        labs(y = "%p") +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") +
         theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/ratio_plot_separated_colored-1.png)
@@ -741,7 +767,8 @@ but the respective increases in proportions are much smaller.
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(cols = vars(Cohort)) +
-        labs(y = "%p") + 
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") +
         guides(fill = "none") +
         theme(legend.position = "bottom")
 
@@ -812,22 +839,71 @@ haemoglobin, and apolipoproteins A1 and B.
     suptable1
 
     ##               Var1      Var2 Freq               GlycA                     FER
-    ## 1     Women|Menstr FinRisk97 2045 1.28 | (1.17, 1.42)     23.9 | (12.3, 42.5)
-    ## 2 Women|Non-menstr FinRisk97 1002 1.38 | (1.26, 1.53)  55.79 | (31.42, 94.53)
-    ## 3              Men FinRisk97 2821 1.39 | (1.26, 1.56) 111.37 | (66.46, 181.9)
-    ## 4     Women|Menstr  Health2k 1108 1.09 | (0.95, 1.23)    27.6 | (14.8, 48.23)
-    ## 5 Women|Non-menstr  Health2k  834     1.15 | (1, 1.3)   55.8 | (31.42, 94.36)
-    ## 6              Men  Health2k 1990 1.19 | (1.05, 1.35) 120.8 | (75.15, 189.15)
+    ## 1     Women|Menstr FinRisk97 1977 1.28 | (1.17, 1.42)    23.9 | (12.3, 42.52)
+    ## 2 Women|Non-menstr FinRisk97  891 1.38 | (1.25, 1.52)   55.78 | (31.2, 93.21)
+    ## 3              Men FinRisk97 2640 1.38 | (1.25, 1.55)  112.1 | (66.53, 183.4)
+    ## 4     Women|Menstr  Health2k 1072  1.1 | (0.96, 1.23)  27.64 | (14.78, 48.25)
+    ## 5 Women|Non-menstr  Health2k  704     1.15 | (1, 1.3)      55.6 | (32, 95.25)
+    ## 6              Men  Health2k 1903 1.19 | (1.05, 1.35) 121.8 | (75.72, 189.34)
 
     suptable2
 
-    ##               Var1 Freq                  HbA1C                   FER
-    ## 1     Women|Menstr 1111 31.15 | (28.96, 33.34)  27.6 | (14.8, 48.17)
-    ## 2 Women|Non-menstr  836 33.34 | (31.15, 36.61) 55.8 | (31.48, 94.51)
-    ## 3              Men 1997 34.43 | (32.24, 36.61) 120.8 | (75.5, 189.2)
+    ##               Var1 Freq                  HbA1C                    FER
+    ## 1     Women|Menstr 1074 31.15 | (28.96, 33.34) 27.62 | (14.72, 48.19)
+    ## 2 Women|Non-menstr  705 33.34 | (31.15, 36.61)      55.6 | (32, 95.4)
+    ## 3              Men 1910 34.43 | (32.24, 35.52) 121.8 | (75.8, 189.42)
 
-    # TODO: suptable3
-    # TODO: suptable4
+    suptable3 <- as.data.frame(table(fer_apob$Group, fer_apob$Cohort))
+
+    suptable3$APOB <- c(paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable3$FER <- c(paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable3
+
+    ##               Var1      Var2 Freq                APOB                     FER
+    ## 1     Women|Menstr FinRisk97 1935 0.86 | (0.73, 1.01)  24.05 | (12.38, 42.51)
+    ## 2 Women|Non-menstr FinRisk97  886   1.04 | (0.9, 1.2)  55.79 | (31.14, 94.17)
+    ## 3              Men FinRisk97 2615  1.01 | (0.85, 1.2) 111.93 | (65.81, 181.7)
+    ## 4     Women|Menstr  Health2k 1072 0.75 | (0.63, 0.89)  27.64 | (14.78, 48.25)
+    ## 5 Women|Non-menstr  Health2k  704 0.88 | (0.74, 1.03)      55.6 | (32, 95.25)
+    ## 6              Men  Health2k 1904  0.93 | (0.78, 1.1) 121.8 | (75.72, 189.57)
+
+    suptable4 <- as.data.frame(table(fer_apoa1$Group, fer_apoa1$Cohort))
+
+    suptable4$APOA1 <- c(paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable4$FER <- c(paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
+                      paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"))
+
+    suptable4
+
+    ##               Var1      Var2 Freq               APOA1                      FER
+    ## 1     Women|Menstr FinRisk97 1935   1.7 | (1.51, 1.9)   24.05 | (12.38, 42.51)
+    ## 2 Women|Non-menstr FinRisk97  886 1.73 | (1.53, 1.93)   55.79 | (31.14, 94.17)
+    ## 3              Men FinRisk97 2614  1.5 | (1.34, 1.68) 111.72 | (65.77, 181.74)
+    ## 4     Women|Menstr  Health2k 1072 1.51 | (1.35, 1.66)   27.64 | (14.78, 48.25)
+    ## 5 Women|Non-menstr  Health2k  704 1.55 | (1.38, 1.72)       55.6 | (32, 95.25)
+    ## 6              Men  Health2k 1904 1.44 | (1.31, 1.57)  121.8 | (75.72, 189.57)
 
 # Ferritin X GlycA | COLORED
 
@@ -853,7 +929,9 @@ haemoglobin, and apolipoproteins A1 and B.
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")),
+             y = "GlycA (mmol/l)")
 
 ![](publication_content_files/figure-markdown_strict/glyca_scatter-1.png)
 
@@ -1093,7 +1171,9 @@ median here.
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        labs(y = "%p") + theme(legend.position = "none")
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") + 
+        theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/glyca_ratio_plot_separated_colored-1.png)
 
@@ -1119,7 +1199,8 @@ median here.
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group)) +
         theme(legend.position = "none") +
-        labs(y = expression(HbA[1*C]))
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = expression(paste(HbA[1*C], " (mmol/mol)")))
 
 ![](publication_content_files/figure-markdown_strict/hba1c_scatter-1.png)
 
@@ -1252,7 +1333,9 @@ with ferritin appears to be positive, we’ll use the upper bound.
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group)) +
-        labs(y = "%p") + theme(legend.position = "none")
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") + 
+        theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/hba1c_ratio_plot_separated_colored-1.png)
 
@@ -1280,7 +1363,9 @@ with ferritin appears to be positive, we’ll use the upper bound.
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "ApoB (g/l)")
 
 ![](publication_content_files/figure-markdown_strict/apob_scatter-1.png)
 
@@ -1308,7 +1393,9 @@ with ferritin appears to be positive, we’ll use the upper bound.
         geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
         stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "ApoA1 (g/l)")
 
 ![](publication_content_files/figure-markdown_strict/apoa1_scatter-1.png)
 
@@ -1548,7 +1635,9 @@ are 0.6 - 1.3 (we’ll use 1.3).
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        labs(y = "%p") + theme(legend.position = "none")
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") + 
+        theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/apob_ratio_plot_separated_colored-1.png)
 
@@ -1788,6 +1877,8 @@ for women. (<https://huslab.fi/ohjekirja/20705.html>)
                           limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
         theme_minimal() +
         facet_grid(rows = vars(Group), cols = vars(Cohort)) +
-        labs(y = "%p") + theme(legend.position = "none")
+        labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+             y = "Change (pp)") + 
+        theme(legend.position = "none")
 
 ![](publication_content_files/figure-markdown_strict/apoa1_ratio_plot_separated_colored-1.png)
