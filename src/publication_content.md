@@ -429,12 +429,13 @@ p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) +
     stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "CRP (mg/l)")
+         y = "CRP (mg/l)") + 
+    theme(text = element_text(size = 15))
 # Save
-pdf("~/CRP_enrichment/results/scatterplot_separated.pdf",
+svg("~/CRP_enrichment/results/scatterplot_separated.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -461,9 +462,9 @@ p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) +
     geom_point(aes(color = Group), alpha = 0.1) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -471,12 +472,13 @@ p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "CRP (mg/l)")
+         y = "CRP (mg/l)")+ 
+    theme(text = element_text(size = 15))
 # Save
-pdf("~/CRP_enrichment/results/scatterplot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/scatterplot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -499,9 +501,9 @@ p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) +
     geom_point(aes(color = Group), alpha = 0.2) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -509,13 +511,14 @@ p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) +
     facet_grid(cols = vars(Cohort)) +
     theme(legend.position = "bottom") + guides(colour = guide_legend(override.aes = list(alpha = 1))) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "CRP (mg/l)")
+         y = "CRP (mg/l)") + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/scatterplot_colored.pdf",
+svg("~/CRP_enrichment/results/scatterplot_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -753,13 +756,15 @@ p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "Change (pp)") + guides(linetype = "none")
+         y = "Change (pp)") + 
+    guides(linetype = "none") + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/ratio_plot_separated.pdf",
+svg("~/CRP_enrichment/results/ratio_plot_separated.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -823,21 +828,22 @@ p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
     #geom_point(aes(color = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
          y = "Change (pp)") +
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/ratio_plot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/ratio_plot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -854,22 +860,23 @@ p <- ggplot(data = means_all, aes(x = Ferritin, y = means, group = Group)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
     #geom_point(aes(color = Group, shape = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
          y = "Change (pp)") +
     guides(fill = "none") +
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom",
+          text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/ratio_plot_colored.pdf",
+svg("~/CRP_enrichment/results/ratio_plot_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1046,9 +1053,9 @@ p <- ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) +
     geom_point(aes(color = Group), alpha = 0.1) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -1056,13 +1063,14 @@ p <- ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")),
-         y = "GlycA (mmol/l)")
+         y = "GlycA (mmol/l)") + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/glyca_scatter.pdf",
+svg("~/CRP_enrichment/results/glyca_scatter.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1304,21 +1312,22 @@ means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|No
 p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
          y = "Change (pp)") + 
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/glyca_ratio_plot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/glyca_ratio_plot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1342,9 +1351,9 @@ p <- ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) +
     geom_point(aes(color = Group), alpha = 0.1) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -1352,13 +1361,14 @@ p <- ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) +
     facet_grid(rows = vars(Group)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = expression(paste(HbA[1*C], " (mmol/mol)")))
+         y = expression(paste(HbA[1*C], " (mmol/mol)"))) + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/hba1c_scatter.pdf",
+svg("~/CRP_enrichment/results/hba1c_scatter.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1493,21 +1503,22 @@ means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|No
 p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
          y = "Change (pp)") + 
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/hba1c_ratio_plot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/hba1c_ratio_plot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1534,9 +1545,9 @@ p <- ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) +
     geom_point(aes(color = Group), alpha = 0.1) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -1544,13 +1555,14 @@ p <- ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "ApoB (g/l)")
+         y = "ApoB (g/l)") + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/apob_scatter.pdf",
+svg("~/CRP_enrichment/results/apob_scatter.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1577,9 +1589,9 @@ p <- ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) +
     geom_point(aes(color = Group), alpha = 0.1) +
     scale_x_log10() +
     scale_y_log10() +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
@@ -1587,13 +1599,14 @@ p <- ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "ApoA1 (g/l)")
+         y = "ApoA1 (g/l)") + 
+    theme(text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/apoa1_scatter.pdf",
+svg("~/CRP_enrichment/results/apoa1_scatter.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -1833,9 +1846,9 @@ means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|No
 p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
@@ -1844,10 +1857,10 @@ p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     theme(legend.position = "none")
 
 # Save
-pdf("~/CRP_enrichment/results/apob_ratio_plot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/apob_ratio_plot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
@@ -2087,21 +2100,22 @@ means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|No
 p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
     geom_line(aes(linetype = Group)) +
-    scale_color_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                        limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#00BFFF",  "#de2d26", "#ff85a2" ),
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
          y = "Change (pp)") + 
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          text = element_text(size = 15))
 
 # Save
-pdf("~/CRP_enrichment/results/apoa1_ratio_plot_separated_colored.pdf",
+svg("~/CRP_enrichment/results/apoa1_ratio_plot_separated_colored.svg",
     width = 10,
     height = 7,
-    colormodel = "cmyk")
+    bg = "transparent")
 p
 dev.off() -> . # so we avoid output
 
