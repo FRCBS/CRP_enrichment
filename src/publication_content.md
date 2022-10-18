@@ -33,8 +33,8 @@ FinDonor <- left_join(donors, findonor, by = "donor")
 # Load THL data
 # Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others
 load("./data/thldata.rdata")
-FinRisk97 <- thldata$fr1997
-Health2k <- thldata$h2000
+FR97 <- thldata$fr1997
+H2000 <- thldata$h2000
 
 # Remove leftovers
 rm(output)
@@ -43,8 +43,8 @@ rm(thldata)
 ## Rename useful stuff
 # Ferritin, Self-Reported Health
 FinDonor <- rename(FinDonor, SRH = QR17, Menstruation = QR79, Age_float = Age, Age = age)
-FinRisk97 <- rename(FinRisk97, Ferritin = FERRITIN, SRH = Q40, Gender = SUKUP, Menstruation = K129, Age = IKA)
-Health2k <- rename(Health2k, Ferritin = FERRITIINI, SRH = BA01, Gender = SP2, Menstruation = BD03, Age = IKA2, Menopause = MENOP, APOB = NMR_APOB, APOA1 = NMR_APOA1)
+FR97 <- rename(FR97, Ferritin = FERRITIN, SRH = Q40, Gender = SUKUP, Menstruation = K129, Age = IKA)
+H2000 <- rename(H2000, Ferritin = FERRITIINI, SRH = BA01, Gender = SP2, Menstruation = BD03, Age = IKA2, Menopause = MENOP, APOB = NMR_APOB, APOA1 = NMR_APOA1)
 
 # Make "useful stuff" conform with each other
 FinDonor <- FinDonor %>% 
@@ -58,7 +58,7 @@ FinDonor <- FinDonor %>%
                              Gender == "Women" & Menstruation == "no_period" ~ "Women|Non-menstr",
                              TRUE ~ "NA")) # Equates to "else"
 
-FinRisk97 <- FinRisk97 %>%
+FR97 <- FR97 %>%
     mutate(Gender = case_when(Gender == 1 ~ "Men",
                               Gender == 2 ~ "Women",
                               TRUE ~ "NA"),
@@ -67,7 +67,7 @@ FinRisk97 <- FinRisk97 %>%
                              Gender == "Women" & Menstruation == 3 ~ "Women|Non-menstr",
                              TRUE ~ "NA"))
 
-Health2k <- Health2k %>%
+H2000 <- H2000 %>%
     mutate(Gender = case_when(Gender == 1 ~ "Men",
                               Gender == 2 ~ "Women",
                               TRUE ~ "NA"),
@@ -77,46 +77,45 @@ Health2k <- Health2k %>%
                              Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Non-menstr",
                              TRUE ~ "NA"))
 
+# Load in additional H2000 variable BA14: Stroke
+newdata <- read_tsv("./data/THLBB2020_19_T2000_lisapoiminta_10102022.txt")
+strokedata <- newdata %>% 
+    select(RELEASE_ID, BA14)
+# Merge with H2000
+H2000 <- merge(H2000, strokedata, by = "RELEASE_ID", all.x = TRUE)
+
 # Donation eligibility
 # These are both "approximates" in a sense, we don't have all the necessary variables to
-# filter thoroughly, and we'll be able to do more filtering on Health2000 than FinRisk97
-donor_eligible_h2k <- Health2k %>% 
+# filter thoroughly, and we'll be able to do more filtering on Health2000 than FR97
+donor_eligible_h2k <- H2000 %>% 
     filter(BMII_PAINO.x >= 50 & BMII_PAINO.x <= 200) %>% # Filter away people <50kg and >200kg
     filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
     filter((B_Hb >= 125 & Gender == "Women") | (B_Hb >= 135 & Gender == "Men")) %>% # Filter by hemoglobin
     filter(BA08 == 0) %>% # filter out people with heart attacks
     filter(BA09 == 0) %>% # filter out people with angina
     filter(BA10 == 0) %>% # cardiac insufficiency / heart failure
+    filter(BA14 == 0) %>% # Stroke
     filter(!(BA26 == 1 & ATC_A10A == 1)) %>% # filter out people who are diabetic AND use insulin
     filter(SRH < 4) %>% # filter out "Bad" or "Very bad" SRH
     rename(GlycA = GP) %>% # rename for ease of use
     mutate(HbA1C = B_GHb_A1C * 10.93 - 23.50)
 
-donor_eligible_fr <- FinRisk97 %>%
+donor_eligible_fr <- FR97 %>%
     filter(PAINO >= 50 & PAINO <= 200) %>% # Filter away people <50kg and >200kg
     filter(Age >= 18 & Age <= 66) %>% # Filter away too young and too old
     #filter((HGB >= 125 & Gender == 2) | (HGB >= 135 & Gender == 1)) %>% # DON'T filter by hemoglobin, < 500 values in data
     filter(Q15A != 2) %>% # STEMI, NSTEMI
     filter(Q16A != 2) %>% # Stroke
-    # filter(Q38 != 2 & Q38 != 4) %>%  # Insulin treatment (2: just insulin, 4: insulin and a tablet)
+    filter(is.na(Q38) | Q38 == 1 | Q38 == 3) %>%  # Insulin treatment (2: just insulin, 4: insulin and a tablet)
     filter(Q17B != 2) %>% # cardiac insufficiency
     filter(Q17C != 2) %>% # angina pectoris
     filter(SRH < 4) %>% # filter out "Bad" or "Very bad" SRH
     rename(GlycA = GP) # rename for ease of use
 
-# Create useful mastersets
-# fer_srh <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "SRH", "Group")], 
-#                      Health2k = donor_eligible_h2k[, c("Ferritin", "SRH", "Group")], .id = "Cohort") %>% 
-#     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-#            Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k")),
-#            SRH = ordered(SRH, levels = 1:5)) %>%
-#     filter(Group != "NA") %>%
-#     drop_na()
-
-fer_crp <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "CRP")], 
-                         Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
+fer_crp <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Group", "CRP")], 
+                         H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-           Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
+           Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
     filter(Group != "NA") %>%
     filter(CRP >= 0.01) %>%
     drop_na()
@@ -127,29 +126,29 @@ fer_crp <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "CRP
 
 ```r
 table1 <- as.data.frame(table(fer_crp$Group, fer_crp$Cohort))
-table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
-table1$FER <- c(paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "Health2k"])[5], 2), ")"))
+table1$CRP <- c(paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$CRP[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[5], 2), ")"))
+table1$FER <- c(paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Menstr" & fer_crp$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Women|Non-menstr" & fer_crp$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_crp$Ferritin[fer_crp$Group == "Men" & fer_crp$Cohort == "H2000"])[5], 2), ")"))
 table1
 ```
 
 ```
-##               Var1      Var2 Freq                 CRP                      FER
-## 1     Women|Menstr FinRisk97 1915  0.77 | (0.4, 1.87)   24.02 | (12.39, 42.53)
-## 2 Women|Non-menstr FinRisk97  884 1.27 | (0.62, 2.65)   55.79 | (31.06, 93.72)
-## 3              Men FinRisk97 2603 0.89 | (0.46, 1.88) 112.06 | (66.46, 182.07)
-## 4     Women|Menstr  Health2k  943 0.62 | (0.27, 1.81)        28 | (15.2, 48.6)
-## 5 Women|Non-menstr  Health2k  661  1.02 | (0.38, 2.4)      55.9 | (32.7, 95.5)
-## 6              Men  Health2k 1710 0.77 | (0.35, 1.75)   124.7 | (76.67, 193.9)
+##               Var1  Var2 Freq                 CRP                      FER
+## 1     Women|Menstr  FR97 1912 0.77 | (0.39, 1.86)   23.91 | (12.38, 42.53)
+## 2 Women|Non-menstr  FR97  876 1.27 | (0.61, 2.65)   55.78 | (31.27, 92.76)
+## 3              Men  FR97 2581 0.89 | (0.46, 1.89) 112.05 | (65.87, 181.79)
+## 4     Women|Menstr H2000  938 0.62 | (0.27, 1.82)    27.9 | (15.12, 48.98)
+## 5 Women|Non-menstr H2000  651 1.04 | (0.38, 2.42)     55.9 | (32.8, 95.45)
+## 6              Men H2000 1689 0.77 | (0.35, 1.75)    124.9 | (76.6, 194.2)
 ```
 
 # Exclusions: Health2000
@@ -157,10 +156,10 @@ table1
 
 ```r
 # ExclusionTable method
-excl_h2k_women_mens <- exclusion_table(data = Health2k,
+excl_h2k_women_mens <- exclusion_table(data = H2000,
                 inclusion_criteria = c("Group == 'Women|Menstr'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
-                                       "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                                       "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA14 == 1", "BA26 == 1 & ATC_A10A == 1"),
                 keep_data = TRUE)
 excl_h2k_women_mens
 ```
@@ -191,17 +190,18 @@ excl_h2k_women_mens
 ## 10                 BA08 == 1     953    952          1
 ## 11                 BA09 == 1     952    951          1
 ## 12                 BA10 == 1     951    949          2
-## 13 BA26 == 1 & ATC_A10A == 1     949    943          6
-## 14                     TOTAL    1508    943        565
+## 13                 BA14 == 1     949    944          5
+## 14 BA26 == 1 & ATC_A10A == 1     944    938          6
+## 15                     TOTAL    1508    938        570
 ## 
 ## ======================================================
 ```
 
 ```r
-excl_h2k_women_nonmens <- exclusion_table(data = Health2k,
+excl_h2k_women_nonmens <- exclusion_table(data = H2000,
                 inclusion_criteria = c("Group == 'Women|Non-menstr'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
-                                       "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                                       "Age > 66", "SRH >= 4", "B_Hb < 125", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA14 == 1", "BA26 == 1 & ATC_A10A == 1"),
                 keep_data = TRUE)
 excl_h2k_women_nonmens
 ```
@@ -232,17 +232,18 @@ excl_h2k_women_nonmens
 ## 10                 BA08 == 1     706    700          6
 ## 11                 BA09 == 1     700    678         22
 ## 12                 BA10 == 1     678    668         10
-## 13 BA26 == 1 & ATC_A10A == 1     668    661          7
-## 14                     TOTAL    1505    661        844
+## 13                 BA14 == 1     668    658         10
+## 14 BA26 == 1 & ATC_A10A == 1     658    651          7
+## 15                     TOTAL    1505    651        854
 ## 
 ## ========================================================
 ```
 
 ```r
-excl_h2k_men <- exclusion_table(data = Health2k,
+excl_h2k_men <- exclusion_table(data = H2000,
                 inclusion_criteria = c("Group == 'Men'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "BMII_PAINO.x < 50", "BMII_PAINO.x > 200", "Age < 18",
-                                       "Age > 66", "SRH >= 4", "B_Hb < 135", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA26 == 1 & ATC_A10A == 1"),
+                                       "Age > 66", "SRH >= 4", "B_Hb < 135", "BA08 == 1", "BA09 == 1", "BA10 == 1", "BA14 == 1", "BA26 == 1 & ATC_A10A == 1"),
                 keep_data = TRUE)
 excl_h2k_men
 ```
@@ -273,8 +274,9 @@ excl_h2k_men
 ## 10                 BA08 == 1    1791   1756         35
 ## 11                 BA09 == 1    1756   1735         21
 ## 12                 BA10 == 1    1735   1727          8
-## 13 BA26 == 1 & ATC_A10A == 1    1727   1710         17
-## 14                     TOTAL    2944   1710       1234
+## 13                 BA14 == 1    1727   1706         21
+## 14 BA26 == 1 & ATC_A10A == 1    1706   1689         17
+## 15                     TOTAL    2944   1689       1255
 ## 
 ## ======================================================
 ```
@@ -284,7 +286,7 @@ excl_h2k_men
 
 ```r
 # ExclusionTable method
-excl_fr_women_mens <- exclusion_table(data = FinRisk97,
+excl_fr_women_mens <- exclusion_table(data = FR97,
                 inclusion_criteria = c("Group == 'Women|Menstr'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
                                        "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
@@ -324,7 +326,7 @@ excl_fr_women_mens
 ```
 
 ```r
-excl_fr_women_nonmens <- exclusion_table(data = FinRisk97,
+excl_fr_women_nonmens <- exclusion_table(data = FR97,
                 inclusion_criteria = c("Group == 'Women|Non-menstr'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
                                        "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
@@ -364,7 +366,7 @@ excl_fr_women_nonmens
 ```
 
 ```r
-excl_fr_men <- exclusion_table(data = FinRisk97,
+excl_fr_men <- exclusion_table(data = FR97,
                 inclusion_criteria = c("Group == 'Men'"),
                 exclusion_criteria = c("is.na(CRP)", "is.na(Ferritin)", "CRP < 0.01", "PAINO < 50", "PAINO > 200", "Age < 18", 
                                        "Age > 66", "SRH >= 4", "Q15A == 2", "Q16A == 2", "Q17B == 2", "Q17C == 2"),
@@ -403,6 +405,13 @@ excl_fr_men
 ## ============================================
 ```
 
+```r
+# I CAN'T FIGURE OUT HOW TO MAKE THE INSULIN FILTER WORK WITH exclusion_table(), SO WE'LL DO THIS MANUALLY >:(
+insulin_xcl_women_mens <- FR97 %>% filter(Group == "Women|Menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+insulin_xcl_women_nonmens <- FR97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+insulin_xcl_men <- FR97 %>% filter(Group == "Men") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+```
+
 # Ferritin X CRP
 
 Subgroups: menstruating women, non-menstruating women, men. Grey box highlights all individuals that go over 3 mg/l CRP at ferritin \>15 ug/l.
@@ -411,13 +420,13 @@ Subgroups: menstruating women, non-menstruating women, men. Grey box highlights 
 ```r
 options(scipen = 10000)
 
-ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
-ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
-ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -449,13 +458,13 @@ p
 
 ```r
 options(scipen = 10000)
-ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
-ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
-ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -492,9 +501,9 @@ p
 
 ```r
 options(scipen = 10000)
-ratio1 <- round(nrow(fer_crp %>% filter(Cohort == "FinRisk97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_crp %>% filter(Cohort == "Health2k", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 2), CRP = rep(50, 2), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%")), Cohort = c("FinRisk97", "Health2k"))
+ratio1 <- round(nrow(fer_crp %>% filter(Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_crp %>% filter(Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 2), CRP = rep(50, 2), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%")), Cohort = c("FR97", "H2000"))
 p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -554,20 +563,20 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
     for (i in 1:iterations) {
         
         #############
-        #### FinRisk97
+        #### FR97
         #############
         
         ## Compute
         # Men
-        bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
         ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
         ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i],var2_trld = CRP_trld, var2_over = T)
         ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
@@ -663,15 +672,15 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     
     ## Compute
     # Men
-    bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_crp %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
     ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
     ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
     ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
@@ -742,7 +751,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     }
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
+means_all$Cohort <- c(rep("FR97", 153), rep("H2000", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 ```
 
@@ -781,41 +790,41 @@ IMPORTANT: We are checking for non-overlaps of 95% confidence intervals. These i
 ```r
 # FINRISK
 # Menstruating Women
-frwomenpre5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 5)
-frwomenpre15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 15)
-frwomenpre30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 30)
-frwomenpre50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Menstr" & Ferritin == 50)
+frwomenpre5 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 5)
+frwomenpre15 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 15)
+frwomenpre30 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 30)
+frwomenpre50 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 50)
 
 # Non-menstruating Women
-frwomenpost5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 5)
-frwomenpost15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 15)
-frwomenpost30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 30)
-frwomenpost50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Women|Non-menstr" & Ferritin == 50)
+frwomenpost5 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 5)
+frwomenpost15 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 15)
+frwomenpost30 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 30)
+frwomenpost50 <- means_all %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 50)
 
 # Men
-frmen5 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Men" & Ferritin == 5)
-frmen15 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Men" & Ferritin == 15)
-frmen30 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Men" & Ferritin == 30)
-frmen50 <- means_all %>% filter(Cohort == "FinRisk97" & Group == "Men" & Ferritin == 50)
+frmen5 <- means_all %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 5)
+frmen15 <- means_all %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 15)
+frmen30 <- means_all %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 30)
+frmen50 <- means_all %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 50)
 
 # H2K
 # Menstruating Women
-h2kwomenpre5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 5)
-h2kwomenpre15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 15)
-h2kwomenpre30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 30)
-h2kwomenpre50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Menstr" & Ferritin == 50)
+h2kwomenpre5 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 5)
+h2kwomenpre15 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 15)
+h2kwomenpre30 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 30)
+h2kwomenpre50 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 50)
 
 # Non-menstruating Women
-h2kwomenpost5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 5)
-h2kwomenpost15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 15)
-h2kwomenpost30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 30)
-h2kwomenpost50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Women|Non-menstr" & Ferritin == 50)
+h2kwomenpost5 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 5)
+h2kwomenpost15 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 15)
+h2kwomenpost30 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 30)
+h2kwomenpost50 <- means_all %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 50)
 
 # Men
-h2kmen5 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 5)
-h2kmen15 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 15)
-h2kmen30 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 30)
-h2kmen50 <- means_all %>% filter(Cohort == "Health2k" & Group == "Men" & Ferritin == 50)
+h2kmen5 <- means_all %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 5)
+h2kmen15 <- means_all %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 15)
+h2kmen30 <- means_all %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 30)
+h2kmen50 <- means_all %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 50)
 ```
 
 Using these objects, we can check the significance of between the points of interest. For example "h2kwomenpre5$upper < h2kwomenpre15$lower" would evaluate to TRUE, if the proportion of menstruating women over 3 mg/l CRP is significantly higher in the population filtered by ferritin 15 ug/l than 5 ug/l. Indeed, for menstruating women, the proportion is significantly higher at filter levels of 15, 30, and 50 ug/l when compared with 5 ug/l. This holds for non-menstruating women also, except for the FinRisk 1997 cohort, where the difference between levels 5 and 15 was not significant. The differences are all significant also in men, but the respective increases in proportions are much smaller.
@@ -893,31 +902,31 @@ We'll also take a look at acetylated glycoprotein measurements, glucated haemogl
 ```r
 # mastersets for the Supplement
 # GlycA
-fer_glyca <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "GlycA")], 
-                       Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "GlycA")], .id = "Cohort") %>% 
+fer_glyca <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Group", "GlycA")], 
+                       H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "GlycA")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-           Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
+           Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
     filter(Group != "NA") %>%
     drop_na()
 # HbA1C
-fer_hba1c <- bind_rows(Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "HbA1C")], .id = "Cohort") %>% 
+fer_hba1c <- bind_rows(H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "HbA1C")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-           Cohort = ordered(Cohort, levels = c("Health2k"))) %>%
+           Cohort = ordered(Cohort, levels = c("H2000"))) %>%
     filter(Group != "NA") %>%
     drop_na()
 
 # APOB
-fer_apob <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "APOB")], 
-                       Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "APOB")], .id = "Cohort") %>% 
+fer_apob <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Group", "APOB")], 
+                       H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "APOB")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-           Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
+           Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
     filter(Group != "NA") %>%
     drop_na()
 # APOA1
-fer_apoa1 <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "APOA1")], 
-                       Health2k = donor_eligible_h2k[, c("Ferritin", "Group", "APOA1")], .id = "Cohort") %>% 
+fer_apoa1 <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Group", "APOA1")], 
+                       H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "APOA1")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
-           Cohort = ordered(Cohort, levels = c("FinRisk97", "Health2k"))) %>%
+           Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
     filter(Group != "NA") %>%
     drop_na()
 ```
@@ -928,40 +937,40 @@ fer_apoa1 <- bind_rows(FinRisk97 = donor_eligible_fr[, c("Ferritin", "Group", "A
 ```r
 suptable1 <- as.data.frame(table(fer_glyca$Group, fer_glyca$Cohort))
 
-suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
+suptable1$GlycA <- c(paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$GlycA[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[5], 2), ")"))
 
-suptable1$FER <- c(paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "Health2k"])[5], 2), ")"))
+suptable1$FER <- c(paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Menstr" & fer_glyca$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Women|Non-menstr" & fer_glyca$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_glyca$Ferritin[fer_glyca$Group == "Men" & fer_glyca$Cohort == "H2000"])[5], 2), ")"))
 
 suptable2 <- as.data.frame(table(fer_hba1c$Group))
-suptable2$HbA1C <- c(paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
+suptable2$HbA1C <- c(paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$HbA1C[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"))
 
-suptable2$FER <-  c(paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "Health2k"])[5], 2), ")"))
+suptable2$FER <-  c(paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Menstr" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Women|Non-menstr" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_hba1c$Ferritin[fer_hba1c$Group == "Men" & fer_hba1c$Cohort == "H2000"])[5], 2), ")"))
 
 suptable1
 ```
 
 ```
-##               Var1      Var2 Freq               GlycA                     FER
-## 1     Women|Menstr FinRisk97 1977 1.28 | (1.17, 1.42)    23.9 | (12.3, 42.52)
-## 2 Women|Non-menstr FinRisk97  891 1.38 | (1.25, 1.52)   55.78 | (31.2, 93.21)
-## 3              Men FinRisk97 2640 1.38 | (1.25, 1.55)  112.1 | (66.53, 183.4)
-## 4     Women|Menstr  Health2k 1072  1.1 | (0.96, 1.23)  27.64 | (14.78, 48.25)
-## 5 Women|Non-menstr  Health2k  704     1.15 | (1, 1.3)      55.6 | (32, 95.25)
-## 6              Men  Health2k 1903 1.19 | (1.05, 1.35) 121.8 | (75.72, 189.34)
+##               Var1  Var2 Freq               GlycA                     FER
+## 1     Women|Menstr  FR97 1972 1.28 | (1.17, 1.42)    23.9 | (12.3, 42.53)
+## 2 Women|Non-menstr  FR97  883 1.38 | (1.25, 1.52)  55.78 | (31.38, 92.63)
+## 3              Men  FR97 2617 1.38 | (1.25, 1.55) 112.06 | (66.1, 182.62)
+## 4     Women|Menstr H2000 1067  1.1 | (0.96, 1.23)     27.6 | (14.7, 48.3)
+## 5 Women|Non-menstr H2000  694     1.15 | (1, 1.3)   55.7 | (32.12, 95.18)
+## 6              Men H2000 1882 1.19 | (1.05, 1.34)  121.8 | (75.6, 189.42)
 ```
 
 ```r
@@ -970,69 +979,69 @@ suptable2
 
 ```
 ##               Var1 Freq                  HbA1C                    FER
-## 1     Women|Menstr 1074 31.15 | (28.96, 33.34) 27.62 | (14.72, 48.19)
-## 2 Women|Non-menstr  705 33.34 | (31.15, 36.61)      55.6 | (32, 95.4)
-## 3              Men 1910 34.43 | (32.24, 35.52) 121.8 | (75.8, 189.42)
+## 1     Women|Menstr 1069 31.15 | (28.96, 33.34)    27.5 | (14.7, 48.2)
+## 2 Women|Non-menstr  695 33.34 | (31.15, 36.61)   55.8 | (32.15, 95.3)
+## 3              Men 1889 34.43 | (32.24, 35.52) 121.8 | (75.7, 189.49)
 ```
 
 ```r
 suptable3 <- as.data.frame(table(fer_apob$Group, fer_apob$Cohort))
 
-suptable3$APOB <- c(paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[5], 2), ")"))
+suptable3$APOB <- c(paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$APOB[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[5], 2), ")"))
 
-suptable3$FER <- c(paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "Health2k"])[5], 2), ")"))
+suptable3$FER <- c(paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Menstr" & fer_apob$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Women|Non-menstr" & fer_apob$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apob$Ferritin[fer_apob$Group == "Men" & fer_apob$Cohort == "H2000"])[5], 2), ")"))
 
 suptable3
 ```
 
 ```
-##               Var1      Var2 Freq                APOB                     FER
-## 1     Women|Menstr FinRisk97 1935 0.86 | (0.73, 1.01)  24.05 | (12.38, 42.51)
-## 2 Women|Non-menstr FinRisk97  886   1.04 | (0.9, 1.2)  55.79 | (31.14, 94.17)
-## 3              Men FinRisk97 2615  1.01 | (0.85, 1.2) 111.93 | (65.81, 181.7)
-## 4     Women|Menstr  Health2k 1072 0.75 | (0.63, 0.89)  27.64 | (14.78, 48.25)
-## 5 Women|Non-menstr  Health2k  704 0.88 | (0.74, 1.03)      55.6 | (32, 95.25)
-## 6              Men  Health2k 1904  0.93 | (0.78, 1.1) 121.8 | (75.72, 189.57)
+##               Var1  Var2 Freq                APOB                     FER
+## 1     Women|Menstr  FR97 1931 0.86 | (0.73, 1.01)  24.02 | (12.36, 42.51)
+## 2 Women|Non-menstr  FR97  878   1.04 | (0.9, 1.2)  55.78 | (31.36, 92.93)
+## 3              Men  FR97 2593  1.01 | (0.85, 1.2) 111.5 | (65.61, 181.53)
+## 4     Women|Menstr H2000 1067 0.75 | (0.64, 0.89)     27.6 | (14.7, 48.3)
+## 5 Women|Non-menstr H2000  694 0.88 | (0.74, 1.03)   55.7 | (32.12, 95.18)
+## 6              Men H2000 1883  0.93 | (0.78, 1.1)  121.8 | (75.6, 189.65)
 ```
 
 ```r
 suptable4 <- as.data.frame(table(fer_apoa1$Group, fer_apoa1$Cohort))
 
-suptable4$APOA1 <- c(paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"))
+suptable4$APOA1 <- c(paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$APOA1[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"))
 
-suptable4$FER <- c(paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FinRisk97"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"),
-                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "Health2k"])[5], 2), ")"))
+suptable4$FER <- c(paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "FR97"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Menstr" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Women|Non-menstr" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"),
+                  paste0(round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[3], 2), " | (", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[2], 2), ", ", round(summary(fer_apoa1$Ferritin[fer_apoa1$Group == "Men" & fer_apoa1$Cohort == "H2000"])[5], 2), ")"))
 
 suptable4
 ```
 
 ```
-##               Var1      Var2 Freq               APOA1                      FER
-## 1     Women|Menstr FinRisk97 1935   1.7 | (1.51, 1.9)   24.05 | (12.38, 42.51)
-## 2 Women|Non-menstr FinRisk97  886 1.73 | (1.53, 1.93)   55.79 | (31.14, 94.17)
-## 3              Men FinRisk97 2614  1.5 | (1.34, 1.68) 111.72 | (65.77, 181.74)
-## 4     Women|Menstr  Health2k 1072 1.51 | (1.35, 1.66)   27.64 | (14.78, 48.25)
-## 5 Women|Non-menstr  Health2k  704 1.55 | (1.38, 1.72)       55.6 | (32, 95.25)
-## 6              Men  Health2k 1904 1.44 | (1.31, 1.57)  121.8 | (75.72, 189.57)
+##               Var1  Var2 Freq               APOA1                     FER
+## 1     Women|Menstr  FR97 1931   1.7 | (1.51, 1.9)  24.02 | (12.36, 42.51)
+## 2 Women|Non-menstr  FR97  878 1.73 | (1.53, 1.93)  55.78 | (31.36, 92.93)
+## 3              Men  FR97 2592  1.5 | (1.34, 1.68) 111.5 | (65.61, 181.54)
+## 4     Women|Menstr H2000 1067 1.51 | (1.36, 1.66)     27.6 | (14.7, 48.3)
+## 5 Women|Non-menstr H2000  694 1.55 | (1.38, 1.72)   55.7 | (32.12, 95.18)
+## 6              Men H2000 1883 1.44 | (1.31, 1.57)  121.8 | (75.6, 189.65)
 ```
 
 # Ferritin X GlycA \| COLORED
@@ -1040,13 +1049,13 @@ suptable4
 
 ```r
 options(scipen = 10000)
-ratio1 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
-ratio3 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
-ratio4 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), GlycA = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio1 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FR97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FR97", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "H2000", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "H2000", GlycA >= 1.35 & Ferritin >= 15)) * 100 / nrow(fer_glyca %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), GlycA = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_glyca, aes(x = Ferritin, y = GlycA)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 1.35, ymax = 3.7, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -1089,7 +1098,7 @@ iterations <- length(ferritin_values)
 
 if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run bootstrap only if needed
     
-    GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "FinRisk97", "GlycA"][[1]], na.rm = T)
+    GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "FR97", "GlycA"][[1]], na.rm = T)
     
     ## Preallocate
     # Men
@@ -1110,20 +1119,20 @@ if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run 
     for (i in 1:iterations) {
         
         #############
-        #### FinRisk97
+        #### FR97
         #############
         
         ## Compute
         # Men
-        bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
         ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
         ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                     var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
         ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
@@ -1195,7 +1204,7 @@ if (!file.exists(paste0("./data/PUBL_finrisk_GlycA_", boot_n, ".rds"))) { # run 
 
 if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run bootstrap only if needed
     
-    GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "Health2k", "GlycA"][[1]], na.rm = T)
+    GlycA_trld <- median(fer_glyca[fer_glyca$Cohort == "H2000", "GlycA"][[1]], na.rm = T)
     
     ## Preallocate
     # Men
@@ -1221,15 +1230,15 @@ if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_glyca %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
     ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
     ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_glyca %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = GlycA, var1_trld = ferritin_values[i], var2_trld = GlycA_trld, var2_over = T)
     ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
@@ -1301,7 +1310,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_GlycA_", boot_n, ".rds"))) { # run
     }
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
+means_all$Cohort <- c(rep("FR97", 153), rep("H2000", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 ```
 
@@ -1341,10 +1350,10 @@ p
 
 ```r
 options(scipen = 10000)
-ratio4 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 3), HbA1C = rep(60, 3), lab = c(paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = rep("Health2k", 3), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio4 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "H2000", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "H2000", HbA1C >= 42 & Ferritin >= 15)) * 100 / nrow(fer_hba1c %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 3), HbA1C = rep(60, 3), lab = c(paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = rep("H2000", 3), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 42, ymax = 100, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -1361,7 +1370,7 @@ p <- ggplot(data = fer_hba1c, aes(x = Ferritin, y = HbA1C)) +
     facet_grid(rows = vars(Group)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = expression(paste(HbA[1*C], " (mmol/mol)"))) + 
+         y = expression(paste(HbA[1*c], " (mmol/mol)"))) + 
     theme(text = element_text(size = 15))
 
 # Save
@@ -1412,15 +1421,15 @@ if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    bootobs$men[[i]] <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_hba1c %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
     ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    bootobs$women_mens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
     ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    bootobs$women_nonmens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_hba1c %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                 var1 = Ferritin, var2 = HbA1C, var1_trld = ferritin_values[i], var2_trld = HbA1C_trld, var2_over = T)
     ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
@@ -1492,7 +1501,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_HbA1C_", boot_n, ".rds"))) { # run
     }
 
 means_all <- means_health2k
-means_all$Cohort <- c(rep("Health2k", 153))
+means_all$Cohort <- c(rep("H2000", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 ```
 
@@ -1532,13 +1541,13 @@ p
 
 ```r
 options(scipen = 10000)
-ratio1 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
-ratio3 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
-ratio4 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), APOB = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio1 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FR97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FR97", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "H2000", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_apob %>% filter(Group == "Men" & Cohort == "H2000", APOB >= 1.3 & Ferritin >= 15)) * 100 / nrow(fer_apob %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), APOB = rep(2.2, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_apob, aes(x = Ferritin, y = APOB)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 1.3, ymax = 3, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -1576,13 +1585,13 @@ p
 
 ```r
 options(scipen = 10000)
-ratio1 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97")), 2)
-ratio2 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97")), 2)
-ratio3 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97")), 2)
-ratio4 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k")), 2)
-ratio5 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k")), 2)
-ratio6 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), APOA1 = rep(0.6, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FinRisk97", 3), rep("Health2k", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
+ratio1 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FR97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FR97", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "H2000", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "H2000", APOA1 <= 1.2 & Ferritin >= 15)) * 100 / nrow(fer_apoa1 %>% filter(Group == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), APOA1 = rep(0.6, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
 p <- ggplot(data = fer_apoa1, aes(x = Ferritin, y = APOA1)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 0.4, ymax = 1.2, alpha = .5, fill = "grey") +
     geom_text(data = ann_text, aes(label = lab)) +
@@ -1646,20 +1655,20 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOB_", boot_n, ".rds"))) { # run b
     for (i in 1:iterations) {
         
         #############
-        #### FinRisk97
+        #### FR97
         #############
         
         ## Compute
         # Men
-        bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
         ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
         ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
         ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
@@ -1755,15 +1764,15 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run 
     
     ## Compute
     # Men
-    bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_apob %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_men, var2_over = T)
     ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
     ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_apob %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOB, var1_trld = ferritin_values[i], var2_trld = APOB_trld_women, var2_over = T)
     ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
@@ -1835,7 +1844,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOB_", boot_n, ".rds"))) { # run 
     }
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
+means_all$Cohort <- c(rep("FR97", 153), rep("H2000", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 ```
 
@@ -1900,20 +1909,20 @@ if (!file.exists(paste0("./data/PUBL_finrisk_APOA1_", boot_n, ".rds"))) { # run 
     for (i in 1:iterations) {
         
         #############
-        #### FinRisk97
+        #### FR97
         #############
         
         ## Compute
         # Men
-        bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                              var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
         ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
         # Women|Menstr
-        bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
         ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
         # Women|Non-menstr
-        bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FinRisk97"), statistic = get_ratio_boot, R = boot_n, 
+        bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
                                    var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
         ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
         
@@ -2009,15 +2018,15 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run
     
     ## Compute
     # Men
-    bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$men[[i]] <- boot(fer_apoa1 %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                          var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_men, var2_over = F)
     ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
     # Women|Menstr
-    bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_mens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
     ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
     # Women|Non-menstr
-    bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "Health2k"), statistic = get_ratio_boot, R = boot_n, 
+    bootobs$women_nonmens[[i]] <- boot(fer_apoa1 %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
                                var1 = Ferritin, var2 = APOA1, var1_trld = ferritin_values[i], var2_trld = APOA1_trld_women, var2_over = F)
     ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
     
@@ -2089,7 +2098,7 @@ if (!file.exists(paste0("./data/PUBL_health2k_APOA1_", boot_n, ".rds"))) { # run
     }
 
 means_all <- rbind(means_finrisk, means_health2k)
-means_all$Cohort <- c(rep("FinRisk97", 153), rep("Health2k", 153))
+means_all$Cohort <- c(rep("FR97", 153), rep("H2000", 153))
 means_all$Group <- factor(means_all$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
 ```
 

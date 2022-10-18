@@ -48,6 +48,11 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
 }
 
+compare_AIC <- function(AICmin, AIC){
+    out <- exp((AICmin - AIC) / 2 )
+    return(out)
+}
+
 median_by_quantile <- function(df, by = "COL1", var = "COL2", n = 4){
     data <- df[, c(by, var)]
     data_narm <- na.omit(data)
@@ -103,7 +108,7 @@ bootmedian <- function(data, i) {
 get_ratio <- function(cohort, var1, var2, var1_trld, var2_trld) {
     # requires dplyr
     # Answers the question:
-    # How much the proportion of individuals with var2 >< var2_trld
+    # How much the proportion of individuals with var2 over/under var2_trld
     # increase after we filter the population with var1_trld
 
     # Base population: cohort
@@ -111,7 +116,7 @@ get_ratio <- function(cohort, var1, var2, var1_trld, var2_trld) {
         select({{var1}}, {{var2}}) %>% # variables of interest
         drop_na()
 
-    # Find individuals of interest (ioi, above/below of var2_trld)
+    # Find individuals of interest (above/below of var2_trld)
     ioi <- vi %>%
         filter({{var2}} >= {{var2_trld}})
 
