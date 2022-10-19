@@ -210,9 +210,9 @@ excl_fr_men <- exclusion_table(data = FR97,
 excl_fr_men
 
 # I CAN'T FIGURE OUT HOW TO MAKE THE INSULIN FILTER WORK WITH exclusion_table(), SO WE'LL DO THIS MANUALLY >:(
-insulin_xcl_women_mens <- FR97 %>% filter(Group == "Women|Menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
-insulin_xcl_women_nonmens <- FR97 %>% filter(Group == "Women|Non-menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
-insulin_xcl_men <- FR97 %>% filter(Group == "Men") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+insulin_xcl_women_mens <- excl_fr_women_mens$dataset %>% filter(Group == "Women|Menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+insulin_xcl_women_nonmens <- excl_fr_women_nonmens$dataset %>% filter(Group == "Women|Non-menstr") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
+insulin_xcl_men <- excl_fr_men$dataset %>% filter(Group == "Men") %>% filter(Q38 == 2 | Q38 == 4) %>% nrow()
 ```
 
 # Ferritin X CRP
