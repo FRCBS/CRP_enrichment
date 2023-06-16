@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Esa">
+
+<title>CRP_OC_investigation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="OC_CRP_investigations_files/libs/clipboard/clipboard.min.js"></script>
+<script src="OC_CRP_investigations_files/libs/quarto-html/quarto.js"></script>
+<script src="OC_CRP_investigations_files/libs/quarto-html/popper.min.js"></script>
+<script src="OC_CRP_investigations_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="OC_CRP_investigations_files/libs/quarto-html/anchor.min.js"></script>
+<link href="OC_CRP_investigations_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="OC_CRP_investigations_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="OC_CRP_investigations_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="OC_CRP_investigations_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="OC_CRP_investigations_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">CRP_OC_investigation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Esa </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<p>In this additional document we investigate what happens when we replicate the analysis, but considering the use of oral contraceptives.</p>
+<section id="create-datasets" class="level1">
+<h1>Create datasets</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data on individual donations</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"~/CRP_enrichment/data/r02.fd.bd.all.rdata"</span>) <span class="co"># outputs an object called "output" into the environment</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>donations <span class="ot">&lt;-</span> output</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># We only want to look at first donation event values from each donor</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>donors <span class="ot">&lt;-</span> donations <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(donor) <span class="sc">%&gt;%</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(date <span class="sc">==</span> <span class="fu">min</span>(date)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Load FinDonor demographic data</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"~/CRP_enrichment/data/r02ds.donorData.rdata"</span>) <span class="co"># outputs an object called "output" into the environment</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>findonor <span class="ot">&lt;-</span> output</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the FinDonor datasets</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>FinDonor <span class="ot">&lt;-</span> <span class="fu">left_join</span>(donors, findonor, <span class="at">by =</span> <span class="st">"donor"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Load THL data</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"~/CRP_enrichment/data/thldata.rdata"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>FR97 <span class="ot">&lt;-</span> thldata<span class="sc">$</span>fr1997</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>H2000 <span class="ot">&lt;-</span> thldata<span class="sc">$</span>h2000</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove leftovers</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(output)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(thldata)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">## Rename useful stuff</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Ferritin, Self-Reported Health</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>FinDonor <span class="ot">&lt;-</span> <span class="fu">rename</span>(FinDonor, <span class="at">SRH =</span> QR17, <span class="at">Menstruation =</span> QR79, <span class="at">Age_float =</span> Age, <span class="at">Age =</span> age)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>FR97 <span class="ot">&lt;-</span> <span class="fu">rename</span>(FR97, <span class="at">Ferritin =</span> FERRITIN, <span class="at">SRH =</span> Q40, <span class="at">Gender =</span> SUKUP, <span class="at">Menstruation =</span> K129, <span class="at">Age =</span> IKA)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>H2000 <span class="ot">&lt;-</span> <span class="fu">rename</span>(H2000, <span class="at">Ferritin =</span> FERRITIINI, <span class="at">SRH =</span> BA01, <span class="at">Gender =</span> SP2, <span class="at">Menstruation =</span> BD03, <span class="at">Age =</span> IKA2, <span class="at">Menopause =</span> MENOP, <span class="at">APOB =</span> NMR_APOB, <span class="at">APOA1 =</span> NMR_APOA1)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Make "useful stuff" conform with each other</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>FinDonor <span class="ot">&lt;-</span> FinDonor <span class="sc">%&gt;%</span> </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">SRH =</span> <span class="fu">case_when</span>(SRH <span class="sc">==</span> <span class="st">"Excellent"</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                           SRH <span class="sc">==</span> <span class="st">"Very_good"</span> <span class="sc">~</span> <span class="dv">2</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                           SRH <span class="sc">==</span> <span class="st">"Good"</span> <span class="sc">~</span> <span class="dv">3</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>                           SRH <span class="sc">==</span> <span class="st">"Satisfactory"</span> <span class="sc">~</span> <span class="dv">4</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                           SRH <span class="sc">==</span> <span class="st">"Poor"</span> <span class="sc">~</span> <span class="dv">5</span>),</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>           <span class="at">Group =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> (Menstruation <span class="sc">==</span> <span class="st">"regular_period"</span> <span class="sc">|</span> Menstruation <span class="sc">==</span> <span class="st">"irregular_period"</span>) <span class="sc">~</span> <span class="st">"Women|Menstr"</span>,</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> Menstruation <span class="sc">==</span> <span class="st">"no_period"</span> <span class="sc">~</span> <span class="st">"Women|Non-menstr"</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>                             <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>)) <span class="co"># Equates to "else"</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>FR97 <span class="ot">&lt;-</span> FR97 <span class="sc">%&gt;%</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Gender =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                              Gender <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Women"</span>,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                              <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>),</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>           <span class="at">Group =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> (Menstruation <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> Menstruation <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">~</span> <span class="st">"Women|Menstr"</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> Menstruation <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">"Women|Non-menstr"</span>,</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                             <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>),</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>           <span class="co"># THIS GROUP IS FOR ORAL CONTRACEPTION USE, ADDED DURING REVIEW</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>           <span class="at">Hormonal =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>                                Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> KY151 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Yes"</span>,</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>                                Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> KY151 <span class="sc">!=</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"No"</span>,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>                                <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>))</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>H2000 <span class="ot">&lt;-</span> H2000 <span class="sc">%&gt;%</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Gender =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>                              Gender <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">"Women"</span>,</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>                              <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>),</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>           <span class="co"># It is worth noting here, that menstruation status was not asked from women over 55. So, we treat these as postmenopausal.</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>           <span class="at">Group =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> (Menstruation <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> Menstruation <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">~</span> <span class="st">"Women|Menstr"</span>,</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>                             Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> (Menstruation <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> Age <span class="sc">&gt;=</span> <span class="dv">55</span>) <span class="sc">~</span> <span class="st">"Women|Non-menstr"</span>,</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>                             <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>),</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>            <span class="co"># THIS GROUP IS FOR ORAL CONTRACEPTION USE, ADDED DURING REVIEW</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>           <span class="at">Hormonal =</span> <span class="fu">case_when</span>(Gender <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">~</span> <span class="st">"Men"</span>,</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>                                Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> BD26 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Yes"</span>,</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>                                Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> BD26 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"No"</span>,</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>                                <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"NA"</span>))</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="co"># Load in additional H2000 variable BA14: Stroke</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">"~/CRP_enrichment/data/THLBB2020_19_T2000_lisapoiminta_10102022.txt"</span>)</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>strokedata <span class="ot">&lt;-</span> newdata <span class="sc">%&gt;%</span> </span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(RELEASE_ID, BA14)</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge with H2000</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>H2000 <span class="ot">&lt;-</span> <span class="fu">merge</span>(H2000, strokedata, <span class="at">by =</span> <span class="st">"RELEASE_ID"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a><span class="co"># Donation eligibility</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a><span class="co"># These are both "approximates" in a sense, we don't have all the necessary variables to</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="co"># filter thoroughly, and we'll be able to do more filtering on Health2000 than FR97</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>donor_eligible_h2k <span class="ot">&lt;-</span> H2000 <span class="sc">%&gt;%</span> </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(BMII_PAINO.x <span class="sc">&gt;=</span> <span class="dv">50</span> <span class="sc">&amp;</span> BMII_PAINO.x <span class="sc">&lt;=</span> <span class="dv">200</span>) <span class="sc">%&gt;%</span> <span class="co"># Filter away people &lt;50kg and &gt;200kg</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Age <span class="sc">&gt;=</span> <span class="dv">18</span> <span class="sc">&amp;</span> Age <span class="sc">&lt;=</span> <span class="dv">66</span>) <span class="sc">%&gt;%</span> <span class="co"># Filter away too young and too old</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>((B_Hb <span class="sc">&gt;=</span> <span class="dv">125</span> <span class="sc">&amp;</span> Gender <span class="sc">==</span> <span class="st">"Women"</span>) <span class="sc">|</span> (B_Hb <span class="sc">&gt;=</span> <span class="dv">135</span> <span class="sc">&amp;</span> Gender <span class="sc">==</span> <span class="st">"Men"</span>)) <span class="sc">%&gt;%</span> <span class="co"># Filter by hemoglobin</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(BA08 <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="co"># filter out people with heart attacks</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(BA09 <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="co"># filter out people with angina</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(BA10 <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="co"># cardiac insufficiency / heart failure</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(BA14 <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> <span class="co"># Stroke</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span>(BA26 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> ATC_A10A <span class="sc">==</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span> <span class="co"># filter out people who are diabetic AND use insulin</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(SRH <span class="sc">&lt;</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span> <span class="co"># filter out "Bad" or "Very bad" SRH</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">GlycA =</span> GP) <span class="sc">%&gt;%</span> <span class="co"># rename for ease of use</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">HbA1C =</span> B_GHb_A1C <span class="sc">*</span> <span class="fl">10.93</span> <span class="sc">-</span> <span class="fl">23.50</span>)</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>donor_eligible_fr <span class="ot">&lt;-</span> FR97 <span class="sc">%&gt;%</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(PAINO <span class="sc">&gt;=</span> <span class="dv">50</span> <span class="sc">&amp;</span> PAINO <span class="sc">&lt;=</span> <span class="dv">200</span>) <span class="sc">%&gt;%</span> <span class="co"># Filter away people &lt;50kg and &gt;200kg</span></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Age <span class="sc">&gt;=</span> <span class="dv">18</span> <span class="sc">&amp;</span> Age <span class="sc">&lt;=</span> <span class="dv">66</span>) <span class="sc">%&gt;%</span> <span class="co"># Filter away too young and too old</span></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>    <span class="co">#filter((HGB &gt;= 125 &amp; Gender == 2) | (HGB &gt;= 135 &amp; Gender == 1)) %&gt;% # DON'T filter by hemoglobin, &lt; 500 values in data</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Q15A <span class="sc">!=</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="co"># STEMI, NSTEMI</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Q16A <span class="sc">!=</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="co"># Stroke</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">is.na</span>(Q38) <span class="sc">|</span> Q38 <span class="sc">==</span> <span class="dv">1</span> <span class="sc">|</span> Q38 <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span>  <span class="co"># Insulin treatment (2: just insulin, 4: insulin and a tablet)</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Q17B <span class="sc">!=</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="co"># cardiac insufficiency</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Q17C <span class="sc">!=</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="co"># angina pectoris</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(SRH <span class="sc">&lt;</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span> <span class="co"># filter out "Bad" or "Very bad" SRH</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">GlycA =</span> GP) <span class="co"># rename for ease of use</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>de_fr_omit_OC <span class="ot">&lt;-</span> donor_eligible_fr <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Hormonal <span class="sc">!=</span> <span class="st">"Yes"</span>)</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>de_h2k_omit_OC <span class="ot">&lt;-</span> donor_eligible_h2k <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Hormonal <span class="sc">!=</span> <span class="st">"Yes"</span>)</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>fer_crp <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="at">FR97 =</span> donor_eligible_fr[, <span class="fu">c</span>(<span class="st">"Ferritin"</span>, <span class="st">"Group"</span>, <span class="st">"CRP"</span>)], </span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>                     <span class="at">H2000 =</span> donor_eligible_h2k[, <span class="fu">c</span>(<span class="st">"Ferritin"</span>, <span class="st">"Group"</span>, <span class="st">"CRP"</span>)], <span class="at">.id =</span> <span class="st">"Cohort"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Group =</span> <span class="fu">ordered</span>(Group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Women|Menstr"</span>, <span class="st">"Women|Non-menstr"</span>, <span class="st">"Men"</span>)),</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>           <span class="at">Cohort =</span> <span class="fu">ordered</span>(Cohort, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"FR97"</span>, <span class="st">"H2000"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Group <span class="sc">!=</span> <span class="st">"NA"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(CRP <span class="sc">&gt;=</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>()</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>fer_crp_omit_OC <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="at">FR97 =</span> de_fr_omit_OC[, <span class="fu">c</span>(<span class="st">"Ferritin"</span>, <span class="st">"Group"</span>, <span class="st">"CRP"</span>)], </span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>                     <span class="at">H2000 =</span> de_h2k_omit_OC[, <span class="fu">c</span>(<span class="st">"Ferritin"</span>, <span class="st">"Group"</span>, <span class="st">"CRP"</span>)], <span class="at">.id =</span> <span class="st">"Cohort"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Group =</span> <span class="fu">ordered</span>(Group, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Women|Menstr"</span>, <span class="st">"Women|Non-menstr"</span>, <span class="st">"Men"</span>)),</span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>           <span class="at">Cohort =</span> <span class="fu">ordered</span>(Cohort, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"FR97"</span>, <span class="st">"H2000"</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Group <span class="sc">!=</span> <span class="st">"NA"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(CRP <span class="sc">&gt;=</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>()</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a><span class="co"># fer_crp_nonhormonal &lt;- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Hormonal", "CRP")], </span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="co">#                          H2000 = donor_eligible_h2k[, c("Ferritin", "Hormonal", "CRP")], .id = "Cohort") %&gt;% </span></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="co">#     mutate(Group = ordered(Hormonal, levels = c("No", "Yes", "Men")),</span></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="co">#            Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %&gt;%</span></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="co">#     filter(Group != "NA") %&gt;%</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="co">#     filter(CRP &gt;= 0.01) %&gt;%</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a><span class="co">#     drop_na()</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a><span class="co"># NB! Use of contraceptives is coded in</span></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a><span class="co"># FR97: KY151: "Käytättekö tällä hetkellä ehkäisypillereitä?" (1 yes 2 no but earlier yes 3 no never)</span></span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="co"># FR97: KY152: "Käytättekö tällä hetkellä ehkäisyyn tavallista kierukkaa?" (1 yes 2 no but earlier yes 3 no never)</span></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a><span class="co"># FR97: KY153: "Käytättekö tällä hetkellä ehkäisyyn hormonikierukkaa?" (1 yes 2 no but earlier yes 3 no never)</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: Lääkekysely ATC_G03A: Hormonaaliset ehkäisyvalmisteet (0 no 1 yes)</span></span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD26: "Käytättekö tällä hetkellä ehkäisypillereitä?" (0 no 1 yes)</span></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD26a: "Kuinka monen vuoden ajan yhteensä olette käyttänyt ehkäisypillereitä?" (int)</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD27: "Oletteko joskus aiemmin käyttänyt ehkäisypillereitä?" (0 never 1 yes)</span></span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD27a: Same as BD26a</span></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD28a: "Käytättekö tällä hetkellä ehkäisyyn hormonikierukkaa?" (0 no 1 yes) </span></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD28b: "Käytättekö tällä hetkellä ehkäisyyn tavallista kierukkaa?" (0 no 1 yes)</span></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD29: "Kuinka monen vuoden ajan yhteensä olette käyttänyt hormonikierukkaa?" (int)</span></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD30a: "Oletteko joskus aiemmin käyttänyt ehkäisyyn hormonikierukkaa?" (0 never 1 yes)</span></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD30b: "Oletteko joskus aiemmin käyttänyt ehkäisyyn tavallista kierukkaa?" (0 never 1 yes) </span></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="co"># H2K: BD31: Same as BD29</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">####</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># HORMONAL CONTRACEPTION VS CRP</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="do">####</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> donor_eligible_fr <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> Hormonal <span class="sc">!=</span> <span class="st">"NA"</span> <span class="sc">&amp;</span> Age <span class="sc">&lt;</span> <span class="dv">55</span>), <span class="fu">aes</span>(<span class="at">x =</span> CRP, <span class="at">group =</span> Hormonal, <span class="at">fill =</span> Hormonal)) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">adjust =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> .<span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"FR97"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/plot_CRP_by_hormonal_use-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> donor_eligible_h2k <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Gender <span class="sc">==</span> <span class="st">"Women"</span> <span class="sc">&amp;</span> Hormonal <span class="sc">!=</span> <span class="st">"NA"</span> <span class="sc">&amp;</span> Age <span class="sc">&lt;</span> <span class="dv">55</span>), <span class="fu">aes</span>(<span class="at">x =</span> CRP, <span class="at">group =</span> Hormonal, <span class="at">fill =</span> Hormonal)) <span class="sc">+</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">adjust =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> .<span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"H2000"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/plot_CRP_by_hormonal_use-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We do see that the use of OC increases the CRP levels in the population of women under 55.</p>
+<p><strong>But what happens with the actual analysis?</strong></p>
+<section id="original-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="original-analysis">Original analysis</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_"</span>, boot_n, <span class="st">".rds"</span>))) { <span class="co"># run bootstrap only if needed</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">vector</span>(<span class="st">"list"</span>, <span class="at">length =</span> <span class="dv">3</span>), <span class="fu">c</span>(<span class="st">"men"</span>, <span class="st">"women_mens"</span>, <span class="st">"women_nonmens"</span>))</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="do">#############</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="do">#### FR97</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="do">#############</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="do">## Compute</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Men</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>men[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                             <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Menstr</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>women_mens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>women_nonmens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Non-menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i],<span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="do">## Store</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Men</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Menstr</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Combine</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>        means_finrisk <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(bootobs, <span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    means_finrisk <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_"</span>, boot_n, <span class="st">".rds"</span>))) { <span class="co"># run bootstrap only if needed</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">vector</span>(<span class="st">"list"</span>, <span class="at">length =</span> <span class="dv">3</span>), <span class="fu">c</span>(<span class="st">"men"</span>, <span class="st">"women_mens"</span>, <span class="st">"women_nonmens"</span>))</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############</span></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>    <span class="do">#### Health2000</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Compute</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>men[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>                         <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>    ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>women_mens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>                               <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>    ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>women_nonmens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Non-menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a>                                <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>    ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Store</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>    means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>    upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>    lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>    means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>    upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>    lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a>    means_health2k <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))    </span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save</span></span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(bootobs, <span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb4-173"><a href="#cb4-173" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb4-174"><a href="#cb4-174" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-175"><a href="#cb4-175" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-176"><a href="#cb4-176" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-177"><a href="#cb4-177" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb4-178"><a href="#cb4-178" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-179"><a href="#cb4-179" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-180"><a href="#cb4-180" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb4-182"><a href="#cb4-182" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-183"><a href="#cb4-183" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-184"><a href="#cb4-184" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-186"><a href="#cb4-186" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb4-187"><a href="#cb4-187" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store</span></span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb4-200"><a href="#cb4-200" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a>    means_health2k <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb4-206"><a href="#cb4-206" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-208"><a href="#cb4-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-209"><a href="#cb4-209" aria-hidden="true" tabindex="-1"></a>means_all <span class="ot">&lt;-</span> <span class="fu">rbind</span>(means_finrisk, means_health2k)</span>
+<span id="cb4-210"><a href="#cb4-210" aria-hidden="true" tabindex="-1"></a>means_all<span class="sc">$</span>Cohort <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"FR97"</span>, <span class="dv">153</span>), <span class="fu">rep</span>(<span class="st">"H2000"</span>, <span class="dv">153</span>))</span>
+<span id="cb4-211"><a href="#cb4-211" aria-hidden="true" tabindex="-1"></a>means_all<span class="sc">$</span>Group <span class="ot">&lt;-</span> <span class="fu">factor</span>(means_all<span class="sc">$</span>Gender, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Women|Menstr"</span>, <span class="st">"Women|Non-menstr"</span>, <span class="st">"Men"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="original-analysis-plot" class="level2">
+<h2 class="anchored" data-anchor-id="original-analysis-plot">Original analysis plot</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> means_all, <span class="fu">aes</span>(<span class="at">x =</span> Ferritin, <span class="at">y =</span> means)) <span class="sc">+</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">linetype =</span> Group)) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_grid</span>(<span class="at">rows =</span> <span class="fu">vars</span>(Group), <span class="at">cols =</span> <span class="fu">vars</span>(Cohort)) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Ferritin ("</span>, mu, <span class="st">"g/l)"</span>)), </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Change (pp)"</span>) <span class="sc">+</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">linetype =</span> <span class="st">"none"</span>) <span class="sc">+</span> </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">15</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Save</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">svg</span>(<span class="st">"~/CRP_enrichment/results/ratio_plot_separated_rescaled.svg"</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="dv">7</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="fl">4.9</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">bg =</span> <span class="st">"transparent"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>p</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>() <span class="ot">-&gt;</span> . <span class="co"># so we avoid output</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/ratio_plot_separated-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now do the same but strip everyone using OC.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))) { <span class="co"># run bootstrap only if needed</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">vector</span>(<span class="st">"list"</span>, <span class="at">length =</span> <span class="dv">3</span>), <span class="fu">c</span>(<span class="st">"men"</span>, <span class="st">"women_mens"</span>, <span class="st">"women_nonmens"</span>))</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="do">#############</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="do">#### FR97</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="do">#############</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="do">## Compute</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Men</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>men[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>                             <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Menstr</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>women_mens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        bootobs<span class="sc">$</span>women_nonmens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Non-menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"FR97"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i],<span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        <span class="do">## Store</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Men</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Menstr</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Combine</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        means_finrisk <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(bootobs, <span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>    means_finrisk <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))) { <span class="co"># run bootstrap only if needed</span></span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">vector</span>(<span class="st">"list"</span>, <span class="at">length =</span> <span class="dv">3</span>), <span class="fu">c</span>(<span class="st">"men"</span>, <span class="st">"women_mens"</span>, <span class="st">"women_nonmens"</span>))</span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############</span></span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>    <span class="do">#### Health2000</span></span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############</span></span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Compute</span></span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>men[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Men"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>                         <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>    ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>women_mens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>                               <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>    ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>    bootobs<span class="sc">$</span>women_nonmens[[i]] <span class="ot">&lt;-</span> <span class="fu">boot</span>(fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Non-menstr"</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>), <span class="at">statistic =</span> get_ratio_boot, <span class="at">R =</span> boot_n, </span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>                                <span class="at">var1 =</span> Ferritin, <span class="at">var2 =</span> CRP, <span class="at">var1_trld =</span> ferritin_values[i], <span class="at">var2_trld =</span> CRP_trld, <span class="at">var2_over =</span> T)</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>    ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Store</span></span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>    means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>    upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>    lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>    means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>    upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>    lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>    means_health2k <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))    </span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Save</span></span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>    <span class="fu">saveRDS</span>(bootobs, <span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>    bootobs <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">paste0</span>(<span class="st">"~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED"</span>, boot_n, <span class="st">".rds"</span>))</span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Preallocate</span></span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Men</span></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>    means_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>    upper_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>    lower_men <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Menstr</span></span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    means_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>    upper_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>    lower_women_mens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Women|Non-menstr</span></span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>    means_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>    upper_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>    lower_women_nonmens <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>iterations</span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations) {</span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>        ci_obj_men <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>men[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_mens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_mens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>        ci_obj_women_nonmens <span class="ot">&lt;-</span> <span class="fu">boot.ci</span>(bootobs<span class="sc">$</span>women_nonmens[[i]], <span class="at">type =</span> <span class="st">"norm"</span>)</span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store</span></span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>        means_men[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>men[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>        upper_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>        lower_men[i] <span class="ot">&lt;-</span> ci_obj_men<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>        means_women_mens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_mens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>        upper_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>        lower_women_mens[i] <span class="ot">&lt;-</span> ci_obj_women_mens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>        means_women_nonmens[i] <span class="ot">&lt;-</span> bootobs<span class="sc">$</span>women_nonmens[[i]]<span class="sc">$</span>t0</span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>        upper_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">3</span>]</span>
+<span id="cb6-199"><a href="#cb6-199" aria-hidden="true" tabindex="-1"></a>        lower_women_nonmens[i] <span class="ot">&lt;-</span> ci_obj_women_nonmens<span class="sc">$</span>normal[<span class="dv">2</span>]</span>
+<span id="cb6-200"><a href="#cb6-200" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-201"><a href="#cb6-201" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combine</span></span>
+<span id="cb6-202"><a href="#cb6-202" aria-hidden="true" tabindex="-1"></a>    means_health2k <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">rep</span>(ferritin_values, <span class="dv">3</span>),</span>
+<span id="cb6-203"><a href="#cb6-203" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">means =</span> <span class="fu">c</span>(means_men, means_women_mens, means_women_nonmens),</span>
+<span id="cb6-204"><a href="#cb6-204" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">upper =</span> <span class="fu">c</span>(upper_men, upper_women_mens, upper_women_nonmens),</span>
+<span id="cb6-205"><a href="#cb6-205" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">lower =</span> <span class="fu">c</span>(lower_men, lower_women_mens, lower_women_nonmens),</span>
+<span id="cb6-206"><a href="#cb6-206" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Gender =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Men"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Menstr"</span>, iterations), <span class="fu">rep</span>(<span class="st">"Women|Non-menstr"</span>, iterations)))</span>
+<span id="cb6-207"><a href="#cb6-207" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-208"><a href="#cb6-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-209"><a href="#cb6-209" aria-hidden="true" tabindex="-1"></a>means_all_OC <span class="ot">&lt;-</span> <span class="fu">rbind</span>(means_finrisk, means_health2k)</span>
+<span id="cb6-210"><a href="#cb6-210" aria-hidden="true" tabindex="-1"></a>means_all_OC<span class="sc">$</span>Cohort <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"FR97"</span>, <span class="dv">153</span>), <span class="fu">rep</span>(<span class="st">"H2000"</span>, <span class="dv">153</span>))</span>
+<span id="cb6-211"><a href="#cb6-211" aria-hidden="true" tabindex="-1"></a>means_all_OC<span class="sc">$</span>Group <span class="ot">&lt;-</span> <span class="fu">factor</span>(means_all_OC<span class="sc">$</span>Gender, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Women|Menstr"</span>, <span class="st">"Women|Non-menstr"</span>, <span class="st">"Men"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="proportion-analysis-plot" class="level1">
+<h1>Proportion analysis plot</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> means_all_OC, <span class="fu">aes</span>(<span class="at">x =</span> Ferritin, <span class="at">y =</span> means)) <span class="sc">+</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">linetype =</span> Group)) <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_grid</span>(<span class="at">rows =</span> <span class="fu">vars</span>(Group), <span class="at">cols =</span> <span class="fu">vars</span>(Cohort)) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">"Ferritin ("</span>, mu, <span class="st">"g/l)"</span>)), </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Change (pp)"</span>) <span class="sc">+</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">linetype =</span> <span class="st">"none"</span>) <span class="sc">+</span> </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">15</span>))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Save</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># svg("~/CRP_enrichment/results/ratio_plot_separated_rescaled.svg",</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     width = 7,</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     height = 4.9,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     bg = "transparent")</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># p</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># dev.off() -&gt; . # so we avoid output</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>p</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/ratio_plot_separated_OC-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>What’s the diff?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> means_all<span class="sc">$</span>Ferritin,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">mean =</span> means_all_OC<span class="sc">$</span>mean <span class="sc">-</span> means_all<span class="sc">$</span>mean,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">lower =</span> means_all_OC<span class="sc">$</span>lower <span class="sc">-</span> means_all<span class="sc">$</span>lower,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">upper =</span> means_all_OC<span class="sc">$</span>upper <span class="sc">-</span> means_all<span class="sc">$</span>upper,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">Gender =</span> means_all<span class="sc">$</span>Gender,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">Group =</span> means_all<span class="sc">$</span>Group,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">Cohort =</span> means_all<span class="sc">$</span>Cohort)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(comparison_df, <span class="fu">aes</span>(<span class="at">x =</span> Ferritin, <span class="at">y =</span> mean)) <span class="sc">+</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_grid</span>(<span class="at">rows =</span> <span class="fu">vars</span>(Group), <span class="at">cols =</span> <span class="fu">vars</span>(Cohort)) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><comment></comment></p>
+<p>How does the fer x crp behave between OC users at the upper end of ferritin?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>u40 <span class="ot">&lt;-</span> fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&lt;</span> <span class="dv">30</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>o40 <span class="ot">&lt;-</span> fer_crp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&gt;=</span> <span class="dv">30</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>u40_OC <span class="ot">&lt;-</span> fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&lt;</span> <span class="dv">30</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>o40_OC <span class="ot">&lt;-</span> fer_crp_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&gt;=</span> <span class="dv">30</span> <span class="sc">&amp;</span> Cohort <span class="sc">==</span> <span class="st">"H2000"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>CRP_OC_comparison <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(u40, o40, u40_OC, o40_OC) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"u30"</span>, <span class="fu">nrow</span>(u40)),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                                                                              <span class="fu">rep</span>(<span class="st">"o30"</span>, <span class="fu">nrow</span>(o40)),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                                                                              <span class="fu">rep</span>(<span class="st">"u30_OC"</span>, <span class="fu">nrow</span>(u40_OC)),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                                                                              <span class="fu">rep</span>(<span class="st">"o30_OC"</span>, <span class="fu">nrow</span>(o40_OC))))</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(CRP_OC_comparison, <span class="fu">aes</span>(<span class="at">x =</span> CRP, <span class="at">group =</span> label, <span class="at">fill =</span> label)) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#scale_x_log10() +</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(CRP_OC_comparison, <span class="fu">aes</span>(<span class="at">x =</span> CRP, <span class="at">group =</span> label, <span class="at">fill =</span> label)) <span class="sc">+</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlim</span>(<span class="dv">0</span>, <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for x is already present.
+Adding another scale for x, which will replace the existing scale.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 208 rows containing non-finite values (`stat_density()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="ratios-for-oc-users" class="level1">
+<h1>Ratios for OC users</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>h2k_only_oc <span class="ot">&lt;-</span> donor_eligible_h2k <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Hormonal <span class="sc">==</span> <span class="st">"Yes"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>oc_means <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>iterations){</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    oc_means[i] <span class="ot">&lt;-</span> <span class="fu">get_ratio</span>(h2k_only_oc, Ferritin, CRP, ferritin_values[i], CRP_trld)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>oc_ratio <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> ferritin_values, <span class="at">mean =</span> oc_means)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(oc_ratio, <span class="fu">aes</span>(<span class="at">x =</span> Ferritin, <span class="at">y =</span> oc_means)) <span class="sc">+</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="what-are-the-ferritin-distributions-between-oc-users-and-non-oc-users" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-the-ferritin-distributions-between-oc-users-and-non-oc-users">What are the ferritin distributions between OC users and non-oc users?</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>non_oc_fer <span class="ot">&lt;-</span> de_h2k_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>oc_fer <span class="ot">&lt;-</span> h2k_only_oc <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>fer_comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Ferritin =</span> <span class="fu">c</span>(non_oc_fer<span class="sc">$</span>Ferritin, oc_fer<span class="sc">$</span>Ferritin), <span class="at">Group =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"non"</span>, <span class="fu">nrow</span>(non_oc_fer)), <span class="fu">rep</span>(<span class="st">"OC"</span>, <span class="fu">nrow</span>(oc_fer))))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fer_comparison_df, <span class="fu">aes</span>(<span class="at">x =</span> Ferritin, <span class="at">group =</span> Group, <span class="at">fill =</span> Group)) <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 31 rows containing non-finite values (`stat_density()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="OC_CRP_investigations_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="q-does-the-use-of-oc-increase-ferritin-more-than-it-does-crp" class="level1">
+<h1>Q: Does the use of OC increase Ferritin more than it does CRP?</h1>
+<section id="all" class="level2">
+<h2 class="anchored" data-anchor-id="all">All</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>nonOC <span class="ot">&lt;-</span> de_h2k_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>OC <span class="ot">&lt;-</span> h2k_only_oc <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nonOC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+   3.99   14.30   26.50   36.53   46.60  468.00      31 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(OC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   3.90   18.88   35.95   46.62   64.60  170.90 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(nonOC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>, <span class="at">na.rm =</span> T) <span class="sc">/</span> <span class="fu">nrow</span>(nonOC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.122428</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(OC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">nrow</span>(OC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2890625</code></pre>
+</div>
+</div>
+</section>
+<section id="fer-30" class="level2">
+<h2 class="anchored" data-anchor-id="fer-30">Fer &lt; 30</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>nonOC <span class="ot">&lt;-</span> de_h2k_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&lt;</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>OC <span class="ot">&lt;-</span> h2k_only_oc <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&lt;</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nonOC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  3.990   9.895  15.200  16.132  22.500  29.900 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(OC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   3.90   12.66   17.70   17.25   21.10   28.60 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(nonOC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>, <span class="at">na.rm =</span> T) <span class="sc">/</span> <span class="fu">nrow</span>(nonOC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.08015267</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(OC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">nrow</span>(OC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.25</code></pre>
+</div>
+</div>
+</section>
+<section id="fer-30-1" class="level2">
+<h2 class="anchored" data-anchor-id="fer-30-1">Fer &gt;= 30</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>nonOC <span class="ot">&lt;-</span> de_h2k_omit_OC <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&gt;=</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>OC <span class="ot">&lt;-</span> h2k_only_oc <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Group <span class="sc">==</span> <span class="st">"Women|Menstr"</span> <span class="sc">&amp;</span> Ferritin <span class="sc">&gt;=</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> <span class="fu">select</span>(Ferritin, CRP)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(nonOC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  30.00   37.69   50.03   62.16   69.40  468.00 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(OC<span class="sc">$</span>Ferritin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  30.10   44.38   61.05   69.46   82.00  170.90 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(nonOC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>, <span class="at">na.rm =</span> T) <span class="sc">/</span> <span class="fu">nrow</span>(nonOC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1846523</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(OC<span class="sc">$</span>CRP <span class="sc">&gt;=</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="fu">nrow</span>(OC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3194444</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

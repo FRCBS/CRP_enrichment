@@ -31,7 +31,7 @@ set.seed(01062022) # set seed
 
 ```{r create_datasets, message = FALSE}
 # Load data on individual donations
-load("./data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
+load("~/CRP_enrichment/data/r02.fd.bd.all.rdata") # outputs an object called "output" into the environment
 donations <- output
 
 # We only want to look at first donation event values from each donor
@@ -41,7 +41,7 @@ donors <- donations %>%
     ungroup()
 
 # Load FinDonor demographic data
-load("./data/r02ds.donorData.rdata") # outputs an object called "output" into the environment
+load("~/CRP_enrichment/data/r02ds.donorData.rdata") # outputs an object called "output" into the environment
 findonor <- output
 
 # Combine the FinDonor datasets
@@ -49,7 +49,7 @@ FinDonor <- left_join(donors, findonor, by = "donor")
 
 # Load THL data
 # Sofie: thldalta.rdata contains all five THL cohorts, extract FINRISK97 and Health2000 from the others
-load("./data/thldata.rdata")
+load("~/CRP_enrichment/data/thldata.rdata")
 FR97 <- thldata$fr1997
 H2000 <- thldata$h2000
 
@@ -82,7 +82,12 @@ FR97 <- FR97 %>%
            Group = case_when(Gender == "Men" ~ "Men",
                              Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Menstr",
                              Gender == "Women" & Menstruation == 3 ~ "Women|Non-menstr",
-                             TRUE ~ "NA"))
+                             TRUE ~ "NA"),
+           # THIS GROUP IS FOR ORAL CONTRACEPTION USE, ADDED DURING REVIEW
+           Hormonal = case_when(Gender == "Men" ~ "Men",
+                                Gender == "Women" & KY151 == 1 ~ "Yes",
+                                Gender == "Women" & KY151 != 1 ~ "No",
+                                TRUE ~ "NA"))
 
 H2000 <- H2000 %>%
     mutate(Gender = case_when(Gender == 1 ~ "Men",
@@ -92,10 +97,15 @@ H2000 <- H2000 %>%
            Group = case_when(Gender == "Men" ~ "Men",
                              Gender == "Women" & (Menstruation == 1 | Menstruation == 2) ~ "Women|Menstr",
                              Gender == "Women" & (Menstruation == 3 | Age >= 55) ~ "Women|Non-menstr",
-                             TRUE ~ "NA"))
+                             TRUE ~ "NA"),
+            # THIS GROUP IS FOR ORAL CONTRACEPTION USE, ADDED DURING REVIEW
+           Hormonal = case_when(Gender == "Men" ~ "Men",
+                                Gender == "Women" & BD26 == 1 ~ "Yes",
+                                Gender == "Women" & BD26 == 0 ~ "No",
+                                TRUE ~ "NA"))
 
 # Load in additional H2000 variable BA14: Stroke
-newdata <- read_tsv("./data/THLBB2020_19_T2000_lisapoiminta_10102022.txt")
+newdata <- read_tsv("~/CRP_enrichment/data/THLBB2020_19_T2000_lisapoiminta_10102022.txt")
 strokedata <- newdata %>% 
     select(RELEASE_ID, BA14)
 # Merge with H2000
@@ -129,14 +139,82 @@ donor_eligible_fr <- FR97 %>%
     filter(SRH < 4) %>% # filter out "Bad" or "Very bad" SRH
     rename(GlycA = GP) # rename for ease of use
 
+de_fr_omit_OC <- donor_eligible_fr %>% filter(Hormonal != "Yes")
+de_h2k_omit_OC <- donor_eligible_h2k %>% filter(Hormonal != "Yes")
+
 fer_crp <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Group", "CRP")], 
-                         H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
+                     H2000 = donor_eligible_h2k[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
     mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
            Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
     filter(Group != "NA") %>%
     filter(CRP >= 0.01) %>%
     drop_na()
+fer_crp_omit_OC <- bind_rows(FR97 = de_fr_omit_OC[, c("Ferritin", "Group", "CRP")], 
+                     H2000 = de_h2k_omit_OC[, c("Ferritin", "Group", "CRP")], .id = "Cohort") %>% 
+    mutate(Group = ordered(Group, levels = c("Women|Menstr", "Women|Non-menstr", "Men")),
+           Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
+    filter(Group != "NA") %>%
+    filter(CRP >= 0.01) %>%
+    drop_na()
+# fer_crp_nonhormonal <- bind_rows(FR97 = donor_eligible_fr[, c("Ferritin", "Hormonal", "CRP")], 
+#                          H2000 = donor_eligible_h2k[, c("Ferritin", "Hormonal", "CRP")], .id = "Cohort") %>% 
+#     mutate(Group = ordered(Hormonal, levels = c("No", "Yes", "Men")),
+#            Cohort = ordered(Cohort, levels = c("FR97", "H2000"))) %>%
+#     filter(Group != "NA") %>%
+#     filter(CRP >= 0.01) %>%
+#     drop_na()
+
+# NB! Use of contraceptives is coded in
+# FR97: KY151: "Käytättekö tällä hetkellä ehkäisypillereitä?" (1 yes 2 no but earlier yes 3 no never)
+# FR97: KY152: "Käytättekö tällä hetkellä ehkäisyyn tavallista kierukkaa?" (1 yes 2 no but earlier yes 3 no never)
+# FR97: KY153: "Käytättekö tällä hetkellä ehkäisyyn hormonikierukkaa?" (1 yes 2 no but earlier yes 3 no never)
+# H2K: Lääkekysely ATC_G03A: Hormonaaliset ehkäisyvalmisteet (0 no 1 yes)
+# H2K: BD26: "Käytättekö tällä hetkellä ehkäisypillereitä?" (0 no 1 yes)
+# H2K: BD26a: "Kuinka monen vuoden ajan yhteensä olette käyttänyt ehkäisypillereitä?" (int)
+# H2K: BD27: "Oletteko joskus aiemmin käyttänyt ehkäisypillereitä?" (0 never 1 yes)
+# H2K: BD27a: Same as BD26a
+# H2K: BD28a: "Käytättekö tällä hetkellä ehkäisyyn hormonikierukkaa?" (0 no 1 yes) 
+# H2K: BD28b: "Käytättekö tällä hetkellä ehkäisyyn tavallista kierukkaa?" (0 no 1 yes)
+# H2K: BD29: "Kuinka monen vuoden ajan yhteensä olette käyttänyt hormonikierukkaa?" (int)
+# H2K: BD30a: "Oletteko joskus aiemmin käyttänyt ehkäisyyn hormonikierukkaa?" (0 never 1 yes)
+# H2K: BD30b: "Oletteko joskus aiemmin käyttänyt ehkäisyyn tavallista kierukkaa?" (0 never 1 yes) 
+# H2K: BD31: Same as BD29
+
+####
+# HORMONAL CONTRACEPTION VS CRP
+####
+
+ggplot(data = donor_eligible_fr %>% filter(Gender == "Women" & Hormonal != "NA" & Age < 55), aes(x = CRP, group = Hormonal, fill = Hormonal)) +
+    geom_density(adjust = 1.5, alpha = .4) +
+    theme_minimal() +
+    scale_x_log10() +
+    labs(title = "FR97")
+
+ggplot(data = donor_eligible_h2k %>% filter(Gender == "Women" & Hormonal != "NA" & Age < 55), aes(x = CRP, group = Hormonal, fill = Hormonal)) +
+    geom_density(adjust = 1.5, alpha = .4) +
+    theme_minimal() +
+    scale_x_log10() +
+    labs(title = "H2000")
 ```
+
+
+```{r}
+# TODO: del
+u40 <- fer_crp %>% filter(Group == "Women|Menstr" & Ferritin < 40 & Cohort == "H2000")
+o40 <- fer_crp %>% filter(Group == "Women|Menstr" & Ferritin >= 40 & Cohort == "H2000")
+u40_OC <- fer_crp_omit_OC %>% filter(Group == "Women|Menstr" & Ferritin < 40 & Cohort == "H2000")
+o40_OC <- fer_crp_omit_OC %>% filter(Group == "Women|Menstr" & Ferritin >= 40 & Cohort == "H2000")
+CRP_OC_comparison <- bind_rows(u40, o40, u40_OC, o40_OC) %>% mutate(label = c(rep("u40", nrow(u40)),
+                                                                              rep("o40", nrow(o40)),
+                                                                              rep("u40_OC", nrow(u40_OC)),
+                                                                              rep("o40_OC", nrow(o40_OC))))
+
+ggplot(CRP_OC_comparison, aes(x = CRP, group = label, fill = label)) +
+    geom_density(alpha = 0.3) +
+    #scale_x_log10() +
+    theme_minimal()
+```
+
 
 # Mock Cohort\|Var Tables
 
@@ -253,9 +331,36 @@ dev.off() -> . # so we avoid output
 p
 ```
 
+```{r}
+ratio1 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "No" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "No" & Cohort == "FR97")), 2)
+ratio2 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "Yes" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "Yes" & Cohort == "FR97")), 2)
+ratio3 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "Men" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "Men" & Cohort == "FR97")), 2)
+ratio4 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "No" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "No" & Cohort == "H2000")), 2)
+ratio5 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "Yes" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "Yes" & Cohort == "H2000")), 2)
+ratio6 <- round(nrow(fer_crp_hormonal %>% filter(Hormonal == "Men" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp_hormonal %>% filter(Hormonal == "Men" & Cohort == "H2000")), 2)
+ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Hormonal = rep(c("No", "Yes", "Men"), 2))
+p <- ggplot(data = fer_crp_hormonal, aes(x = Ferritin, y = CRP)) + 
+    annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
+    geom_text(data = ann_text, aes(label = lab)) +
+    geom_point(alpha = 0.1) +
+    scale_x_log10() +
+    scale_y_log10() +
+    theme_minimal() + 
+    geom_smooth(method = "lm", formula = y ~ x, color = "black", linetype = "dashed", size = 0.5) +
+    stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
+    facet_grid(rows = vars(Hormonal), cols = vars(Cohort)) +
+    labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+         y = "CRP (mg/l)") + 
+    theme(text = element_text(size = 15))
+
+p
+```
+
+
 # Ferritin X CRP \| COLORED
 
 ```{r scatterplot_separated_colored, message = FALSE}
+fer_crp$recoded <- recode_factor(fer_crp$Group, "Women|Menstr" = "Women\nMenstr", "Women|Non-menstr" = "Women\nNon-menstr")
 options(scipen = 10000)
 ratio1 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "FR97")), 2)
 ratio2 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97")), 2)
@@ -263,30 +368,38 @@ ratio3 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "FR97", CRP >
 ratio4 <- round(nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Menstr" & Cohort == "H2000")), 2)
 ratio5 <- round(nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000")), 2)
 ratio6 <- round(nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Group == "Men" & Cohort == "H2000")), 2)
-ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), Group = rep(c("Women|Menstr", "Women|Non-menstr", "Men"), 2))
-p <- ggplot(data = fer_crp, aes(x = Ferritin, y = CRP)) + 
+ann_text <- data.frame(Ferritin = rep(900, 6), CRP = rep(50, 6), lab = c(paste0(ratio1, "%"), paste0(ratio2, "%"), paste0(ratio3, "%"), paste0(ratio4, "%"), paste0(ratio5, "%"), paste0(ratio6, "%")), Cohort = c(rep("FR97", 3), rep("H2000", 3)), recoded = rep(c("Women\nMenstr", "Women\nNon-menstr", "Men"), 2))
+p <- ggplot(data = fer_crp %>% filter(Cohort == "H2000" & Group == "Women|Menstr"), aes(x = Ferritin, y = CRP)) + 
     annotate("rect", xmin = 15, xmax = 2000, ymin = 3, ymax = 200, alpha = .5, fill = "grey") +
-    geom_text(data = ann_text, aes(label = lab)) +
-    geom_point(aes(color = Group), alpha = 0.1) +
+    geom_text(data = ann_text[4, ], aes(label = lab), size = 12) +
+    geom_point(aes(color = recoded), alpha = 0.9) +
     scale_x_log10() +
     scale_y_log10() +
     scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
-                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
+                       limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
     scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
-                      limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
+                      limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
     theme_minimal() + 
     geom_smooth(method = "lm", color = "black", linetype = "dashed", size = 0.5) +
-    stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001) +
-    facet_grid(rows = vars(Group), cols = vars(Cohort)) +
+    stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")), p.accuracy = 0.001, size = 12) +
+    #facet_grid(rows = vars(recoded), cols = vars(Cohort)) +
     theme(legend.position = "none") +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "CRP (mg/l)")+ 
-    theme(text = element_text(size = 15))
+         y = "CRP (mg/l)") + 
+    theme(text = element_text(size = 30))
 # Save
-svg("~/CRP_enrichment/results/scatterplot_separated_colored.svg",
-    width = 10,
-    height = 7,
-    bg = "transparent")
+# svg("~/CRP_enrichment/results/scatterplot_separated_colored_rescaled.svg",
+#     width = 7,
+#     height = 4.9,
+#     bg = "transparent")
+# p
+# dev.off() -> . # so we avoid output
+# 
+# p
+
+png("~/CRP_enrichment/results/scatterplot_women_menstr.png",
+    width = 800,
+    height = 420)
 p
 dev.off() -> . # so we avoid output
 
@@ -296,6 +409,7 @@ p
 # Ferritin X CRP \| GROUPS ONLY BY COLOR
 
 ```{r scatterplot_colored, message = FALSE}
+
 options(scipen = 10000)
 ratio1 <- round(nrow(fer_crp %>% filter(Cohort == "FR97", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "FR97")), 2)
 ratio2 <- round(nrow(fer_crp %>% filter(Cohort == "H2000", CRP >= 3 & Ferritin >= 15)) * 100 / nrow(fer_crp %>% filter(Cohort == "H2000")), 2)
@@ -335,7 +449,7 @@ p
 The estimate: *How many more people are over 3 mg/l in CRP when we filter the populations by different ferritin thresholds? Expressed in percentage point difference.* The intuition: We currently don't do ferritin filtering. The population from which we draw donors has a certain proportion of people in risk of cardiac/chronic inflammation, often indicated by elevated hs-CRP (\>3 mg/l). Does this proportion increase in a statistically significant manner, if we start requiring higher ferritin levels from donors?
 
 ```{r ratio_boot_CRP_by_subgroup}
-if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
+if (!file.exists(paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
     
     ## Preallocate
     # Men
@@ -397,9 +511,9 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
     }
     
     # Save
-    saveRDS(bootobs, paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_", boot_n, ".rds"))
 } else {
-    bootobs <- readRDS(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))
+    bootobs <- readRDS(paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_", boot_n, ".rds"))
     
     ## Preallocate
     # Men
@@ -440,7 +554,7 @@ if (!file.exists(paste0("./data/PUBL_finrisk_CRP_", boot_n, ".rds"))) { # run bo
                                  Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
     }
 
-if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
+if (!file.exists(paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run bootstrap only if needed
     ## Preallocate
     # Men
     means_men <- 1:iterations
@@ -502,9 +616,9 @@ if (!file.exists(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))) { # run b
     }
     
     # Save
-    saveRDS(bootobs, paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
+    saveRDS(bootobs, paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_", boot_n, ".rds"))
 } else {
-    bootobs <- readRDS(paste0("./data/PUBL_health2k_CRP_", boot_n, ".rds"))
+    bootobs <- readRDS(paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_", boot_n, ".rds"))
     
     ## Preallocate
     # Men
@@ -562,9 +676,9 @@ p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
     theme(text = element_text(size = 15))
 
 # Save
-svg("~/CRP_enrichment/results/ratio_plot_separated.svg",
-    width = 10,
-    height = 7,
+svg("~/CRP_enrichment/results/ratio_plot_separated_rescaled.svg",
+    width = 7,
+    height = 4.9,
     bg = "transparent")
 p
 dev.off() -> . # so we avoid output
@@ -619,33 +733,355 @@ h2kmen50 <- means_all %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin =
 
 Using these objects, we can check the significance of between the points of interest. For example "h2kwomenpre5$upper < h2kwomenpre15$lower" would evaluate to TRUE, if the proportion of menstruating women over 3 mg/l CRP is significantly higher in the population filtered by ferritin 15 ug/l than 5 ug/l. Indeed, for menstruating women, the proportion is significantly higher at filter levels of 15, 30, and 50 ug/l when compared with 5 ug/l. This holds for non-menstruating women also, except for the FinRisk 1997 cohort, where the difference between levels 5 and 15 was not significant. The differences are all significant also in men, but the respective increases in proportions are much smaller.
 
-# Proportion analysis plot \| COLORED
+## ORAL CONTRACEPTION INSERT
 
-```{r ratio_plot_separated_colored}
-p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
-    geom_ribbon(aes(ymin = lower, ymax = upper, fill = Group), alpha = .3) +
+Might want to reorganize this bit later
+
+```{r ratio_boot_CRP_by_subgroup_OC}
+if (!file.exists(paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED", boot_n, ".rds"))) { # run bootstrap only if needed
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+    
+    for (i in 1:iterations) {
+        
+        #############
+        #### FR97
+        #############
+        
+        ## Compute
+        # Men
+        bootobs$men[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Men" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
+                             var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        # Women|Menstr
+        bootobs$women_mens[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Women|Menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
+                                   var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        # Women|Non-menstr
+        bootobs$women_nonmens[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Women|Non-menstr" & Cohort == "FR97"), statistic = get_ratio_boot, R = boot_n, 
+                                    var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i],var2_trld = CRP_trld, var2_over = T)
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        
+        ## Store
+        # Men
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        # Women|Menstr
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        # Women|Non-menstr
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+        
+        # Combine
+        means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                     means = c(means_men, means_women_mens, means_women_nonmens),
+                                     upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                     lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                     Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+    
+    }
+    
+    # Save
+    saveRDS(bootobs, paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED", boot_n, ".rds"))
+} else {
+    bootobs <- readRDS(paste0("~/CRP_enrichment/data/PUBL_finrisk_CRP_OC_OMITTED", boot_n, ".rds"))
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
+    
+    
+    # Combine
+    means_finrisk <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_mens, means_women_nonmens),
+                                 upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                 lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                 Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+    }
+
+if (!file.exists(paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED", boot_n, ".rds"))) { # run bootstrap only if needed
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    bootobs <- setNames(vector("list", length = 3), c("men", "women_mens", "women_nonmens"))
+
+    for (i in 1:iterations) {
+    
+    #############
+    #### Health2000
+    #############
+    
+    ## Compute
+    # Men
+    bootobs$men[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Men" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
+                         var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
+    ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+    # Women|Menstr
+    bootobs$women_mens[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Women|Menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
+                               var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
+    ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+    # Women|Non-menstr
+    bootobs$women_nonmens[[i]] <- boot(fer_crp_omit_OC %>% filter(Group == "Women|Non-menstr" & Cohort == "H2000"), statistic = get_ratio_boot, R = boot_n, 
+                                var1 = Ferritin, var2 = CRP, var1_trld = ferritin_values[i], var2_trld = CRP_trld, var2_over = T)
+    ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+    
+    ## Store
+    # Men
+    means_men[i] <- bootobs$men[[i]]$t0
+    upper_men[i] <- ci_obj_men$normal[3]
+    lower_men[i] <- ci_obj_men$normal[2]
+    # Women|Menstr
+    means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+    upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+    lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+    # Women|Non-menstr
+    means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+    upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+    lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_mens, means_women_nonmens),
+                                 upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                 lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                 Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))    
+    
+    
+    }
+    
+    # Save
+    saveRDS(bootobs, paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED", boot_n, ".rds"))
+} else {
+    bootobs <- readRDS(paste0("~/CRP_enrichment/data/PUBL_health2k_CRP_OC_OMITTED", boot_n, ".rds"))
+    
+    ## Preallocate
+    # Men
+    means_men <- 1:iterations
+    upper_men <- 1:iterations
+    lower_men <- 1:iterations
+    # Women|Menstr
+    means_women_mens <- 1:iterations
+    upper_women_mens <- 1:iterations
+    lower_women_mens <- 1:iterations
+    # Women|Non-menstr
+    means_women_nonmens <- 1:iterations
+    upper_women_nonmens <- 1:iterations
+    lower_women_nonmens <- 1:iterations
+    
+    for (i in 1:iterations) {
+        ci_obj_men <- boot.ci(bootobs$men[[i]], type = "norm")
+        ci_obj_women_mens <- boot.ci(bootobs$women_mens[[i]], type = "norm")
+        ci_obj_women_nonmens <- boot.ci(bootobs$women_nonmens[[i]], type = "norm")
+        # Store
+        means_men[i] <- bootobs$men[[i]]$t0
+        upper_men[i] <- ci_obj_men$normal[3]
+        lower_men[i] <- ci_obj_men$normal[2]
+        means_women_mens[i] <- bootobs$women_mens[[i]]$t0
+        upper_women_mens[i] <- ci_obj_women_mens$normal[3]
+        lower_women_mens[i] <- ci_obj_women_mens$normal[2]
+        means_women_nonmens[i] <- bootobs$women_nonmens[[i]]$t0
+        upper_women_nonmens[i] <- ci_obj_women_nonmens$normal[3]
+        lower_women_nonmens[i] <- ci_obj_women_nonmens$normal[2]
+    }
+    # Combine
+    means_health2k <- data.frame(Ferritin = rep(ferritin_values, 3),
+                                 means = c(means_men, means_women_mens, means_women_nonmens),
+                                 upper = c(upper_men, upper_women_mens, upper_women_nonmens),
+                                 lower = c(lower_men, lower_women_mens, lower_women_nonmens),
+                                 Gender = c(rep("Men", iterations), rep("Women|Menstr", iterations), rep("Women|Non-menstr", iterations)))
+    }
+
+means_all_OC <- rbind(means_finrisk, means_health2k)
+means_all_OC$Cohort <- c(rep("FR97", 153), rep("H2000", 153))
+means_all_OC$Group <- factor(means_all_OC$Gender, levels = c("Women|Menstr", "Women|Non-menstr", "Men"))
+```
+
+# Proportion analysis plot
+
+```{r ratio_plot_separated_OC}
+p <- ggplot(data = means_all_OC, aes(x = Ferritin, y = means)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
     geom_line(aes(linetype = Group)) +
-    #geom_point(aes(color = Group)) +
-    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
-                       limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
-    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
-                      limits = c( "Men",  "Women|Non-menstr", "Women|Menstr" )) +
     theme_minimal() +
     facet_grid(rows = vars(Group), cols = vars(Cohort)) +
     labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
-         y = "Change (pp)") +
-    theme(legend.position = "none",
-          text = element_text(size = 15))
+         y = "Change (pp)") + 
+    guides(linetype = "none") + 
+    theme(text = element_text(size = 15))
 
 # Save
-svg("~/CRP_enrichment/results/ratio_plot_separated_colored.svg",
-    width = 10,
-    height = 7,
-    bg = "transparent")
+# svg("~/CRP_enrichment/results/ratio_plot_separated_rescaled.svg",
+#     width = 7,
+#     height = 4.9,
+#     bg = "transparent")
+# p
+# dev.off() -> . # so we avoid output
+
+p
+```
+
+# Checking statistical significance at points of interest
+
+IMPORTANT: We are checking for non-overlaps of 95% confidence intervals. These intervals have been derived from `r boot_n` bootstrap samples using normal approximation. Normal approximation relies on the assumption, that our bootstrapped estimates are normally distributed, which we have confirmed separately using both visual assessment (a histogram) and a standard Shapiro-Wilk test.
+
+```{r signif_check}
+# FINRISK
+# Menstruating Women
+frwomenpre5 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 5)
+frwomenpre15 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 15)
+frwomenpre30 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 30)
+frwomenpre50 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Menstr" & Ferritin == 50)
+
+# Non-menstruating Women
+frwomenpost5 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 5)
+frwomenpost15 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 15)
+frwomenpost30 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 30)
+frwomenpost50 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Women|Non-menstr" & Ferritin == 50)
+
+# Men
+frmen5 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 5)
+frmen15 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 15)
+frmen30 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 30)
+frmen50 <- means_all_OC %>% filter(Cohort == "FR97" & Group == "Men" & Ferritin == 50)
+
+# H2K
+# Menstruating Women
+h2kwomenpre5 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 5)
+h2kwomenpre15 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 15)
+h2kwomenpre30 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 30)
+h2kwomenpre50 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Menstr" & Ferritin == 50)
+
+# Non-menstruating Women
+h2kwomenpost5 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 5)
+h2kwomenpost15 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 15)
+h2kwomenpost30 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 30)
+h2kwomenpost50 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Women|Non-menstr" & Ferritin == 50)
+
+# Men
+h2kmen5 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 5)
+h2kmen15 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 15)
+h2kmen30 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 30)
+h2kmen50 <- means_all_OC %>% filter(Cohort == "H2000" & Group == "Men" & Ferritin == 50)
+
+```
+
+
+Normal results continue from here.
+
+# Proportion analysis plot \| COLORED
+
+```{r ratio_plot_separated_colored}
+means_all$recoded <- recode_factor(means_all$Group, "Women|Menstr" = "Women\nMenstr", "Women|Non-menstr" = "Women\nNon-menstr")
+
+p <- ggplot(data = means_all, aes(x = Ferritin, y = means)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper, fill = recoded), alpha = .3) +
+    geom_line(aes(linetype = recoded)) +
+    #geom_point(aes(color = Group)) +
+    scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
+                       limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
+    scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
+                      limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
+    theme_minimal() +
+    facet_grid(rows = vars(recoded), cols = vars(Cohort)) +
+    labs(x = expression(paste("Ferritin (", mu, "g/l)")), 
+         y = "Change (pp)") +
+    theme(legend.position = "none",
+          text = element_text(size = 19))
+
+# Save
+# svg("~/CRP_enrichment/results/ratio_plot_separated_colored_rescaled.svg",
+#     width = 7,
+#     height = 4.9,
+#     bg = "transparent")
+# p
+# dev.off() -> . # so we avoid output
+# 
+# p
+
+png("~/CRP_enrichment/results/ratio_plot_separated_colored_rescaled.png",
+    width = 600,
+    height = 420)
 p
 dev.off() -> . # so we avoid output
 
 p
+
+# q <- ggplot(data = means_all %>% filter(Group == "Women|Menstr" & Cohort == "H2000") , aes(x = Ferritin, y = means)) +
+#     geom_ribbon(aes(ymin = lower, ymax = upper, fill = recoded), alpha = .3) +
+#     geom_line(aes(linetype = recoded), linewidth = 2) +
+#     scale_color_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
+#                        limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
+#     scale_fill_manual(values = c( "#495867",  "#BDD358", "#FE5F55" ),
+#                       limits = c( "Men",  "Women\nNon-menstr", "Women\nMenstr" )) +
+#     theme_minimal() +
+#     #facet_grid(rows = vars(recoded), cols = vars(Cohort)) +
+#     labs(x = expression(paste("Ferritin (", mu, "g/l)")),
+#          y = "Change (pp)") +
+#     theme(legend.position = "none",
+#           text = element_text(size = 30))
+# 
+# png("~/CRP_enrichment/results/ratio_plot_women_menstr.png",
+#     width = 800,
+#     height = 420)
+# q
+# dev.off() -> . # so we avoid output
+# 
+# q
 ```
 
 # Proportion analysis plot \| COLORED & ALL-IN-1
